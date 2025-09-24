@@ -1,5 +1,5 @@
 [build]
-  publish = "."       # root publish for static site (adjust if your built files are in 'dist' or 'public')
+  publish = "."       # roots publish for static site (adjust if your built files are in 'dist' or 'public')
   functions = "netlify/functions"
 
 [dev]
