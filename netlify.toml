@@ -6,6 +6,5 @@
   command = "netlify dev"
   port = 8888
 
-
 [build.environment]
 SECRETS_SCAN_OMIT_PATHS = "netlify/functions/capture-paypal-order.js netlify/functions/create-paypal-order.js netlify/functions/get-paypal-order.js"
