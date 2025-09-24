@@ -1,0 +1,136 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Payment Successful — TrendAura Social</title>
+  <link rel="stylesheet" href="css/styles.css" />
+  <style>
+    body { font-family: Arial, sans-serif; padding:20px; color:#222; background:#fafafa; }
+    .container { max-width:900px; margin:0 auto; }
+    .summary { border:1px solid #eee; padding:16px; border-radius:6px; background:#fff; }
+    .item { display:flex; gap:12px; align-items:center; margin-bottom:12px; }
+    .item img { width:80px; height:80px; object-fit:cover; border-radius:4px; border:1px solid #ddd; }
+    .meta { flex:1; }
+    .total { font-weight:700; margin-top:8px; }
+    .note { color:#666; margin-top:12px; font-size:0.95rem; }
+    .btn { display:inline-block; margin-top:12px; padding:8px 12px; background:#0077cc; color:#fff; text-decoration:none; border-radius:4px; }
+    pre { background:#f2f2f2; padding:8px; border-radius:6px; overflow:auto; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Thank you — Payment Successful</h1>
+      <p><a href="index.html">Continue shopping</a> | <a href="shop.html">Shop</a></p>
+    </header>
+
+    <section id="confirmation" class="summary">
+      <p>Loading order details…</p>
+    </section>
+
+    <section class="note">
+      <p>If you need help, email <strong>support@trendaurasocial.com</strong> and include the order reference shown below.</p>
+    </section>
+  </div>
+
+  <script>
+  (async function () {
+    const params = new URLSearchParams(window.location.search);
+    const orderId = params.get('paypal_order_id'); // set by your client after capture
+    const container = document.getElementById('confirmation');
+
+    function fmt(amount, currency='USD') {
+      try {
+        return new Intl.NumberFormat('en-US', { style: 'currency', currency }).format(amount);
+      } catch (e) {
+        return (currency || 'USD') + ' ' + (amount || '0.00');
+      }
+    }
+
+    if (!orderId) {
+      // No order id — show fallback message and client-side cart summary if present
+      const cart = JSON.parse(localStorage.getItem('cart') || '[]');
+      if (!cart.length) {
+        container.innerHTML = '<h2>Payment Complete</h2><p>Your payment was processed. No order id was provided in the URL.</p>';
+      } else {
+        let html = '<h2>Order Received (Client-side summary)</h2>';
+        cart.forEach(ci => {
+          html += `<div class="item">
+            <img src="${ci.images?.[0] || '/assets/images/placeholder.png'}" alt="">
+            <div class="meta">
+              <div><strong>${ci.title}</strong></div>
+              <div>Quantity: ${ci.quantity}</div>
+              <div>Subtotal: ${fmt(ci.price * ci.quantity, ci.currency)}</div>
+            </div>
+          </div>`;
+        });
+        const total = cart.reduce((s,i)=> s + i.price*i.quantity, 0);
+        html += `<p class="total">Total: ${fmt(total, cart[0]?.currency || 'USD')}</p>`;
+        html += '<p class="note">This is a client-side summary. The official receipt comes from PayPal and is verified server-side.</p>';
+        container.innerHTML = html;
+        // clear local cart
+        try { localStorage.removeItem('cart'); } catch(e) {}
+      }
+      return;
+    }
+
+    // We have an order id — verify server-side via Netlify function
+    try {
+      const res = await fetch('/.netlify/functions/get-paypal-order?order_id=' + encodeURIComponent(orderId));
+      if (!res.ok) {
+        const errText = await res.text();
+        container.innerHTML = '<p>Unable to fetch order details. Please contact support and include the order id below.</p>'
+          + `<p>Order id: <code>${orderId}</code></p>`
+          + `<pre>${errText}</pre>`;
+        console.error('get-paypal-order error', errText);
+        return;
+      }
+      const order = await res.json();
+
+      // Build confirmation UI from PayPal order info
+      let html = `<h2>Order Confirmed</h2>`;
+      html += `<p><strong>Order ID:</strong> ${order.id}</p>`;
+      html += `<p><strong>Status:</strong> ${order.status}</p>`;
+
+      // Purchase units and captures
+      if (order.purchase_units && order.purchase_units.length) {
+        order.purchase_units.forEach((pu, idx) => {
+          html += `<h3>Purchase Unit ${idx+1}</h3>`;
+          if (pu.amount) {
+            html += `<p><strong>Amount:</strong> ${pu.amount.currency_code} ${pu.amount.value}</p>`;
+          }
+          // If capture details are present:
+          if (pu.payments && pu.payments.captures && pu.payments.captures.length) {
+            pu.payments.captures.forEach(cap => {
+              html += `<div class="item">
+                <div class="meta">
+                  <div><strong>Capture ID:</strong> ${cap.id}</div>
+                  <div>Captured amount: ${cap.amount.currency_code} ${cap.amount.value}</div>
+                  <div>Seller protection: ${JSON.stringify(cap.seller_protection || {})}</div>
+                </div>
+              </div>`;
+            });
+          }
+        });
+      }
+
+      // Show payer info if available
+      if (order.payer) {
+        html += `<h3>Payer</h3>`;
+        html += `<p>${order.payer.name?.given_name || ''} ${order.payer.name?.surname || ''} (${order.payer.email_address || ''})</p>`;
+      }
+
+      html += `<p class="note">Receipt will also be sent by PayPal to the buyer's email address if available.</p>`;
+      container.innerHTML = html;
+
+      // clear local cart (client-side)
+      try { localStorage.removeItem('cart'); } catch (e) {}
+
+    } catch (err) {
+      container.innerHTML = `<p>There was an error verifying your order. Please contact support and include this order id: <code>${orderId}</code></p>`;
+      console.error(err);
+    }
+  })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,16 @@
+{
+  "name": "trendaurasocial-site",
+  "version": "1.0.0",
+  "description": "E-commerce site with PayPal checkout, deployed on Netlify",
+  "main": "index.js",
+  "scripts": {
+    "dev": "netlify dev",
+    "build": "echo 'Static site — no build step'",
+    "start": "netlify dev"
+  },
+  "author": "Your Name",
+  "license": "MIT",
+  "dependencies": {
+    "node-fetch": "^2.6.7"
+  }
+}
