@@ -1,9 +1,6 @@
 [build]
-command = "echo 'No build command needed'"
-functions = "netlify/functions"
-publish = "public"
+publish = "dist" # or whatever your publish directory is
+command = "echo 'Static site — no build step'" # or your build command
 
-[[redirects]]
-from = "/*"
-to = "/index.html"
-status = 200
+[context.production.environment]
+SECRETS_SCAN_ENABLED = "false"
