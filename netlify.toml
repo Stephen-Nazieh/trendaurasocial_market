@@ -1,5 +1,5 @@
 [build]
-publish = "dist" # or whatever your publish directory is
+publish = "." # or whatever your publish directory is
 command = "echo 'Static site — no build step'" # or your build command
 
 [context.production.environment]
