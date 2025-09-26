@@ -1,0 +1,26 @@
+# Node modules
+node_modules/
+
+# Local environment variables
+.env
+.env.*.local
+
+# Netlify local dev files
+.netlify/
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# OS / Editor junk
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+
+# Build / cache
+dist/
+build/
+.cache/
