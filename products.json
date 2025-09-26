@@ -18,6 +18,7 @@
       "color": ["Beige","Gray"]
     }
   },
+
   {
     "id": "p2",
     "slug": "classic-watch",
@@ -34,6 +35,45 @@
     "details": {
       "movement": "Quartz",
       "water_resistant": "50m"
+    }
+  },
+
+  {
+    "id": "p3",
+    "slug": "wireless-headphones",
+    "title": "Wireless Headphones",
+    "description": "Noise-cancelling, Bluetooth 5.0, 30h battery life.",
+    "price": 79.99,
+    "currency": "USD",
+    "images": [
+      "/assets/images/wireless-headphones/1.jpg",
+      "/assets/images/wireless-headphones/2.jpg",
+      "/assets/images/wireless-headphones/3.jpg",
+      "/assets/images/wireless-headphones/4.jpg"
+    ],
+    "details": {
+      "Brand": "TrendAura",
+      "Category": "Electronics",
+      "Warranty": "1 Year"
+    }
+  },
+  {
+    "id": "p4",
+    "slug": "smartwatch-pro",
+    "title": "Smartwatch Pro",
+    "description": "Heart rate monitor, GPS, waterproof.",
+    "price": 129.00,
+    "currency": "USD",
+    "images": [
+      "/assets/images/smartwatch-pro/1.jpg",
+      "/assets/images/smartwatch-pro/2.jpg",
+      "/assets/images/smartwatch-pro/3.jpg",
+      "/assets/images/smartwatch-pro/4.jpg"
+    ],
+    "details": {
+      "Brand": "TrendAura",
+      "Category": "Electronics",
+      "Warranty": "1 Year"
     }
   }
 ]
