@@ -274,3 +274,34 @@ a:focus, button:focus, .thumb:focus { outline:3px solid rgba(0,123,255,0.12); ou
 .mt-8 { margin-top:8px; }
 .mb-8 { margin-bottom:8px; }
 .p-12 { padding:12px; }
+
+
+/* Toast notifications */
+#toast-container {
+  position: fixed;
+  right: 18px;
+  bottom: 18px;
+  z-index: 99999;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-width: 320px;
+  pointer-events: none;
+}
+.toast {
+  pointer-events: auto;
+  background: #0b6cff;
+  color: #fff;
+  padding: 10px 14px;
+  border-radius: 10px;
+  box-shadow: 0 8px 20px rgba(12,20,40,0.12);
+  font-weight:600;
+  transform-origin: 100% 100%;
+  animation: toast-in .28s cubic-bezier(.2,.9,.3,1);
+}
+.toast.success { background: linear-gradient(90deg, #0b6cff, #0077cc); }
+.toast.small { font-size: 0.95rem; font-weight:600; }
+@keyframes toast-in {
+  from { transform: translateY(12px) scale(.98); opacity: 0; }
+  to   { transform: translateY(0) scale(1); opacity: 1; }
+}
