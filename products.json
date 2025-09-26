@@ -7,10 +7,10 @@
     "currency": "USD",
     "description": "Warm and stylish sweater made from organic cotton.",
     "images": [
-      "/assets/images/cozy-sweater/1.jpg",
-      "/assets/images/cozy-sweater/2.jpg",
-      "/assets/images/cozy-sweater/3.jpg",
-      "/assets/images/cozy-sweater/4.jpg"
+      "/assets/images/cozy-sweater/IMG_1072.WebP",
+      "/assets/images/cozy-sweater/IMG_1073.WebP",
+      "/assets/images/cozy-sweater/IMG_1074.WebP",
+      "/assets/images/cozy-sweater/IMG_1075.WebP"
     ],
     "details": {
       "material": "Organic Cotton",
@@ -26,10 +26,10 @@
     "currency": "USD",
     "description": "Minimalist watch with genuine leather strap.",
     "images": [
-      "/assets/images/classic-watch/1.jpg",
-      "/assets/images/classic-watch/2.jpg",
-      "/assets/images/classic-watch/3.jpg",
-      "/assets/images/classic-watch/4.jpg"
+      "/assets/images/classic-watch/IMG_1072.jpg",
+      "/assets/images/classic-watch/IMG_1072.jpg",
+      "/assets/images/classic-watch/IMG_1072.jpg",
+      "/assets/images/classic-watch/IMG_1072.jpg"
     ],
     "details": {
       "movement": "Quartz",
