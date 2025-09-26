@@ -1,16 +1,16 @@
 [
   {
     "id": "p1",
-    "slug": "cozy-sweater",
-    "title": "Cozy Oversized Sweater",
+    "slug": "Go-Kart",
+    "title": "Go-Kart",
     "price": 49.99,
     "currency": "USD",
-    "description": "Warm and stylish sweater made from organic cotton.",
+    "description": "Fastest G-Kart.",
     "images": [
-      "/assets/images/Go-Kart 1/IMG_1072.WebP",
-      "/assets/images/Go-Kart 2/IMG_1073.WebP",
-      "/assets/images/Go-Kart 3/IMG_1074.WebP",
-      "/assets/images/Go-Kart 3/IMG_1075.WebP"
+      "/assets/images/Go-Kart/IMG_1072.WebP",
+      "/assets/images/Go-Kart/IMG_1073.WebP",
+      "/assets/images/Go-Kart/IMG_1074.WebP",
+      "/assets/images/Go-Kart/IMG_1075.WebP"
     ],
     "details": {
       "material": "Organic Cotton",
