@@ -1,170 +1,169 @@
 [
   {
     "id": "p1",
-    "slug": "Go-Kart",
+    "slug": "go-kart",
     "title": "Go-Kart",
     "price": 49.99,
     "currency": "USD",
-    "description": "Fastest G-Kart.",
+    "description": "High-speed go-kart for maximum fun.",
     "category": "go-karts",
+    "featured": true,
     "images": [
-      "/assets/images/Go-Kart/gocart1.WEBP",
-      "/assets/images/Go-Kart/gocart2.WEBP",
-      "/assets/images/Go-Kart/gocart3.WEBP",
-      "/assets/images/Go-Kart/gocart4.WEBP"
+      "/assets/images/go-kart/gocart1.webp",
+      "/assets/images/go-kart/gocart2.webp",
+      "/assets/images/go-kart/gocart3.webp",
+      "/assets/images/go-kart/gocart4.webp"
     ],
     "details": {
-      "material": "Organic Cotton",
-      "sizes": ["S","M","L","XL"],
-      "color": ["Beige","Gray"]
+      "Brand": "TrendAura",
+      "Material": "Steel frame",
+      "Warranty": "1 Year"
     }
   },
-
   {
     "id": "p2",
-    "slug": "Go Accessories",
-    "title": "Accessories for go-kart",
+    "slug": "go-kart-accessories",
+    "title": "Go-Kart Accessories",
     "price": 129.00,
     "currency": "USD",
-    "description": "The perfect accessories for your go kart",
-    "category": "go-karts accessories",
+    "description": "Essential accessories pack for your go-kart.",
+    "category": "go-kart-accessories",
+    "featured": false,
     "images": [
-      "/assets/images/Go-Accessories/IMG_1072.WEBP",
-      "/assets/images/Go-Accessories/IMG_1073.WEBP",
-      "/assets/images/Go-Accessories/IMG_1075.WEBP",
-      "/assets/images/Go-Accessories/IMG_1078.WEBP"
+      "/assets/images/go-accessories/img_1072.webp",
+      "/assets/images/go-accessories/img_1073.webp",
+      "/assets/images/go-accessories/img_1075.webp",
+      "/assets/images/go-accessories/img_1078.webp"
     ],
     "details": {
-      "movement": "metallic strong",
-      "water_resistant": "50m"
+      "Includes": "Helmet, Gloves, Seat Belt",
+      "Warranty": "6 Months"
     }
   },
-
-
-
   {
     "id": "p3",
-    "slug": "Lithium Battery",
+    "slug": "lithium-battery",
     "title": "Lithium Battery",
-    "description": "High power battery",
-    "category": "go-karts accessories",
+    "description": "High power rechargeable lithium battery.",
+    "category": "go-kart-accessories",
     "price": 79.99,
     "currency": "USD",
+    "featured": false,
     "images": [
-      "/assets/images/Go-Battery1/IMG_1076.WEBP",
-      "/assets/images/Go-Battery1/IMG_1077.WEBP",
-      "/assets/images/Go-Battery1/IMG_1079.WEBP",
-      "/assets/images/Go-Battery1/IMG_1080.WEBP"
+      "/assets/images/go-battery1/img_1076.webp",
+      "/assets/images/go-battery1/img_1077.webp",
+      "/assets/images/go-battery1/img_1079.webp",
+      "/assets/images/go-battery1/img_1080.webp"
     ],
     "details": {
       "Brand": "TrendAura",
-      "Category": "Electronics",
+      "Type": "Lithium-ion",
       "Warranty": "1 Year"
     }
   },
-
-  
   {
     "id": "p4",
-    "slug": "Hydro Battery",
-    "title": "Battery",
-    "description": "High retention battery",
-    "category": "go-karts accessories",
+    "slug": "hydro-battery",
+    "title": "Hydro Battery",
+    "description": "High retention hydro battery.",
+    "category": "go-kart-accessories",
     "price": 129.00,
     "currency": "USD",
+    "featured": false,
     "images": [
-      "/assets/images/Go-Battery2/IMG_1077.WEBP",
-      "/assets/images/Go-Battery2/IMG_1109.WEBP",
-      "/assets/images/Go-Battery2/IMG_1111.WEBP",
-      "/assets/images/Go-Battery2/IMG_1113.WEBP"
+      "/assets/images/go-battery2/img_1077.webp",
+      "/assets/images/go-battery2/img_1109.webp",
+      "/assets/images/go-battery2/img_1111.webp",
+      "/assets/images/go-battery2/img_1113.webp"
     ],
     "details": {
       "Brand": "TrendAura",
-      "Category": "Electronics",
+      "Type": "Hydro",
       "Warranty": "1 Year"
     }
   },
-
-
   {
     "id": "p5",
-    "slug": "Go-Kart",
-    "title": "Go-Kart",
-    "price": 49.99,
+    "slug": "go-battery-kit",
+    "title": "Go-Battery Kit",
+    "description": "Complete kit with multiple high-performance batteries.",
+    "category": "go-kart-accessories",
+    "price": 99.00,
     "currency": "USD",
-    "description": "Fastest G-Kart.",
-    "category": "go-karts accessories",
+    "featured": false,
     "images": [
-      "/assets/images/Go-Battery3/IMG_1079.WEBP",
-      "/assets/images/Go-Battery2/IMG_1080.WEBP",
-      "/assets/images/Go-Battery2/IMG_1110.WEBP",
-      "/assets/images/Go-Battery2/IMG_1112.WEBP"
+      "/assets/images/go-battery3/img_1079.webp",
+      "/assets/images/go-battery2/img_1080.webp",
+      "/assets/images/go-battery2/img_1110.webp",
+      "/assets/images/go-battery2/img_1112.webp"
     ],
     "details": {
-      "material": "Organic Cotton",
-      "sizes": ["S","M","L","XL"],
-      "color": ["Beige","Gray"]
+      "Brand": "TrendAura",
+      "Type": "Mixed Pack",
+      "Warranty": "1 Year"
     }
   },
-
   {
     "id": "p6",
-    "slug": "Tesla",
+    "slug": "tesla-model-3",
     "title": "Tesla Model 3",
-    "price": 129.00,
+    "price": 35000.00,
     "currency": "USD",
-    "description": "Tesla model 3 with the best performane.",
+    "description": "Tesla Model 3 with top performance.",
     "category": "cars",
+    "featured": true,
     "images": [
-      "/assets/images/Tesla1/IMG_1007.JPG",
-      "/assets/images/Tesla1/IMG_1008.JPG",
-      "/assets/images/Tesla1/IMG_1009.JPG",
-      "/assets/images/Tesla1/IMG_1012.JPG"
+      "/assets/images/tesla1/img_1007.jpg",
+      "/assets/images/tesla1/img_1008.jpg",
+      "/assets/images/tesla1/img_1009.jpg",
+      "/assets/images/tesla1/img_1012.jpg"
     ],
     "details": {
-      "movement": "Tesla",
-      "water_resistant": "50m"
+      "Brand": "Tesla",
+      "Range": "358 miles",
+      "Warranty": "4 Years"
     }
   },
-
   {
     "id": "p7",
-    "slug": "Tesla Model Y",
+    "slug": "tesla-model-y",
     "title": "Tesla Model Y",
-    "description": "Electric cars of the future",
+    "description": "Electric SUV of the future.",
     "category": "cars",
-    "price": 79.99,
+    "price": 42000.00,
     "currency": "USD",
+    "featured": true,
     "images": [
-      "/assets/images/Tesla2/IMG_1007.JPG",
-      "/assets/images/Tesla2/IMG_1007.JPG",
-      "/assets/images/Tesla2/IMG_1007.JPG",
-      "/assets/images/Tesla2/IMG_1007.JPG"
+      "/assets/images/tesla2/img_1007.jpg",
+      "/assets/images/tesla2/img_1008.jpg",
+      "/assets/images/tesla2/img_1009.jpg",
+      "/assets/images/tesla2/img_1010.jpg"
     ],
     "details": {
-      "Brand": "TrendAura",
-      "Category": "Electronics",
-      "Warranty": "1 Year"
+      "Brand": "Tesla",
+      "Range": "330 miles",
+      "Warranty": "4 Years"
     }
   },
-
   {
     "id": "p8",
-    "slug": "Tesla Model X",
+    "slug": "tesla-model-x",
     "title": "Tesla Model X",
-    "description": "Eletric Car",
-    "price": 129.00,
+    "description": "Luxury electric SUV with falcon doors.",
+    "category": "cars",
+    "price": 89999.00,
     "currency": "USD",
+    "featured": false,
     "images": [
-      "/assets/images/Tesla3/IMG_1015.JPG",
-      "/assets/images/Tesla3/IMG_1074.WEBP",
-      "/assets/images/Tesla3/IMG_1076.WEBP",
-      "/assets/images/Tesla3/IMG_1078.WEBP"
+      "/assets/images/tesla3/img_1015.jpg",
+      "/assets/images/tesla3/img_1074.webp",
+      "/assets/images/tesla3/img_1076.webp",
+      "/assets/images/tesla3/img_1078.webp"
     ],
     "details": {
-      "Brand": "TrendAura",
-      "Category": "Electronics",
-      "Warranty": "1 Year"
+      "Brand": "Tesla",
+      "Range": "348 miles",
+      "Warranty": "4 Years"
     }
   }
 ]

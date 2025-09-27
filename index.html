@@ -5,24 +5,12 @@
   <title>TrendAura Social — Home</title>
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <link rel="stylesheet" href="/css/styles.css" />
-  <style>
-    .hero-cta { display:flex; gap:12px; align-items:center; margin-top:8px; }
-    .hero .tag { background:#eef8ff; color:var(--brand-dark); padding:6px 10px; border-radius:8px; font-weight:700; display:inline-block; }
-    .featured-title { display:flex; align-items:center; justify-content:space-between; gap:12px; margin: 14px 0; }
-    .see-all { font-size:0.95rem; color:var(--muted); text-decoration:none; }
-    /* inline tweaks for the filter area */
-    .filters-row { display:flex; gap:12px; align-items:center; flex-wrap:wrap; }
-    .filters-row label { font-size:0.95rem; color:var(--muted); }
-    .filters-row select { margin-left:8px; padding:6px 8px; border-radius:8px; border:1px solid #e6eef8; background:#fff; }
-  </style>
 </head>
 <body>
-  <!-- Header (unchanged top nav) -->
+  <!-- Header -->
   <header class="header" role="banner">
     <div class="inner">
-      <a class="brand" href="index.html">
-        <h1>TrendAura Social</h1>
-      </a>
+      <a class="brand" href="index.html"><h1>TrendAura Social</h1></a>
       <nav class="nav" role="navigation" aria-label="Main">
         <a href="index.html">Home</a>
         <a href="shop.html">Shop</a>
@@ -31,77 +19,105 @@
     </div>
   </header>
 
-  <!-- Hero -->
-  <section class="container hero" aria-label="Intro">
-    <div class="inner" style="width:100%; padding:12px 0;">
-      <div style="flex:1">
-        <div class="tag">New Arrivals</div>
-        <h2 style="margin-top:12px; margin-bottom:8px;">Quality gear, curated for you</h2>
-        <p class="small" style="max-width:58ch; margin-bottom:12px;">Discover our curated selection of go-karts, cars, and accessories — designed to make everyday life more fun and functional.</p>
-        <div class="hero-cta">
-          <a class="btn" href="shop.html">Shop All</a>
-          <a class="see-all" href="shop.html">Browse the full collection →</a>
-        </div>
-      </div>
-      <div style="width:360px; display:flex; align-items:center; justify-content:center;">
-        <img src="/assets/images/featured/hero-product.jpg" alt="Featured product" style="width:100%; height:auto; max-width:360px; border-radius:12px; box-shadow:var(--shadow); object-fit:cover;">
+  <!-- Hero / Intro -->
+  <section class="hero">
+    <div class="inner container">
+      <div>
+        <h2>Welcome to TrendAura Social</h2>
+        <p>Premium Go-Karts, Accessories, and Electric Cars.</p>
       </div>
     </div>
   </section>
 
-  <!-- Filters (inside content, above product grid) -->
-  <section class="container" style="margin:12px 0 6px 0;">
-    <div class="filters-row">
-      <label>
-        Menu:
-        <select id="menu-selector">
-          <option value="all">All</option>
-          <!-- catalog.js will populate additional categories automatically -->
-        </select>
-      </label>
-
-      <label>
-        Sort by:
-        <select id="sort-by">
-          <option value="featured">Featured</option>
-          <option value="price-asc">Price: Low to High</option>
-          <option value="price-desc">Price: High to Low</option>
-          <option value="name-asc">Name: A → Z</option>
-          <option value="name-desc">Name: Z → A</option>
-        </select>
-      </label>
-    </div>
-  </section>
-
-  <!-- Featured products grid -->
-  <main class="container" role="main">
-    <div class="featured-title">
-      <h2>Featured Products</h2>
-      <a class="see-all" href="shop.html">See all products</a>
-    </div>
-
-    <div id="product-grid" class="product-grid" aria-live="polite">
-      <!-- js/catalog.js will render product-card elements here -->
-    </div>
-
-    <div id="no-products" class="empty" style="display:none;">No products found.</div>
+  <!-- Featured Products -->
+  <main class="container" id="main">
+    <h2>Featured Products</h2>
+    <div id="featured-products" class="product-grid"></div>
   </main>
 
   <!-- Footer -->
   <footer class="footer">
-    <div class="container">
-      &copy; <span id="year"></span> TrendAura Social — All rights reserved.
-    </div>
+    <div class="container">&copy; <span id="year"></span> TrendAura Social</div>
   </footer>
 
-  <!-- Scripts: products/cart/toast before catalog -->
-  <script src="/js/products.js"></script>
-  <script src="/js/cart.js"></script>
-  <script src="/js/toast.js"></script>
-  <script src="/js/catalog.js"></script>
+  <!-- JS -->
   <script>
-    // set page year if not handled elsewhere
-    document.getElementById('year').textContent = new Date().getFullYear();
+    // Utility for escaping HTML
+    function escapeHtml(str) {
+      if (str === undefined || str === null) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
+    }
+
+    // Render products into a target container
+    function renderProducts(products, targetId) {
+      const container = document.getElementById(targetId);
+      if (!products.length) {
+        container.innerHTML = "<p>No products available.</p>";
+        return;
+      }
+
+      const html = products.map(p => `
+        <div class="product-card">
+          <a href="product.html?slug=${encodeURIComponent(p.slug)}" class="product-media">
+            <img src="${escapeHtml(p.images[0])}" alt="${escapeHtml(p.title)}">
+          </a>
+          <div class="product-info">
+            <a href="product.html?slug=${encodeURIComponent(p.slug)}" class="product-title">${escapeHtml(p.title)}</a>
+            <p class="product-desc">${escapeHtml(p.description)}</p>
+            <div class="price-row">
+              <span class="price">$${p.price.toFixed(2)}</span>
+              <button class="btn" onclick="addToCart('${p.id}')">Add to Cart</button>
+            </div>
+          </div>
+        </div>
+      `).join("");
+
+      container.innerHTML = html;
+    }
+
+    // Add to cart
+    function getCart() {
+      try { return JSON.parse(localStorage.getItem('cart') || '[]'); }
+      catch (e) { return []; }
+    }
+    function saveCart(cart) {
+      localStorage.setItem('cart', JSON.stringify(cart));
+    }
+    function addToCart(id) {
+      fetch('/products.json')
+        .then(res => res.json())
+        .then(products => {
+          const product = products.find(p => p.id === id);
+          if (!product) return;
+          const cart = getCart();
+          const existing = cart.find(item => item.id === id);
+          if (existing) {
+            existing.quantity = (existing.quantity || 1) + 1;
+          } else {
+            cart.push({ ...product, quantity: 1 });
+          }
+          saveCart(cart);
+          alert(product.title + " added to cart!");
+        });
+    }
+
+    // Load featured products
+    document.addEventListener("DOMContentLoaded", () => {
+      document.getElementById('year').textContent = new Date().getFullYear();
+
+      fetch('/products.json')
+        .then(res => res.json())
+        .then(products => {
+          const featured = products.filter(p => p.featured);
+          renderProducts(featured, "featured-products");
+        })
+        .catch(err => console.error("Error loading products:", err));
+    });
   </script>
 </body>
 </html>
