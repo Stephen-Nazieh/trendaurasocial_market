@@ -43,142 +43,16 @@
     </div>
   </footer>
 
-  <!-- Scripts -->
+  <!-- SCRIPT: product rendering logic (keeps JS inside proper <script> tag) -->
   <script>
-  // helper: read query param
-  function getQueryParam(name) {
-    const params = new URLSearchParams(window.location.search);
-    return params.get(name);
-  }
+  (function () {
+    'use strict';
 
-  <script src="/js/toast.js"></script>
-
-  (async function renderProductPage() {
-    const slug = getQueryParam('slug');
-    const container = document.getElementById('product-container');
-    const yearSpan = document.getElementById('year');
-    if (yearSpan) yearSpan.textContent = new Date().getFullYear();
-
-    if (!slug) {
-      container.innerHTML = '<div class="detail-card"><p class="small">No product specified. <a href="shop.html">Return to shop</a>.</p></div>';
-      return;
+    function getQueryParam(name) {
+      const params = new URLSearchParams(window.location.search);
+      return params.get(name);
     }
 
-    try {
-      const res = await fetch('/products.json');
-      if (!res.ok) throw new Error('Could not load products.json');
-      const products = await res.json();
-      const product = products.find(p => p.slug === slug);
-
-      if (!product) {
-        container.innerHTML = '<div class="detail-card"><p class="small">Product not found. <a href="shop.html">Back to shop</a>.</p></div>';
-        return;
-      }
-
-      // Ensure at least 4 images (if fewer supplied, duplicate first)
-      const images = Array.isArray(product.images) && product.images.length ? product.images.slice() : ['/assets/images/placeholder.png'];
-      while (images.length < 4) images.push(images[0]);
-
-      // Build HTML markup
-      container.innerHTML = `
-        <div class="product-detail">
-          <div class="gallery" aria-label="Product gallery">
-            <div class="main" id="main-image-wrap" tabindex="0" aria-live="polite">
-              <img id="main-image" src="${escapeHtml(images[0])}" alt="${escapeHtml(product.title)}">
-            </div>
-            <div class="thumbs" id="thumbs">
-              ${images.map((img, i) => `<button class="thumb" data-index="${i}" aria-label="View image ${i+1}"><img src="${escapeHtml(img)}" alt="${escapeHtml(product.title)} thumbnail ${i+1}"></button>`).join('')}
-            </div>
-          </div>
-
-          <div class="detail-card">
-            <h2>${escapeHtml(product.title)}</h2>
-            <p class="product-desc">${escapeHtml(product.description || '')}</p>
-
-            <div class="detail-row price-row" style="margin-top:12px; align-items:center;">
-              <div>
-                <div class="price">${product.currency ? escapeHtml(product.currency) + ' ' : ''}${Number(product.price).toFixed(2)}</div>
-                <div class="small mt-8">Tax and shipping calculated at checkout</div>
-              </div>
-              <div style="margin-left:auto; display:flex; gap:8px; align-items:center;">
-                <button id="add-to-cart" class="btn">Add to Cart</button>
-              </div>
-            </div>
-
-            <div class="meta-list">
-              ${product.details ? Object.keys(product.details).map(k => `<div class="kv"><strong>${escapeHtml(capitalize(k))}:</strong> <span class="meta">${escapeHtml(String(product.details[k]))}</span></div>`).join('') : ''}
-              <div class="kv"><strong>SKU:</strong> <span class="meta">${escapeHtml(product.id || '')}</span></div>
-            </div>
-
-          </div>
-        </div>
-      `;
-
-      // Wire up thumbnails -> main image behavior
-      const mainImg = document.getElementById('main-image');
-      const thumbs = document.getElementById('thumbs');
-      if (thumbs) {
-        thumbs.querySelectorAll('.thumb').forEach(btn => {
-          btn.addEventListener('click', (e) => {
-            const idx = Number(btn.getAttribute('data-index') || 0);
-            const src = images[idx] || images[0];
-            if (mainImg) mainImg.src = src;
-            // set aria / focus styling
-            thumbs.querySelectorAll('.thumb').forEach(t => t.classList.remove('active'));
-            btn.classList.add('active');
-          });
-          // keyboard accessibility
-          btn.addEventListener('keyup', (e) => {
-            if (e.key === 'Enter' || e.key === ' ') btn.click();
-          });
-        });
-      }
-
-      // ensure first thumb shows active
-      const firstThumb = thumbs && thumbs.querySelector('.thumb');
-      if (firstThumb) firstThumb.classList.add('active');
-
-      // Add to Cart click handler
-      document.getElementById('add-to-cart').addEventListener('click', () => {
-        const item = {
-          id: product.id,
-          slug: product.slug,
-          title: product.title,
-          price: product.price,
-          currency: product.currency || 'USD',
-          images: images,
-          quantity: 1
-        };
-        try {
-          if (typeof addToCart === 'function') {
-            addToCart(item);
-          } else {
-            // fallback: simple localStorage cart
-            const cart = JSON.parse(localStorage.getItem('cart') || '[]');
-            const existing = cart.find(ci => ci.id === item.id);
-            if (existing) existing.quantity += 1;
-            else cart.push(item);
-            localStorage.setItem('cart', JSON.stringify(cart));
-          }
-          // feedback
-          // feedback
-          const btn = document.getElementById('add-to-cart');
-          btn.textContent = 'Added';
-          toast && toast.show(`${product.title} added to cart`, { duration: 2200, type: 'success' });
-          btn.disabled = true;
-          setTimeout(() => { btn.textContent = 'Add to Cart'; btn.disabled = false; }, 1200);
-        } catch (err) {
-          console.error('Add to cart failed', err);
-          alert('Unable to add to cart. See console for details.');
-        }
-      });
-
-    } catch (err) {
-      console.error('Product page error', err);
-      container.innerHTML = '<div class="detail-card"><p class="small">Unable to load product. Please try again later.</p></div>';
-    }
-
-    // small helpers
     function escapeHtml(str) {
       if (str === undefined || str === null) return '';
       return String(str)
@@ -188,10 +62,136 @@
         .replace(/</g, '&lt;')
         .replace(/>/g, '&gt;');
     }
+
     function capitalize(s) {
       if (!s) return '';
       return String(s).charAt(0).toUpperCase() + String(s).slice(1);
     }
+
+    async function renderProductPage() {
+      const slug = getQueryParam('slug');
+      const container = document.getElementById('product-container');
+      const yearSpan = document.getElementById('year');
+      if (yearSpan) yearSpan.textContent = new Date().getFullYear();
+
+      if (!slug) {
+        container.innerHTML = '<div class="detail-card"><p class="small">No product specified. <a href="shop.html">Return to shop</a>.</p></div>';
+        return;
+      }
+
+      try {
+        const res = await fetch('/products.json');
+        if (!res.ok) throw new Error('Could not load products.json');
+        const products = await res.json();
+        const product = products.find(p => p.slug === slug || p.slug === slug.toLowerCase());
+
+        if (!product) {
+          container.innerHTML = '<div class="detail-card"><p class="small">Product not found. <a href="shop.html">Back to shop</a>.</p></div>';
+          return;
+        }
+
+        // Normalize image paths and ensure at least 4 images
+        const images = Array.isArray(product.images) && product.images.length ? product.images.slice() : ['/assets/images/placeholder.png'];
+        while (images.length < 4) images.push(images[0]);
+
+        // Build HTML markup
+        container.innerHTML = ''
+          + '<div class="product-detail">'
+          +   '<div class="gallery" aria-label="Product gallery">'
+          +     '<div class="main" id="main-image-wrap" tabindex="0" aria-live="polite">'
+          +       '<img id="main-image" src="' + escapeHtml(images[0]) + '" alt="' + escapeHtml(product.title) + '">'
+          +     '</div>'
+          +     '<div class="thumbs" id="thumbs">'
+          +       images.map(function(img, i){
+                  return '<button class="thumb" data-index="' + i + '" aria-label="View image ' + (i+1) + '"><img src="' + escapeHtml(img) + '" alt="' + escapeHtml(product.title) + ' thumbnail ' + (i+1) + '"></button>';
+                }).join('')
+          +     '</div>'
+          +   '</div>'
+
+          +   '<div class="detail-card">'
+          +     '<h2>' + escapeHtml(product.title) + '</h2>'
+          +     '<p class="product-desc">' + escapeHtml(product.description || '') + '</p>'
+
+          +     '<div class="detail-row price-row" style="margin-top:12px; align-items:center;">'
+          +       '<div>'
+          +         '<div class="price">' + (product.currency ? escapeHtml(product.currency) + ' ' : '') + Number(product.price).toFixed(2) + '</div>'
+          +         '<div class="small mt-8">Tax and shipping calculated at checkout</div>'
+          +       '</div>'
+          +       '<div style="margin-left:auto; display:flex; gap:8px; align-items:center;">'
+          +         '<button id="add-to-cart" class="btn">Add to Cart</button>'
+          +       '</div>'
+          +     '</div>'
+
+          +     '<div class="meta-list">'
+          +       (product.details ? Object.keys(product.details).map(function(k){
+                  return '<div class="kv"><strong>' + escapeHtml(capitalize(k)) + ':</strong> <span class="meta">' + escapeHtml(String(product.details[k])) + '</span></div>';
+                }).join('') : '')
+          +       '<div class="kv"><strong>SKU:</strong> <span class="meta">' + escapeHtml(product.id || '') + '</span></div>'
+          +     '</div>'
+
+          +   '</div>'
+          + '</div>';
+
+        // Wire up thumbs -> main image
+        var mainImg = document.getElementById('main-image');
+        var thumbs = document.getElementById('thumbs');
+        if (thumbs) {
+          var btns = thumbs.querySelectorAll('.thumb');
+          btns.forEach(function(btn){
+            btn.addEventListener('click', function(e){
+              var idx = Number(btn.getAttribute('data-index') || 0);
+              var src = images[idx] || images[0];
+              if (mainImg) mainImg.src = src;
+              btns.forEach(function(t){ t.classList.remove('active'); });
+              btn.classList.add('active');
+            });
+            btn.addEventListener('keyup', function(e){
+              if (e.key === 'Enter' || e.key === ' ') btn.click();
+            });
+          });
+          if (btns[0]) btns[0].classList.add('active');
+        }
+
+        // Add to cart functionality (uses global addToCart if present)
+        var addBtn = document.getElementById('add-to-cart');
+        if (addBtn) {
+          addBtn.addEventListener('click', function () {
+            var item = {
+              id: product.id,
+              slug: product.slug,
+              title: product.title,
+              price: product.price,
+              currency: product.currency || 'USD',
+              images: images,
+              quantity: 1
+            };
+            try {
+              if (typeof addToCart === 'function') {
+                addToCart(item);
+              } else {
+                var cart = JSON.parse(localStorage.getItem('cart') || '[]');
+                var existing = cart.find(function(ci){ return ci.id === item.id; });
+                if (existing) existing.quantity += 1;
+                else cart.push(item);
+                localStorage.setItem('cart', JSON.stringify(cart));
+              }
+              addBtn.textContent = 'Added';
+              setTimeout(function(){ addBtn.textContent = 'Add to Cart'; }, 1200);
+            } catch (err) {
+              console.error('Add to cart failed', err);
+              alert('Unable to add to cart. See console for details.');
+            }
+          });
+        }
+
+      } catch (err) {
+        console.error('Product page error', err);
+        container.innerHTML = '<div class="detail-card"><p class="small">Unable to load product. Please try again later.</p></div>';
+      }
+    }
+
+    // Kick off rendering
+    renderProductPage();
   })();
   </script>
 </body>
