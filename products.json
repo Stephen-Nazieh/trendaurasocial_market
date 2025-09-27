@@ -153,7 +153,7 @@
     "category": "cars",
     "price": 89999.00,
     "currency": "USD",
-    "featured": false,
+    "featured": yes,
     "images": [
       "/assets/images/tesla3/img_1015.jpg",
       "/assets/images/tesla3/img_1074.webp",
