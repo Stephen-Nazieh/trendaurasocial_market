@@ -38,6 +38,8 @@
     }
   },
 
+
+
   {
     "id": "p3",
     "slug": "wireless-headphones",
@@ -57,6 +59,91 @@
       "Warranty": "1 Year"
     }
   },
+
+  
+  {
+    "id": "p4",
+    "slug": "smartwatch-pro",
+    "title": "Smartwatch Pro",
+    "description": "Heart rate monitor, GPS, waterproof.",
+    "price": 129.00,
+    "currency": "USD",
+    "images": [
+      "/assets/images/smartwatch-pro/1.jpg",
+      "/assets/images/smartwatch-pro/2.jpg",
+      "/assets/images/smartwatch-pro/3.jpg",
+      "/assets/images/smartwatch-pro/4.jpg"
+    ],
+    "details": {
+      "Brand": "TrendAura",
+      "Category": "Electronics",
+      "Warranty": "1 Year"
+    }
+  },
+
+
+  {
+    "id": "p1",
+    "slug": "Go-Kart",
+    "title": "Go-Kart",
+    "price": 49.99,
+    "currency": "USD",
+    "description": "Fastest G-Kart.",
+    "images": [
+      "/assets/images/Go-Kart/IMG_1072.WebP",
+      "/assets/images/Go-Kart/IMG_1073.WebP",
+      "/assets/images/Go-Kart/IMG_1074.WebP",
+      "/assets/images/Go-Kart/IMG_1075.WebP"
+    ],
+    "details": {
+      "material": "Organic Cotton",
+      "sizes": ["S","M","L","XL"],
+      "color": ["Beige","Gray"]
+    }
+  },
+
+  {
+    "id": "p2",
+    "slug": "classic-watch",
+    "title": "Classic Leather Watch",
+    "price": 129.00,
+    "currency": "USD",
+    "description": "Minimalist watch with genuine leather strap.",
+    "images": [
+      "/assets/images/classic-watch/IMG_1072.jpg",
+      "/assets/images/classic-watch/IMG_1072.jpg",
+      "/assets/images/classic-watch/IMG_1072.jpg",
+      "/assets/images/classic-watch/IMG_1072.jpg"
+    ],
+    "details": {
+      "movement": "Quartz",
+      "water_resistant": "50m"
+    }
+  },
+
+
+
+  {
+    "id": "p3",
+    "slug": "wireless-headphones",
+    "title": "Wireless Headphones",
+    "description": "Noise-cancelling, Bluetooth 5.0, 30h battery life.",
+    "price": 79.99,
+    "currency": "USD",
+    "images": [
+      "/assets/images/wireless-headphones/1.jpg",
+      "/assets/images/wireless-headphones/2.jpg",
+      "/assets/images/wireless-headphones/3.jpg",
+      "/assets/images/wireless-headphones/4.jpg"
+    ],
+    "details": {
+      "Brand": "TrendAura",
+      "Category": "Electronics",
+      "Warranty": "1 Year"
+    }
+  },
+
+  
   {
     "id": "p4",
     "slug": "smartwatch-pro",
