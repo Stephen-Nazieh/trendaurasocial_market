@@ -10,10 +10,14 @@
     .hero .tag { background:#eef8ff; color:var(--brand-dark); padding:6px 10px; border-radius:8px; font-weight:700; display:inline-block; }
     .featured-title { display:flex; align-items:center; justify-content:space-between; gap:12px; margin: 14px 0; }
     .see-all { font-size:0.95rem; color:var(--muted); text-decoration:none; }
+    /* inline tweaks for the filter area */
+    .filters-row { display:flex; gap:12px; align-items:center; flex-wrap:wrap; }
+    .filters-row label { font-size:0.95rem; color:var(--muted); }
+    .filters-row select { margin-left:8px; padding:6px 8px; border-radius:8px; border:1px solid #e6eef8; background:#fff; }
   </style>
 </head>
 <body>
-  <!-- Header -->
+  <!-- Header (unchanged top nav) -->
   <header class="header" role="banner">
     <div class="inner">
       <a class="brand" href="index.html">
@@ -33,19 +37,43 @@
       <div style="flex:1">
         <div class="tag">New Arrivals</div>
         <h2 style="margin-top:12px; margin-bottom:8px;">Quality gear, curated for you</h2>
-        <p class="small" style="max-width:58ch; margin-bottom:12px;">Discover our curated selection of gadgets, apparel and lifestyle essentials — designed to make everyday life more fun and functional.</p>
+        <p class="small" style="max-width:58ch; margin-bottom:12px;">Discover our curated selection of go-karts, cars, and accessories — designed to make everyday life more fun and functional.</p>
         <div class="hero-cta">
           <a class="btn" href="shop.html">Shop All</a>
           <a class="see-all" href="shop.html">Browse the full collection →</a>
         </div>
       </div>
       <div style="width:360px; display:flex; align-items:center; justify-content:center;">
-        <img src="/assets/images/featured/IMG_1074.WEBP" alt="Featured product" style="width:100%; height:auto; max-width:360px; border-radius:12px; box-shadow:var(--shadow); object-fit:cover;">
+        <img src="/assets/images/featured/hero-product.jpg" alt="Featured product" style="width:100%; height:auto; max-width:360px; border-radius:12px; box-shadow:var(--shadow); object-fit:cover;">
       </div>
     </div>
   </section>
 
-  <!-- Featured products (same product-grid used on shop.html) -->
+  <!-- Filters (inside content, above product grid) -->
+  <section class="container" style="margin:12px 0 6px 0;">
+    <div class="filters-row">
+      <label>
+        Menu:
+        <select id="menu-selector">
+          <option value="all">All</option>
+          <!-- catalog.js will populate additional categories automatically -->
+        </select>
+      </label>
+
+      <label>
+        Sort by:
+        <select id="sort-by">
+          <option value="featured">Featured</option>
+          <option value="price-asc">Price: Low to High</option>
+          <option value="price-desc">Price: High to Low</option>
+          <option value="name-asc">Name: A → Z</option>
+          <option value="name-desc">Name: Z → A</option>
+        </select>
+      </label>
+    </div>
+  </section>
+
+  <!-- Featured products grid -->
   <main class="container" role="main">
     <div class="featured-title">
       <h2>Featured Products</h2>
@@ -53,7 +81,7 @@
     </div>
 
     <div id="product-grid" class="product-grid" aria-live="polite">
-      <!-- JS will render product-card elements here -->
+      <!-- js/catalog.js will render product-card elements here -->
     </div>
 
     <div id="no-products" class="empty" style="display:none;">No products found.</div>
@@ -66,116 +94,14 @@
     </div>
   </footer>
 
-  <!-- Scripts (products, cart, toast) -->
+  <!-- Scripts: products/cart/toast before catalog -->
   <script src="/js/products.js"></script>
   <script src="/js/cart.js"></script>
   <script src="/js/toast.js"></script>
-
-  <!-- Inline renderer (same structure as shop.html) -->
+  <script src="/js/catalog.js"></script>
   <script>
-  (async function renderFeatured(){
-    try {
-      const res = await fetch('/products.json');
-      if (!res.ok) throw new Error('Could not load products.json');
-      const products = await res.json();
-
-      const grid = document.getElementById('product-grid');
-      const noProducts = document.getElementById('no-products');
-
-      if (!products || products.length === 0) {
-        noProducts.style.display = 'block';
-        grid.style.display = 'none';
-        return;
-      }
-
-      noProducts.style.display = 'none';
-      grid.innerHTML = '';
-
-      // Choose how many to show on home (first N or filter featured)
-      const SHOW = 8;
-      const featured = products.slice(0, SHOW);
-
-      featured.forEach(p => {
-        const card = document.createElement('article');
-        card.className = 'product-card';
-        card.innerHTML = `
-          <div class="product-media">
-            <a href="product.html?slug=${encodeURIComponent(p.slug)}" title="${escapeHtml(p.title)}">
-              <img src="${p.images && p.images[0] ? p.images[0] : '/assets/images/placeholder.png'}" alt="${escapeHtml(p.title)}">
-            </a>
-          </div>
-          <div class="product-info">
-            <a href="product.html?slug=${encodeURIComponent(p.slug)}" class="product-title">${escapeHtml(p.title)}</a>
-            <p class="product-desc">${escapeHtml(p.description || '')}</p>
-            <div class="price-row">
-              <span class="price">${p.currency ? escapeHtml(p.currency) + ' ' : ''}${Number(p.price).toFixed(2)}</span>
-              <button class="btn add-cart" data-id="${escapeHtml(p.id)}">Add to Cart</button>
-            </div>
-          </div>
-        `;
-        grid.appendChild(card);
-      });
-
-      // wire up Add to Cart buttons
-      document.querySelectorAll('.add-cart').forEach(btn => {
-        btn.addEventListener('click', async (e) => {
-          const id = btn.getAttribute('data-id');
-          const product = products.find(x => x.id === id);
-          if (!product) { toast && toast.show('Product not found', { type: 'error' }); return; }
-
-          const item = {
-            id: product.id,
-            slug: product.slug,
-            title: product.title,
-            price: product.price,
-            currency: product.currency || 'USD',
-            images: product.images || [],
-            quantity: 1
-          };
-
-          try {
-            if (typeof addToCart === 'function') {
-              addToCart(item);
-            } else {
-              const cart = JSON.parse(localStorage.getItem('cart') || '[]');
-              const existing = cart.find(ci => ci.id === item.id);
-              if (existing) existing.quantity += 1;
-              else cart.push(item);
-              localStorage.setItem('cart', JSON.stringify(cart));
-            }
-
-            // feedback
-            btn.textContent = 'Added';
-            toast && toast.show(`${product.title} added to cart`, { duration: 2000, type: 'success' });
-            setTimeout(() => { btn.textContent = 'Add to Cart'; }, 1100);
-          } catch (err) {
-            console.error('Add to cart error', err);
-            toast && toast.show('Could not add to cart', { type: 'error' });
-          }
-        });
-      });
-
-      // set year
-      const yearSpan = document.getElementById('year');
-      if (yearSpan) yearSpan.textContent = new Date().getFullYear();
-
-    } catch (err) {
-      console.error('Error loading products', err);
-      document.getElementById('no-products').style.display = 'block';
-      document.getElementById('no-products').textContent = 'Failed to load products.';
-    }
-
-    // small helper to avoid injecting HTML unsafely
-    function escapeHtml(str) {
-      if (!str && str !== 0) return '';
-      return String(str)
-        .replace(/&/g, '&amp;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#39;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;');
-    }
-  })();
+    // set page year if not handled elsewhere
+    document.getElementById('year').textContent = new Date().getFullYear();
   </script>
 </body>
 </html>
