@@ -27,10 +27,10 @@
     "currency": "USD",
     "description": "The perfect accessories for your go kart",
     "images": [
-      "/assets/images/Go-Accessories/IMG_1072.jpg",
-      "/assets/images/Go-Accessories/IMG_1072.jpg",
-      "/assets/images/Go-Accessories/IMG_1072.jpg",
-      "/assets/images/Go-Accessories/IMG_1072.jpg"
+      "/assets/images/Go-Accessories/IMG_1072.WEBP",
+      "/assets/images/Go-Accessories/IMG_1073.WEBP",
+      "/assets/images/Go-Accessories/IMG_1075.WEBP",
+      "/assets/images/Go-Accessories/IMG_1078.WEBP"
     ],
     "details": {
       "movement": "metallic strong",
@@ -150,10 +150,10 @@
     "price": 129.00,
     "currency": "USD",
     "images": [
-      "/assets/images/Tesla3/IMG_1007.JPG",
-      "/assets/images/Tesla3/IMG_1007.JPG",
-      "/assets/images/Tesla3/IMG_1007.JPG",
-      "/assets/images/Tesla3/IMG_1007.JPG"
+      "/assets/images/Tesla3/IMG_1015.JPG",
+      "/assets/images/Tesla3/IMG_1074.WEBP",
+      "/assets/images/Tesla3/IMG_1076.WEBP",
+      "/assets/images/Tesla3/IMG_1078.WEBP"
     ],
     "details": {
       "Brand": "TrendAura",
