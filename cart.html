@@ -55,195 +55,165 @@
   <script src="/js/toast.js"></script>
 
   <script>
-  (async function loadPayPalAndClient() {
-    try {
-      // 1. fetch client id from serverless function (public)
-      const res = await fetch('/.netlify/functions/get-paypal-client-id');
-      if (!res.ok) {
-        console.error('Failed to fetch PayPal client id', await res.text());
-        return;
-      }
-      const data = await res.json();
-      const clientId = data.clientId;
-      if (!clientId) {
-        console.error('No PayPal client id returned from server');
-        return;
-      }
+    (async function loadPayPal() {
+      try {
+        const res = await fetch('/.netlify/functions/get-paypal-client-id');
+        if (!res.ok) {
+          console.error('Failed to fetch PayPal client id', await res.text());
+          return;
+        }
+        const data = await res.json();
+        const clientId = data.clientId;
+        if (!clientId) {
+          console.error('No PayPal client id returned from server');
+          return;
+        }
 
-      // 2. create PayPal SDK script tag
-      const sdkUrl = `https://www.paypal.com/sdk/js?client-id=${encodeURIComponent(clientId)}&currency=USD`;
-      await new Promise((resolve, reject) => {
-        // if SDK already present, resolve immediately
-        if (window.paypal) return resolve();
+        const sdkUrl = `https://www.paypal.com/sdk/js?client-id=${encodeURIComponent(clientId)}&currency=USD`;
         const s = document.createElement('script');
         s.src = sdkUrl;
         s.async = true;
-        s.onload = () => resolve();
-        s.onerror = (err) => reject(err);
         document.head.appendChild(s);
-      });
-
-      // 3. SDK loaded — now load your paypal-client logic and call render
-      await new Promise((resolve, reject) => {
-        // avoid double-loading if already loaded:
-        if (document.querySelector('script[src="/js/paypal-client.js"]')) {
-          if (window.renderPayPalButton) window.renderPayPalButton();
-          return resolve();
-        }
-        const s2 = document.createElement('script');
-        s2.src = '/js/paypal-client.js';
-        s2.defer = true;
-        s2.onload = () => {
-          if (window.renderPayPalButton) window.renderPayPalButton();
-          resolve();
-        };
-        s2.onerror = (err) => reject(err);
-        document.body.appendChild(s2);
-      });
-
-    } catch (err) {
-      console.error('Error loading PayPal SDK or client:', err);
-    }
-  })();
+      } catch (err) {
+        console.error('Error loading PayPal SDK:', err);
+      }
+    })();
   </script>
+  
+  <script src="/js/paypal-client.js"></script>
 
   <script>
-  // Cart utilities used by this page and other pages:
-  function getCart() {
-    try { return JSON.parse(localStorage.getItem('cart') || '[]'); }
-    catch (e) { return []; }
-  }
-  function saveCart(cart) {
-    localStorage.setItem('cart', JSON.stringify(cart));
-  }
-  function formatMoney(v, currency='USD') {
-    try {
-      return new Intl.NumberFormat('en-US', { style: 'currency', currency }).format(v);
-    } catch (e) {
-      return (currency || 'USD') + ' ' + Number(v).toFixed(2);
+    function getCart() {
+      try { return JSON.parse(localStorage.getItem('cart') || '[]'); }
+      catch (e) { return []; }
     }
-  }
-
-  // Page rendering
-  document.addEventListener('DOMContentLoaded', function () {
-    document.getElementById('year').textContent = new Date().getFullYear();
-    renderCart();
-  });
-
-  function renderCart() {
-    const cart = getCart();
-    const cartArea = document.getElementById('cart-area');
-    const cartEmpty = document.getElementById('cart-empty');
-    const checkoutArea = document.getElementById('checkout-area');
-
-    // If empty
-    if (!cart.length) {
-      cartArea.innerHTML = '';
-      cartEmpty.style.display = 'block';
-      checkoutArea.style.display = 'none';
-      return;
+    function saveCart(cart) {
+      localStorage.setItem('cart', JSON.stringify(cart));
     }
-    cartEmpty.style.display = 'none';
-    checkoutArea.style.display = 'block';
+    function formatMoney(v, currency='USD') {
+      try {
+        return new Intl.NumberFormat('en-US', { style: 'currency', currency }).format(v);
+      } catch (e) {
+        return (currency || 'USD') + ' ' + Number(v).toFixed(2);
+      }
+    }
 
-    // Build table
-    let html = '<table class="cart-table"><thead><tr><th>Item</th><th>Product</th><th>Quantity</th><th>Price</th><th>Subtotal</th><th></th></tr></thead><tbody>';
-    let subtotal = 0;
-    cart.forEach((item, idx) => {
-      const qty = Number(item.quantity || 1);
-      const price = Number(item.price || 0);
-      const rowSubtotal = qty * price;
-      subtotal += rowSubtotal;
-
-      html += `<tr data-index="${idx}">
-        <td><img src="${escapeHtml(item.images?.[0] || '/assets/images/placeholder.png')}" alt="${escapeHtml(item.title)}"></td>
-        <td>${escapeHtml(item.title)}</td>
-        <td>
-          <input class="qty-input" type="number" min="1" value="${qty}" data-index="${idx}" aria-label="Quantity for ${escapeHtml(item.title)}">
-        </td>
-        <td>${formatMoney(price, item.currency)}</td>
-        <td class="subtotal-cell">${formatMoney(rowSubtotal, item.currency)}</td>
-        <td><button class="remove-btn" data-index="${idx}" aria-label="Remove ${escapeHtml(item.title)} from cart">✕</button></td>
-      </tr>`;
-    });
-    html += '</tbody></table>';
-
-    cartArea.innerHTML = html;
-
-    // Update summary amounts (simple shipping rule: free over $100 else $10)
-    const shipping = subtotal > 100 ? 0 : 10;
-    const total = subtotal + shipping;
-    document.getElementById('subtotal-amt').textContent = formatMoney(subtotal);
-    document.getElementById('shipping-amt').textContent = formatMoney(shipping);
-    document.getElementById('total-amt').textContent = formatMoney(total);
-
-    // Attach listeners: qty change and remove
-    cartArea.querySelectorAll('.qty-input').forEach(input => {
-      input.addEventListener('change', (e) => {
-        let val = Number(e.target.value);
-        if (!val || val < 1) { val = 1; e.target.value = 1; }
-        const idx = Number(e.target.getAttribute('data-index'));
-        updateQuantity(idx, val);
-      });
-      input.addEventListener('keyup', (e) => {
-        if (e.key === 'Enter') e.target.blur();
-      });
+    document.addEventListener('DOMContentLoaded', function () {
+      document.getElementById('year').textContent = new Date().getFullYear();
+      renderCart();
     });
 
-    cartArea.querySelectorAll('.remove-btn').forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        const idx = Number(btn.getAttribute('data-index'));
-        removeItem(idx);
+    function renderCart() {
+      const cart = getCart();
+      const cartArea = document.getElementById('cart-area');
+      const cartEmpty = document.getElementById('cart-empty');
+      const checkoutArea = document.getElementById('checkout-area');
+      const paypalButtonContainer = document.getElementById('paypal-button-container');
+
+      if (!cart.length) {
+        cartArea.innerHTML = '';
+        cartEmpty.style.display = 'block';
+        checkoutArea.style.display = 'none';
+        return;
+      }
+      
+      cartEmpty.style.display = 'none';
+      checkoutArea.style.display = 'block';
+
+      let html = '<table class="cart-table"><thead><tr><th>Item</th><th>Product</th><th>Quantity</th><th>Price</th><th>Subtotal</th><th></th></tr></thead><tbody>';
+      let subtotal = 0;
+      cart.forEach((item, idx) => {
+        const qty = Number(item.quantity || 1);
+        const price = Number(item.price || 0);
+        const rowSubtotal = qty * price;
+        subtotal += rowSubtotal;
+
+        html += `<tr data-index="${idx}">
+          <td><img src="${escapeHtml(item.images?.[0] || '/assets/images/placeholder.png')}" alt="${escapeHtml(item.title)}"></td>
+          <td>${escapeHtml(item.title)}</td>
+          <td>
+            <input class="qty-input" type="number" min="1" value="${qty}" data-index="${idx}" aria-label="Quantity for ${escapeHtml(item.title)}">
+          </td>
+          <td>${formatMoney(price, item.currency)}</td>
+          <td class="subtotal-cell">${formatMoney(rowSubtotal, item.currency)}</td>
+          <td><button class="remove-btn" data-index="${idx}" aria-label="Remove ${escapeHtml(item.title)} from cart">✕</button></td>
+        </tr>`;
       });
-    });
-  }
+      html += '</tbody></table>';
 
-  function updateQuantity(index, newQty) {
-    const cart = getCart();
-    if (!cart[index]) return;
-    const oldQty = cart[index].quantity || 1;
-    cart[index].quantity = Number(newQty);
-    saveCart(cart);
-    renderCart();
+      cartArea.innerHTML = html;
 
-    // Notify user via toast
-    try {
-      const title = cart[index].title || 'Item';
-      toast && toast.show(`${title} quantity updated: ${cart[index].quantity}`, { duration: 1800, type: 'info' });
-    } catch (e) {
-      // swallow toast errors
-      console.warn('toast failed', e);
+      const shipping = subtotal > 100 ? 0 : 10;
+      const total = subtotal + shipping;
+      document.getElementById('subtotal-amt').textContent = formatMoney(subtotal);
+      document.getElementById('shipping-amt').textContent = formatMoney(shipping);
+      document.getElementById('total-amt').textContent = formatMoney(total);
+
+      cartArea.querySelectorAll('.qty-input').forEach(input => {
+        input.addEventListener('change', (e) => {
+          let val = Number(e.target.value);
+          if (!val || val < 1) { val = 1; e.target.value = 1; }
+          const idx = Number(e.target.getAttribute('data-index'));
+          updateQuantity(idx, val);
+        });
+        input.addEventListener('keyup', (e) => {
+          if (e.key === 'Enter') e.target.blur();
+        });
+      });
+
+      cartArea.querySelectorAll('.remove-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          const idx = Number(btn.getAttribute('data-index'));
+          removeItem(idx);
+        });
+      });
+      
+      // We will now call the render function from paypal-client.js
+      // as soon as the main cart view is rendered and the container is visible.
+      if (typeof window.renderPayPalButton === 'function') {
+        window.renderPayPalButton();
+      }
     }
 
-    // If PayPal button already rendered it reads live cart from localStorage when creating order.
-  }
+    function updateQuantity(index, newQty) {
+      const cart = getCart();
+      if (!cart[index]) return;
+      cart[index].quantity = Number(newQty);
+      saveCart(cart);
+      renderCart();
 
-  function removeItem(index) {
-    let cart = getCart();
-    if (!cart[index]) return;
-    const removed = cart.splice(index, 1)[0];
-    saveCart(cart);
-    renderCart();
-
-    // Notify user via toast
-    try {
-      const title = removed?.title || 'Item';
-      toast && toast.show(`${title} removed from cart`, { duration: 2000, type: 'success' });
-    } catch (e) {
-      console.warn('toast failed', e);
+      try {
+        const title = cart[index].title || 'Item';
+        toast && toast.show(`${title} quantity updated: ${cart[index].quantity}`, { duration: 1800, type: 'info' });
+      } catch (e) {
+        console.warn('toast failed', e);
+      }
     }
-  }
 
-  // Safe HTML escape helper
-  function escapeHtml(str) {
-    if (str === undefined || str === null) return '';
-    return String(str)
-      .replace(/&/g, '&amp;')
-      .replace(/"/g, '&quot;')
-      .replace(/'/g, '&#39;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;');
-  }
+    function removeItem(index) {
+      let cart = getCart();
+      if (!cart[index]) return;
+      const removed = cart.splice(index, 1)[0];
+      saveCart(cart);
+      renderCart();
+
+      try {
+        const title = removed?.title || 'Item';
+        toast && toast.show(`${title} removed from cart`, { duration: 2000, type: 'success' });
+      } catch (e) {
+        console.warn('toast failed', e);
+      }
+    }
+
+    function escapeHtml(str) {
+      if (str === undefined || str === null) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
+    }
   </script>
 </body>
 </html>
