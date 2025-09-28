@@ -18,6 +18,28 @@
       border-radius: 4px;
       font-size: 1rem;
     }
+    .price-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .product-card .price-row .btn {
+      flex-grow: 1;
+    }
+    .add-to-wishlist-btn {
+      background: none;
+      border: 1px solid #ddd;
+      color: #777;
+      padding: 8px;
+      font-size: 1.2rem;
+      cursor: pointer;
+      border-radius: 4px;
+      transition: color 0.2s, border-color 0.2s;
+    }
+    .add-to-wishlist-btn:hover {
+      color: #e74c3c;
+      border-color: #e74c3c;
+    }
   </style>
 </head>
 <body>
@@ -28,6 +50,7 @@
         <a href="index.html">Home</a>
         <a href="shop.html">Shop</a>
         <a href="cart.html">Cart</a>
+        <a href="wishlist.html">Wishlist</a>
       </nav>
     </div>
   </header>
@@ -92,6 +115,7 @@
             <div class="price-row">
               <span class="price">$${p.price.toFixed(2)}</span>
               <button class="btn" onclick="addToCart('${p.id}')">Add to Cart</button>
+              <button class="add-to-wishlist-btn" onclick="addToWishlist('${p.id}')" aria-label="Add to Wishlist">❤️</button>
             </div>
           </div>
         </div>
@@ -123,6 +147,31 @@
           }
           saveCart(cart);
           alert(product.title + " added to cart!");
+        });
+    }
+
+    // Wishlist helpers
+    function getWishlist() {
+      try { return JSON.parse(localStorage.getItem('wishlist') || '[]'); }
+      catch (e) { return []; }
+    }
+    function saveWishlist(wishlist) {
+      localStorage.setItem('wishlist', JSON.stringify(wishlist));
+    }
+    function addToWishlist(id) {
+      fetch('/products.json')
+        .then(res => res.json())
+        .then(products => {
+          const product = products.find(p => p.id === id);
+          if (!product) return;
+          const wishlist = getWishlist();
+          if (!wishlist.find(item => item.id === id)) {
+            wishlist.push(product);
+            saveWishlist(wishlist);
+            alert(product.title + " added to your wishlist!");
+          } else {
+            alert(product.title + " is already in your wishlist.");
+          }
         });
     }
 
