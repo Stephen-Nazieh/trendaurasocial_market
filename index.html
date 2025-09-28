@@ -32,11 +32,7 @@
   <!-- Categories Section -->
   <section class="container">
     <h2>Shop by Category</h2>
-    <div class="flex" style="gap: 16px; flex-wrap: wrap;">
-      <a class="btn" href="shop.html?category=go-karts">Go-Karts</a>
-      <a class="btn" href="shop.html?category=go-kart-accessories">Go-Kart Accessories</a>
-      <a class="btn" href="shop.html?category=cars">Cars</a>
-    </div>
+    <div id="category-buttons" style="display: grid; gap: 20px;"></div>
   </section>
 
   <!-- Featured Products -->
@@ -44,7 +40,7 @@
     <h2>Featured Products</h2>
     <div id="featured-products" class="product-grid"></div>
     <div style="margin-top: 18px;">
-      <a class="btn" href="shop.html?category=all">Browse all products</a>
+      <a class="btn" href="shop.html?primaryCategory=all">Browse all products</a>
     </div>
   </main>
 
@@ -55,9 +51,9 @@
 
   <!-- JS -->
   <script>
-    // Utility for escaping HTML
+    // Escape HTML helper
     function escapeHtml(str) {
-      if (str === undefined || str === null) return '';
+      if (!str) return '';
       return String(str)
         .replace(/&/g, '&amp;')
         .replace(/"/g, '&quot;')
@@ -93,7 +89,7 @@
       container.innerHTML = html;
     }
 
-    // Add to cart
+    // Cart helpers
     function getCart() {
       try { return JSON.parse(localStorage.getItem('cart') || '[]'); }
       catch (e) { return []; }
@@ -119,15 +115,44 @@
         });
     }
 
-    // Load featured products
+    // Load featured products and categories
     document.addEventListener("DOMContentLoaded", () => {
       document.getElementById('year').textContent = new Date().getFullYear();
 
       fetch('/products.json')
         .then(res => res.json())
         .then(products => {
+          // Featured products
           const featured = products.filter(p => p.featured);
           renderProducts(featured, "featured-products");
+
+          // Group categories
+          const categoriesMap = {};
+          products.forEach(p => {
+            if (!categoriesMap[p.primaryCategory]) {
+              categoriesMap[p.primaryCategory] = new Set();
+            }
+            categoriesMap[p.primaryCategory].add(p.subcategory);
+          });
+
+          // Render primary + subcategories
+          const catContainer = document.getElementById("category-buttons");
+          catContainer.innerHTML = Object.keys(categoriesMap).map(primary => {
+            const subs = [...categoriesMap[primary]].map(sub => `
+              <a class="btn small" 
+                 href="shop.html?primaryCategory=${encodeURIComponent(primary)}&subcategory=${encodeURIComponent(sub)}">
+                ${escapeHtml(sub)}
+              </a>`).join(" ");
+
+            return `
+              <div>
+                <h3>${escapeHtml(primary)}</h3>
+                <div class="flex" style="gap: 10px; flex-wrap: wrap;">
+                  ${subs}
+                </div>
+              </div>
+            `;
+          }).join("");
         })
         .catch(err => console.error("Error loading products:", err));
     });

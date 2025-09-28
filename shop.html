@@ -21,16 +21,18 @@
 
   <!-- Shop Page -->
   <main class="container" id="main">
-    <h2>Shop All Products</h2>
+    <h2>Shop Products</h2>
 
     <!-- Filters -->
-    <div class="flex mb-8">
-      <label for="categoryFilter">Browse by:</label>
-      <select id="categoryFilter">
+    <div class="flex mb-8" style="flex-wrap: wrap; gap: 12px;">
+      <label for="primaryCategory">Browse by:</label>
+      <select id="primaryCategory">
+        <option value="all">All Categories</option>
+      </select>
+
+      <label for="subcategory">Subcategory:</label>
+      <select id="subcategory" disabled>
         <option value="all">All</option>
-        <option value="go-karts">Go-Karts</option>
-        <option value="go-kart-accessories">Go-Kart Accessories</option>
-        <option value="cars">Cars</option>
       </select>
 
       <label for="sortBy" class="align-right">Sort by:</label>
@@ -120,14 +122,20 @@
   let allProducts = [];
 
   function applyFilters() {
-    const category = document.getElementById("categoryFilter").value;
+    const primary = document.getElementById("primaryCategory").value;
+    const subcat = document.getElementById("subcategory").value;
     const sortBy = document.getElementById("sortBy").value;
 
     let filtered = [...allProducts];
 
-    // Category filter
-    if (category !== "all") {
-      filtered = filtered.filter(p => p.category === category);
+    // Filter by primary category
+    if (primary !== "all") {
+      filtered = filtered.filter(p => p.primaryCategory === primary);
+    }
+
+    // Filter by subcategory
+    if (subcat !== "all" && subcat !== "" && subcat !== null) {
+      filtered = filtered.filter(p => p.subcategory === subcat);
     }
 
     // Sorting
@@ -149,33 +157,76 @@
     renderProducts(filtered);
   }
 
-  // Read category from query string
+  // Read query string
   function getQueryParam(name) {
     const params = new URLSearchParams(window.location.search);
     return params.get(name);
   }
 
+  // Populate subcategories based on primary selection
+  function updateSubcategories(products, primaryValue) {
+    const subcatSelect = document.getElementById("subcategory");
+    let subcats = [];
+
+    if (primaryValue !== "all") {
+      subcats = [...new Set(products
+        .filter(p => p.primaryCategory === primaryValue)
+        .map(p => p.subcategory)
+        .filter(Boolean))];
+    }
+
+    if (subcats.length) {
+      subcatSelect.disabled = false;
+      subcatSelect.innerHTML = `<option value="all">All</option>` +
+        subcats.map(sc => `<option value="${escapeHtml(sc)}">${escapeHtml(sc)}</option>`).join("");
+    } else {
+      subcatSelect.disabled = true;
+      subcatSelect.innerHTML = `<option value="all">All</option>`;
+    }
+  }
+
   document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("year").textContent = new Date().getFullYear();
 
-    // Get category param from URL (default = all)
-    const categoryFromURL = getQueryParam("category") || "all";
-    const categoryFilter = document.getElementById("categoryFilter");
-    categoryFilter.value = categoryFromURL; // preselect in dropdown
+    const primaryFilter = document.getElementById("primaryCategory");
+    const subcatFilter = document.getElementById("subcategory");
+
+    // Get params from URL
+    const primaryFromURL = getQueryParam("primaryCategory") || "all";
+    const subcatFromURL = getQueryParam("subcategory") || "all";
 
     // Fetch products
     fetch("/products.json")
       .then(res => res.json())
       .then(products => {
         allProducts = products;
-        applyFilters(); // initial render with URL category
+
+        // Populate primary categories
+        const primaryCategories = [...new Set(products.map(p => p.primaryCategory))];
+        primaryFilter.innerHTML += primaryCategories.map(c => `
+          <option value="${escapeHtml(c)}">${escapeHtml(c)}</option>
+        `).join("");
+
+        // Preselect primary from URL
+        primaryFilter.value = primaryFromURL;
+
+        // Populate subcategories based on primary
+        updateSubcategories(products, primaryFromURL);
+        if (subcatFromURL && subcatFilter.querySelector(`[value="${subcatFromURL}"]`)) {
+          subcatFilter.value = subcatFromURL;
+        }
+
+        applyFilters(); // initial render
       });
 
     // Event listeners
-    categoryFilter.addEventListener("change", applyFilters);
+    primaryFilter.addEventListener("change", () => {
+      updateSubcategories(allProducts, primaryFilter.value);
+      applyFilters();
+    });
+    subcatFilter.addEventListener("change", applyFilters);
     document.getElementById("sortBy").addEventListener("change", applyFilters);
   });
-</script>
-
+  </script>
 </body>
 </html>
