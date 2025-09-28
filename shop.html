@@ -42,9 +42,12 @@
     .autocomplete-list li.active {
       background-color: #f0f0f0;
     }
+    /* Updated styles for the new button */
     .add-to-cart-btn {
       flex-grow: 1;
       text-align: center;
+      font-size: 1.25rem;
+      padding: 8px 12px;
     }
     .add-to-wishlist-btn {
       background: none;
@@ -149,7 +152,7 @@
           <div class="price-row">
             <span class="price">$${p.price.toFixed(2)}</span>
             <div style="display: flex; gap: 8px;">
-              <button class="btn add-to-cart-btn" onclick="addToCart('${p.id}')">Add to Cart</button>
+              <button class="btn add-to-cart-btn" onclick="addToCart('${p.id}')" aria-label="Add to Cart">🛒</button>
               <button class="add-to-wishlist-btn" onclick="addToWishlist('${p.id}')" aria-label="Add to Wishlist">❤️</button>
             </div>
           </div>
