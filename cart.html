@@ -14,7 +14,6 @@
   </style>
 </head>
 <body>
-  <!-- Header -->
   <header class="header" role="banner">
     <div class="inner">
       <a class="brand" href="index.html"><h1>TrendAura Social</h1></a>
@@ -22,24 +21,22 @@
         <a href="index.html">Home</a>
         <a href="shop.html">Shop</a>
         <a href="cart.html">Cart</a>
+        <a href="wishlist.html">Wishlist</a>
       </nav>
     </div>
   </header>
 
-  <!-- Main -->
   <main class="container" id="main">
     <h2>Your Shopping Cart</h2>
 
     <div id="cart-area" aria-live="polite">
-      <!-- Cart table will be injected here -->
-    </div>
+      </div>
 
     <div id="cart-empty" class="empty" style="display:none;">
       <p>Your cart is empty.</p>
       <p><a class="btn" href="shop.html">Continue Shopping</a></p>
     </div>
 
-    <!-- Summary + PayPal -->
     <div id="checkout-area" style="margin-top:18px; display:none;">
       <div class="summary" id="summary-box" aria-live="polite">
         <div class="line"><span>Subtotal</span><span id="subtotal-amt">$0.00</span></div>
@@ -51,15 +48,12 @@
     </div>
   </main>
 
-  <!-- Footer -->
   <footer class="footer">
     <div class="container">&copy; <span id="year"></span> TrendAura Social</div>
   </footer>
 
-  <!-- Toast utility (must be loaded before we call toast.show) -->
   <script src="/js/toast.js"></script>
 
-  <!-- Dynamic PayPal SDK loader: fetch public client id and load SDK, then load paypal-client.js -->
   <script>
   (async function loadPayPalAndClient() {
     try {
@@ -89,26 +83,30 @@
         document.head.appendChild(s);
       });
 
-      // 3. SDK loaded — now load your paypal-client logic
+      // 3. SDK loaded — now load your paypal-client logic and call render
       await new Promise((resolve, reject) => {
         // avoid double-loading if already loaded:
-        if (document.querySelector('script[src="/js/paypal-client.js"]')) return resolve();
+        if (document.querySelector('script[src="/js/paypal-client.js"]')) {
+          if (window.renderPayPalButton) window.renderPayPalButton();
+          return resolve();
+        }
         const s2 = document.createElement('script');
         s2.src = '/js/paypal-client.js';
         s2.defer = true;
-        s2.onload = () => resolve();
+        s2.onload = () => {
+          if (window.renderPayPalButton) window.renderPayPalButton();
+          resolve();
+        };
         s2.onerror = (err) => reject(err);
         document.body.appendChild(s2);
       });
 
-      // PayPal button will render (paypal-client.js should call paypal.Buttons().render)
     } catch (err) {
       console.error('Error loading PayPal SDK or client:', err);
     }
   })();
   </script>
 
-  <!-- Cart rendering and behaviour -->
   <script>
   // Cart utilities used by this page and other pages:
   function getCart() {
