@@ -45,6 +45,9 @@
       </select>
     </div>
 
+    <!-- Active Filter Indicator -->
+    <div id="active-filters" class="active-filters"></div>
+
     <!-- Product Grid -->
     <div id="shop-products" class="product-grid"></div>
   </main>
@@ -121,6 +124,22 @@
   // Filtering + Sorting logic
   let allProducts = [];
 
+  function updateActiveFilters(primary, subcat) {
+    const container = document.getElementById("active-filters");
+    let text = "Browsing: ";
+
+    if (primary === "all") {
+      text += "All Products";
+    } else {
+      text += escapeHtml(primary);
+      if (subcat && subcat !== "all") {
+        text += " → " + escapeHtml(subcat);
+      }
+    }
+
+    container.innerHTML = `<span class="filter-pill">${text}</span>`;
+  }
+
   function applyFilters() {
     const primary = document.getElementById("primaryCategory").value;
     const subcat = document.getElementById("subcategory").value;
@@ -153,6 +172,9 @@
         filtered.sort((a,b) => b.title.localeCompare(a.title));
         break;
     }
+
+    // Update active filters badge
+    updateActiveFilters(primary, subcat);
 
     renderProducts(filtered);
   }
