@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Your Wishlist — TrendAura Social</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <link rel="stylesheet" href="/css/styles.css" />
+  <style>
+    .wishlist-actions { margin-top: 14px; display:flex; gap:10px; align-items:center; }
+    .remove-btn { background:transparent; border:none; color:#c0392b; cursor:pointer; font-weight:700; font-size:1.05rem; }
+    .remove-btn:focus { outline:3px solid rgba(192,57,43,0.12); outline-offset:3px; border-radius:6px; }
+    .move-to-cart-btn { font-size: 0.9em; padding: 6px 12px; }
+  </style>
+</head>
+<body>
+  <header class="header" role="banner">
+    <div class="inner">
+      <a class="brand" href="index.html"><h1>TrendAura Social</h1></a>
+      <nav class="nav" role="navigation" aria-label="Main">
+        <a href="index.html">Home</a>
+        <a href="shop.html">Shop</a>
+        <a href="cart.html">Cart</a>
+        <a href="wishlist.html">Wishlist</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container" id="main">
+    <h2>Your Wishlist</h2>
+
+    <div id="wishlist-area" aria-live="polite">
+      </div>
+
+    <div id="wishlist-empty" class="empty" style="display:none;">
+      <p>Your wishlist is empty.</p>
+      <p><a class="btn" href="shop.html">Continue Shopping</a></p>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="container">&copy; <span id="year"></span> TrendAura Social</div>
+  </footer>
+
+  <script src="/js/toast.js"></script>
+
+  <script src="/js/wishlist.js"></script>
+</body>
+</html>
