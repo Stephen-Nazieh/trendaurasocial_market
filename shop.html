@@ -159,7 +159,7 @@
       filtered = filtered.filter(p => p.subcategory === subcat);
     }
 
-    // Filter by filter (e.g., Gas, Electric)
+    // Filter by filter (e.g., Youth, Racing)
     if (filter !== "all" && filter !== "" && filter !== null) {
       filtered = filtered.filter(p => p.filters && p.filters.includes(filter));
     }
@@ -217,7 +217,7 @@
     }
   }
 
-  // Populate filters based on subcategory selection
+  // Populate filters based on category and subcategory selection
   function updateFilters(products, primaryValue, subcatValue) {
     const filtersSelect = document.getElementById("filters");
     
@@ -226,12 +226,11 @@
     filtersSelect.innerHTML = `<option value="all">All</option>`;
 
     let filters = [];
-    // Check if the current category has filters
     if (subcatValue !== "all" && subcatValue !== "" && subcatValue !== null) {
-        filters = [...new Set(products
-          .filter(p => p.primaryCategory === primaryValue && p.subcategory === subcatValue)
-          .flatMap(p => p.filters)
-          .filter(Boolean))];
+      filters = [...new Set(products
+        .filter(p => p.primaryCategory === primaryValue && p.subcategory === subcatValue)
+        .flatMap(p => p.filters)
+        .filter(Boolean))];
     }
     
     if (filters.length) {
