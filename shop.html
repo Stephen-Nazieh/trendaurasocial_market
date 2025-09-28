@@ -5,6 +5,44 @@
   <title>Shop — TrendAura Social</title>
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <link rel="stylesheet" href="/css/styles.css" />
+  <style>
+    .search-bar {
+      position: relative;
+      margin-bottom: 20px;
+    }
+    .search-input {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      box-sizing: border-box;
+      font-size: 1rem;
+    }
+    .autocomplete-list {
+      position: absolute;
+      z-index: 100;
+      width: 100%;
+      background-color: #fff;
+      border: 1px solid #ddd;
+      border-top: none;
+      list-style-type: none;
+      padding: 0;
+      margin: 0;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      max-height: 200px;
+      overflow-y: auto;
+      display: none;
+    }
+    .autocomplete-list li {
+      padding: 10px;
+      cursor: pointer;
+      font-size: 0.9rem;
+    }
+    .autocomplete-list li:hover,
+    .autocomplete-list li.active {
+      background-color: #f0f0f0;
+    }
+  </style>
 </head>
 <body>
   <header class="header" role="banner">
@@ -45,6 +83,11 @@
         <option value="name-asc">Name: A → Z</option>
         <option value="name-desc">Name: Z → A</option>
       </select>
+    </div>
+
+    <div class="search-bar">
+      <input type="text" id="search-input" class="search-input" placeholder="Search for products...">
+      <ul id="autocomplete-list" class="autocomplete-list"></ul>
     </div>
 
     <div id="active-filters" class="active-filters"></div>
@@ -119,7 +162,7 @@
       });
   }
 
-  // Filtering + Sorting logic
+  // Filtering, Sorting, and Searching logic
   let allProducts = [];
 
   function updateActiveFilters(primary, subcat, filter) {
@@ -141,13 +184,23 @@
     container.innerHTML = `<span class="filter-pill">${text}</span>`;
   }
 
-  function applyFilters() {
+  function applySearchAndFilters() {
     const primary = document.getElementById("primaryCategory").value;
     const subcat = document.getElementById("subcategory").value;
     const filter = document.getElementById("filters").value;
     const sortBy = document.getElementById("sortBy").value;
+    const searchTerm = document.getElementById("search-input").value.trim().toLowerCase();
 
     let filtered = [...allProducts];
+
+    // Search filter
+    if (searchTerm) {
+      const searchTerms = searchTerm.split(' ').filter(term => term.length > 0);
+      filtered = filtered.filter(p => {
+        const productText = `${p.title} ${p.description} ${p.primaryCategory} ${p.subcategory} ${p.filters.join(' ')}`.toLowerCase();
+        return searchTerms.every(term => productText.includes(term));
+      });
+    }
 
     // Filter by primary category
     if (primary !== "all") {
@@ -184,6 +237,43 @@
     updateActiveFilters(primary, subcat, filter);
 
     renderProducts(filtered);
+  }
+  
+  // Autocomplete functionality
+  function searchAndAutocomplete(query) {
+    const searchTerm = query.toLowerCase().trim();
+    const autocompleteList = document.getElementById('autocomplete-list');
+    
+    if (searchTerm.length < 2) {
+      autocompleteList.style.display = 'none';
+      return;
+    }
+    
+    const searchTerms = searchTerm.split(/\s+/).filter(term => term.length > 0);
+
+    const uniqueSuggestions = new Set();
+    allProducts.forEach(p => {
+        const productText = `${p.title} ${p.description} ${p.primaryCategory} ${p.subcategory} ${p.filters.join(' ')}`.toLowerCase();
+        
+        searchTerms.forEach(term => {
+            let index = productText.indexOf(term);
+            while (index !== -1 && uniqueSuggestions.size < 5) {
+                const end = productText.indexOf(' ', index + term.length);
+                const word = end === -1 ? productText.substring(index) : productText.substring(index, end);
+                uniqueSuggestions.add(word);
+                index = productText.indexOf(term, index + 1);
+            }
+        });
+    });
+
+    const suggestions = [...uniqueSuggestions];
+
+    if (suggestions.length) {
+      autocompleteList.innerHTML = suggestions.map(s => `<li>${escapeHtml(s)}</li>`).join('');
+      autocompleteList.style.display = 'block';
+    } else {
+      autocompleteList.style.display = 'none';
+    }
   }
 
   // Read query string
@@ -245,6 +335,8 @@
     const primaryFilter = document.getElementById("primaryCategory");
     const subcatFilter = document.getElementById("subcategory");
     const filtersFilter = document.getElementById("filters");
+    const searchInput = document.getElementById("search-input");
+    const autocompleteList = document.getElementById("autocomplete-list");
 
     // Get params from URL
     const primaryFromURL = getQueryParam("primaryCategory") || "all";
@@ -278,23 +370,43 @@
           filtersFilter.value = filtersFromURL;
         }
 
-        applyFilters(); // initial render
+        applySearchAndFilters(); // initial render
       });
 
     // Event listeners
     primaryFilter.addEventListener("change", () => {
       updateSubcategories(allProducts, primaryFilter.value);
       updateFilters(allProducts, primaryFilter.value, subcatFilter.value);
-      applyFilters();
+      applySearchAndFilters();
     });
     
     subcatFilter.addEventListener("change", () => {
       updateFilters(allProducts, primaryFilter.value, subcatFilter.value);
-      applyFilters();
+      applySearchAndFilters();
     });
     
-    filtersFilter.addEventListener("change", applyFilters);
-    document.getElementById("sortBy").addEventListener("change", applyFilters);
+    filtersFilter.addEventListener("change", applySearchAndFilters);
+    document.getElementById("sortBy").addEventListener("change", applySearchAndFilters);
+
+    // Search bar event listeners
+    searchInput.addEventListener("input", (e) => {
+      searchAndAutocomplete(e.target.value);
+      applySearchAndFilters();
+    });
+    
+    autocompleteList.addEventListener('click', (e) => {
+      if (e.target.tagName === 'LI') {
+        searchInput.value = e.target.textContent;
+        autocompleteList.style.display = 'none';
+        applySearchAndFilters();
+      }
+    });
+
+    document.addEventListener('click', (e) => {
+      if (!e.target.closest('.search-bar')) {
+        autocompleteList.style.display = 'none';
+      }
+    });
   });
   </script>
 </body>

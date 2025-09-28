@@ -5,9 +5,22 @@
   <title>TrendAura Social — Home</title>
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <link rel="stylesheet" href="/css/styles.css" />
+  <style>
+    .search-bar-hero {
+      margin-top: 2rem;
+      width: 100%;
+      max-width: 600px;
+    }
+    .search-bar-hero input {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 1rem;
+    }
+  </style>
 </head>
 <body>
-  <!-- Header -->
   <header class="header" role="banner">
     <div class="inner">
       <a class="brand" href="index.html"><h1>TrendAura Social</h1></a>
@@ -19,23 +32,23 @@
     </div>
   </header>
 
-  <!-- Hero / Intro -->
   <section class="hero">
     <div class="inner container">
       <div>
         <h2>Welcome to TrendAura Social</h2>
         <p>Premium Go-Karts, Accessories, and Electric Cars.</p>
+        <div class="search-bar-hero">
+          <input type="text" id="hero-search-input" placeholder="Search for products, e.g., 'tires'">
+        </div>
       </div>
     </div>
   </section>
 
-  <!-- Categories Section -->
   <section class="container">
     <h2>Shop by Category</h2>
     <div id="category-buttons" style="display: grid; gap: 20px;"></div>
   </section>
 
-  <!-- Featured Products -->
   <main class="container" id="main">
     <h2>Featured Products</h2>
     <div id="featured-products" class="product-grid"></div>
@@ -44,12 +57,10 @@
     </div>
   </main>
 
-  <!-- Footer -->
   <footer class="footer">
     <div class="container">&copy; <span id="year"></span> TrendAura Social</div>
   </footer>
 
-  <!-- JS -->
   <script>
     // Escape HTML helper
     function escapeHtml(str) {
@@ -115,9 +126,26 @@
         });
     }
 
+    // Handles search bar functionality on the homepage
+    function handleHeroSearch() {
+      const searchInput = document.getElementById('hero-search-input');
+      const searchTerm = searchInput.value.trim();
+      if (searchTerm) {
+        window.location.href = `shop.html?search=${encodeURIComponent(searchTerm)}`;
+      }
+    }
+
     // Load featured products and categories
     document.addEventListener("DOMContentLoaded", () => {
       document.getElementById('year').textContent = new Date().getFullYear();
+
+      // Add event listener for search bar on homepage
+      const heroSearchInput = document.getElementById('hero-search-input');
+      heroSearchInput.addEventListener('keypress', (event) => {
+        if (event.key === 'Enter') {
+          handleHeroSearch();
+        }
+      });
 
       fetch('/products.json')
         .then(res => res.json())
