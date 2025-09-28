@@ -26,11 +26,7 @@
     .product-card .price-row .btn {
       flex-grow: 1;
     }
-    .add-to-cart-btn {
-      font-size: 1.25rem;
-      padding: 8px 12px;
-    }
-    .add-to-wishlist-btn {
+    .add-to-cart-btn, .add-to-wishlist-btn {
       background: none;
       border: 1px solid #ddd;
       color: #777;
@@ -39,6 +35,10 @@
       cursor: pointer;
       border-radius: 4px;
       transition: color 0.2s, border-color 0.2s;
+    }
+    .add-to-cart-btn:hover {
+      color: #3498db;
+      border-color: #3498db;
     }
     .add-to-wishlist-btn:hover {
       color: #e74c3c;
@@ -118,7 +118,7 @@
             <p class="product-desc">${escapeHtml(p.description)}</p>
             <div class="price-row">
               <span class="price">$${p.price.toFixed(2)}</span>
-              <button class="btn add-to-cart-btn" onclick="addToCart('${p.id}')" aria-label="Add to Cart">🛒</button>
+              <button class="add-to-cart-btn" onclick="addToCart('${p.id}')" aria-label="Add to Cart">🛒</button>
               <button class="add-to-wishlist-btn" onclick="addToWishlist('${p.id}')" aria-label="Add to Wishlist">❤️</button>
             </div>
           </div>
