@@ -226,11 +226,12 @@
     filtersSelect.innerHTML = `<option value="all">All</option>`;
 
     let filters = [];
-    if (primaryValue === "Vehicles" && subcatValue !== "all") {
-      filters = [...new Set(products
-        .filter(p => p.primaryCategory === primaryValue && p.subcategory === subcatValue)
-        .flatMap(p => p.filters)
-        .filter(Boolean))];
+    // Check if the current category has filters
+    if (subcatValue !== "all" && subcatValue !== "" && subcatValue !== null) {
+        filters = [...new Set(products
+          .filter(p => p.primaryCategory === primaryValue && p.subcategory === subcatValue)
+          .flatMap(p => p.filters)
+          .filter(Boolean))];
     }
     
     if (filters.length) {
@@ -272,7 +273,7 @@
           subcatFilter.value = subcatFromURL;
         }
 
-        // Populate filters based on subcategorys
+        // Populate filters based on subcategory
         updateFilters(products, primaryFromURL, subcatFromURL);
         if (filtersFromURL && filtersFilter.querySelector(`[value="${filtersFromURL}"]`)) {
           filtersFilter.value = filtersFromURL;
