@@ -7,7 +7,6 @@
   <link rel="stylesheet" href="/css/styles.css" />
 </head>
 <body>
-  <!-- Header -->
   <header class="header" role="banner">
     <div class="inner">
       <a class="brand" href="index.html"><h1>TrendAura Social</h1></a>
@@ -19,11 +18,9 @@
     </div>
   </header>
 
-  <!-- Shop Page -->
   <main class="container" id="main">
     <h2>Shop Products</h2>
 
-    <!-- Filters -->
     <div class="filter-bar">
       <label for="primaryCategory">Browse by:</label>
       <select id="primaryCategory">
@@ -32,6 +29,11 @@
 
       <label for="subcategory">Subcategory:</label>
       <select id="subcategory" disabled>
+        <option value="all">All</option>
+      </select>
+
+      <label for="filters">Filter by:</label>
+      <select id="filters" disabled>
         <option value="all">All</option>
       </select>
 
@@ -45,19 +47,15 @@
       </select>
     </div>
 
-    <!-- Active Filter Indicator -->
     <div id="active-filters" class="active-filters"></div>
 
-    <!-- Product Grid -->
     <div id="shop-products" class="product-grid"></div>
   </main>
 
-  <!-- Footer -->
   <footer class="footer">
     <div class="container">&copy; <span id="year"></span> TrendAura Social</div>
   </footer>
 
-  <!-- JS -->
   <script>
   // Escape HTML helper
   function escapeHtml(str) {
@@ -124,7 +122,7 @@
   // Filtering + Sorting logic
   let allProducts = [];
 
-  function updateActiveFilters(primary, subcat) {
+  function updateActiveFilters(primary, subcat, filter) {
     const container = document.getElementById("active-filters");
     let text = "Browsing: ";
 
@@ -135,6 +133,9 @@
       if (subcat && subcat !== "all") {
         text += " → " + escapeHtml(subcat);
       }
+      if (filter && filter !== "all") {
+        text += " (" + escapeHtml(filter) + ")";
+      }
     }
 
     container.innerHTML = `<span class="filter-pill">${text}</span>`;
@@ -143,6 +144,7 @@
   function applyFilters() {
     const primary = document.getElementById("primaryCategory").value;
     const subcat = document.getElementById("subcategory").value;
+    const filter = document.getElementById("filters").value;
     const sortBy = document.getElementById("sortBy").value;
 
     let filtered = [...allProducts];
@@ -155,6 +157,11 @@
     // Filter by subcategory
     if (subcat !== "all" && subcat !== "" && subcat !== null) {
       filtered = filtered.filter(p => p.subcategory === subcat);
+    }
+
+    // Filter by filter (e.g., Gas, Electric)
+    if (filter !== "all" && filter !== "" && filter !== null) {
+      filtered = filtered.filter(p => p.filters && p.filters.includes(filter));
     }
 
     // Sorting
@@ -174,7 +181,7 @@
     }
 
     // Update active filters badge
-    updateActiveFilters(primary, subcat);
+    updateActiveFilters(primary, subcat, filter);
 
     renderProducts(filtered);
   }
@@ -188,22 +195,47 @@
   // Populate subcategories based on primary selection
   function updateSubcategories(products, primaryValue) {
     const subcatSelect = document.getElementById("subcategory");
-    let subcats = [];
+    const filtersSelect = document.getElementById("filters");
+    
+    // Clear subcategory and filter options
+    subcatSelect.disabled = true;
+    subcatSelect.innerHTML = `<option value="all">All</option>`;
+    filtersSelect.disabled = true;
+    filtersSelect.innerHTML = `<option value="all">All</option>`;
 
+    let subcats = [];
     if (primaryValue !== "all") {
       subcats = [...new Set(products
         .filter(p => p.primaryCategory === primaryValue)
         .map(p => p.subcategory)
         .filter(Boolean))];
     }
-
+    
     if (subcats.length) {
       subcatSelect.disabled = false;
-      subcatSelect.innerHTML = `<option value="all">All</option>` +
-        subcats.map(sc => `<option value="${escapeHtml(sc)}">${escapeHtml(sc)}</option>`).join("");
-    } else {
-      subcatSelect.disabled = true;
-      subcatSelect.innerHTML = `<option value="all">All</option>`;
+      subcatSelect.innerHTML += subcats.map(sc => `<option value="${escapeHtml(sc)}">${escapeHtml(sc)}</option>`).join("");
+    }
+  }
+
+  // Populate filters based on subcategory selection
+  function updateFilters(products, primaryValue, subcatValue) {
+    const filtersSelect = document.getElementById("filters");
+    
+    // Clear filter options
+    filtersSelect.disabled = true;
+    filtersSelect.innerHTML = `<option value="all">All</option>`;
+
+    let filters = [];
+    if (primaryValue === "Vehicles" && subcatValue !== "all") {
+      filters = [...new Set(products
+        .filter(p => p.primaryCategory === primaryValue && p.subcategory === subcatValue)
+        .flatMap(p => p.filters)
+        .filter(Boolean))];
+    }
+    
+    if (filters.length) {
+      filtersSelect.disabled = false;
+      filtersSelect.innerHTML += filters.map(f => `<option value="${escapeHtml(f)}">${escapeHtml(f)}</option>`).join("");
     }
   }
 
@@ -212,10 +244,12 @@
 
     const primaryFilter = document.getElementById("primaryCategory");
     const subcatFilter = document.getElementById("subcategory");
+    const filtersFilter = document.getElementById("filters");
 
     // Get params from URL
     const primaryFromURL = getQueryParam("primaryCategory") || "all";
     const subcatFromURL = getQueryParam("subcategory") || "all";
+    const filtersFromURL = getQueryParam("filters") || "all";
 
     // Fetch products
     fetch("/products.json")
@@ -238,15 +272,28 @@
           subcatFilter.value = subcatFromURL;
         }
 
+        // Populate filters based on subcategory
+        updateFilters(products, primaryFromURL, subcatFromURL);
+        if (filtersFromURL && filtersFilter.querySelector(`[value="${filtersFromURL}"]`)) {
+          filtersFilter.value = filtersFromURL;
+        }
+
         applyFilters(); // initial render
       });
 
     // Event listeners
     primaryFilter.addEventListener("change", () => {
       updateSubcategories(allProducts, primaryFilter.value);
+      updateFilters(allProducts, primaryFilter.value, subcatFilter.value);
       applyFilters();
     });
-    subcatFilter.addEventListener("change", applyFilters);
+    
+    subcatFilter.addEventListener("change", () => {
+      updateFilters(allProducts, primaryFilter.value, subcatFilter.value);
+      applyFilters();
+    });
+    
+    filtersFilter.addEventListener("change", applyFilters);
     document.getElementById("sortBy").addEventListener("change", applyFilters);
   });
   </script>

@@ -6,8 +6,9 @@
     "price": 49.99,
     "currency": "USD",
     "description": "High-speed racing go-kart for maximum fun.",
-    "primaryCategory": "By Intended Use",
-    "subcategory": "Racing Go-Karts",
+    "primaryCategory": "Vehicles",
+    "subcategory": "Racing",
+    "filters": ["Gas", "Adult", "Professional"],
     "featured": true,
     "images": [
       "/assets/images/go-kart/gocart1.webp",
@@ -22,24 +23,177 @@
     }
   },
   {
-    "id": "p2",
-    "slug": "go-kart-accessories-pack",
-    "title": "Go-Kart Accessories Pack",
-    "price": 129.00,
+    "id": "p9",
+    "slug": "professional-racing-kart",
+    "title": "Professional Racing Kart",
+    "price": 699.00,
     "currency": "USD",
-    "description": "Essential safety accessories for your go-kart.",
-    "primaryCategory": "Accessories",
-    "subcategory": "Safety Gear",
+    "description": "A lightweight, professional-grade racing kart with enhanced aerodynamics.",
+    "primaryCategory": "Vehicles",
+    "subcategory": "Racing",
+    "filters": ["Gas", "Adult", "Professional"],
     "featured": false,
     "images": [
-      "/assets/images/go-accessories/img_1072.webp",
-      "/assets/images/go-accessories/img_1073.webp",
-      "/assets/images/go-accessories/img_1075.webp",
-      "/assets/images/go-accessories/img_1078.webp"
+      "/assets/images/placeholder/professional-kart.webp",
+      "/assets/images/placeholder/professional-kart-2.webp"
     ],
     "details": {
-      "Includes": "Helmet, Gloves, Seat Belt",
-      "Warranty": "6 Months"
+      "Brand": "SpeedDemon",
+      "Material": "Carbon Fiber",
+      "Top Speed": "100+ mph"
+    }
+  },
+  {
+    "id": "p10",
+    "slug": "off-road-buggy",
+    "title": "Off-Road Buggy",
+    "price": 249.00,
+    "currency": "USD",
+    "description": "A rugged off-road buggy for all-terrain adventures.",
+    "primaryCategory": "Vehicles",
+    "subcategory": "Off-Road",
+    "filters": ["Gas", "Adult"],
+    "featured": true,
+    "images": [
+      "/assets/images/placeholder/off-road-buggy.webp",
+      "/assets/images/placeholder/off-road-buggy-2.webp"
+    ],
+    "details": {
+      "Brand": "TerrainMaster",
+      "Suspension": "Heavy-Duty",
+      "Tire Type": "Knobby"
+    }
+  },
+  {
+    "id": "p11",
+    "slug": "electric-dirt-kart",
+    "title": "Electric Dirt Kart",
+    "price": 319.00,
+    "currency": "USD",
+    "description": "Quiet and powerful electric kart for off-road trails.",
+    "primaryCategory": "Vehicles",
+    "subcategory": "Off-Road",
+    "filters": ["Electric", "Youth", "Adult"],
+    "featured": false,
+    "images": [
+      "/assets/images/placeholder/electric-dirt-kart.webp",
+      "/assets/images/placeholder/electric-dirt-kart-2.webp"
+    ],
+    "details": {
+      "Brand": "EcoRider",
+      "Motor": "Brushless",
+      "Range": "15 miles"
+    }
+  },
+  {
+    "id": "p12",
+    "slug": "recreational-go-kart",
+    "title": "Recreational Go-Kart",
+    "price": 179.00,
+    "currency": "USD",
+    "description": "A fun and easy-to-drive go-kart for the whole family.",
+    "primaryCategory": "Vehicles",
+    "subcategory": "Recreational",
+    "filters": ["Gas", "Youth", "Adult"],
+    "featured": true,
+    "images": [
+      "/assets/images/placeholder/recreational-kart.webp",
+      "/assets/images/placeholder/recreational-kart-2.webp"
+    ],
+    "details": {
+      "Brand": "FunWheels",
+      "Safety Features": "Roll cage, seatbelt",
+      "Engine": "6.5 HP"
+    }
+  },
+  {
+    "id": "p13",
+    "slug": "electric-recreational-kart",
+    "title": "Electric Recreational Kart",
+    "price": 229.00,
+    "currency": "USD",
+    "description": "A low-maintenance electric go-kart perfect for backyard fun.",
+    "primaryCategory": "Vehicles",
+    "subcategory": "Recreational",
+    "filters": ["Electric", "Youth", "Adult"],
+    "featured": false,
+    "images": [
+      "/assets/images/placeholder/electric-recreational-kart.webp",
+      "/assets/images/placeholder/electric-recreational-kart-2.webp"
+    ],
+    "details": {
+      "Brand": "GreenJoy",
+      "Charge Time": "4 hours",
+      "Max Speed": "15 mph"
+    }
+  },
+  {
+    "id": "p14",
+    "slug": "tesla-model-3",
+    "title": "Tesla Model 3",
+    "price": 35000.00,
+    "currency": "USD",
+    "description": "Tesla Model 3 with top performance and long range.",
+    "primaryCategory": "Vehicles",
+    "subcategory": "Electric",
+    "filters": ["Electric", "Adult", "Professional"],
+    "featured": true,
+    "images": [
+      "/assets/images/tesla1/img_1007.jpg",
+      "/assets/images/tesla1/img_1008.jpg",
+      "/assets/images/tesla1/img_1009.jpg",
+      "/assets/images/tesla1/img_1012.jpg"
+    ],
+    "details": {
+      "Brand": "Tesla",
+      "Range": "358 miles",
+      "Warranty": "4 Years"
+    }
+  },
+  {
+    "id": "p15",
+    "slug": "tesla-model-y",
+    "title": "Tesla Model Y",
+    "description": "Tesla Model Y electric SUV of the future.",
+    "primaryCategory": "Vehicles",
+    "subcategory": "Electric",
+    "filters": ["Electric", "Adult"],
+    "price": 42000.00,
+    "currency": "USD",
+    "featured": true,
+    "images": [
+      "/assets/images/tesla2/img_1007.jpg",
+      "/assets/images/tesla2/img_1008.jpg",
+      "/assets/images/tesla2/img_1009.jpg",
+      "/assets/images/tesla2/img_1010.jpg"
+    ],
+    "details": {
+      "Brand": "Tesla",
+      "Range": "330 miles",
+      "Warranty": "4 Years"
+    }
+  },
+  {
+    "id": "p16",
+    "slug": "tesla-model-x",
+    "title": "Tesla Model X",
+    "description": "Luxury electric SUV with falcon doors.",
+    "primaryCategory": "Vehicles",
+    "subcategory": "Electric",
+    "filters": ["Electric", "Adult", "Professional"],
+    "price": 89999.00,
+    "currency": "USD",
+    "featured": true,
+    "images": [
+      "/assets/images/tesla3/img_1015.jpg",
+      "/assets/images/tesla3/img_1074.webp",
+      "/assets/images/tesla3/img_1076.webp",
+      "/assets/images/tesla3/img_1078.webp"
+    ],
+    "details": {
+      "Brand": "Tesla",
+      "Range": "348 miles",
+      "Warranty": "4 Years"
     }
   },
   {
@@ -49,6 +203,7 @@
     "description": "High power rechargeable lithium-ion battery.",
     "primaryCategory": "Accessories",
     "subcategory": "Performance & Power",
+    "filters": ["Electric", "Racing", "Off-Road", "Recreational"],
     "price": 79.99,
     "currency": "USD",
     "featured": false,
@@ -71,6 +226,7 @@
     "description": "High retention hydro-powered battery.",
     "primaryCategory": "Accessories",
     "subcategory": "Performance & Power",
+    "filters": ["Electric", "Racing", "Off-Road", "Recreational"],
     "price": 129.00,
     "currency": "USD",
     "featured": false,
@@ -87,91 +243,265 @@
     }
   },
   {
-    "id": "p5",
-    "slug": "go-battery-kit",
-    "title": "Go-Battery Kit",
-    "description": "Complete kit with multiple high-performance batteries.",
+    "id": "p17",
+    "slug": "performance-engine",
+    "title": "Performance Engine",
+    "description": "A high-performance gas engine for competitive racing.",
     "primaryCategory": "Accessories",
     "subcategory": "Performance & Power",
-    "price": 99.00,
+    "filters": ["Gas", "Racing"],
+    "price": 499.00,
     "currency": "USD",
     "featured": false,
     "images": [
-      "/assets/images/go-battery3/img_1079.webp",
-      "/assets/images/go-battery2/img_1080.webp",
-      "/assets/images/go-battery2/img_1110.webp",
-      "/assets/images/go-battery2/img_1112.webp"
+      "/assets/images/placeholder/performance-engine.webp"
     ],
     "details": {
-      "Brand": "TrendAura",
-      "Type": "Mixed Pack",
-      "Warranty": "1 Year"
+      "Brand": "PowerMax",
+      "Horsepower": "20 HP",
+      "Compatible With": "Racing Karts"
     }
   },
   {
-    "id": "p6",
-    "slug": "tesla-model-3",
-    "title": "Tesla Model 3",
-    "price": 35000.00,
+    "id": "p18",
+    "slug": "all-terrain-tires",
+    "title": "All-Terrain Tires",
+    "description": "Durable tires with an aggressive tread for off-road use.",
+    "primaryCategory": "Accessories",
+    "subcategory": "Chassis & Handling",
+    "filters": ["Off-Road"],
+    "price": 89.00,
     "currency": "USD",
-    "description": "Tesla Model 3 with top performance and long range.",
-    "primaryCategory": "Cars",
-    "subcategory": "Electric Cars",
-    "featured": true,
+    "featured": false,
     "images": [
-      "/assets/images/tesla1/img_1007.jpg",
-      "/assets/images/tesla1/img_1008.jpg",
-      "/assets/images/tesla1/img_1009.jpg",
-      "/assets/images/tesla1/img_1012.jpg"
+      "/assets/images/placeholder/all-terrain-tires.webp"
     ],
     "details": {
-      "Brand": "Tesla",
-      "Range": "358 miles",
-      "Warranty": "4 Years"
+      "Brand": "TrailGrabber",
+      "Type": "Knobby",
+      "Size": "10-inch"
     }
   },
   {
-    "id": "p7",
-    "slug": "tesla-model-y",
-    "title": "Tesla Model Y",
-    "description": "Tesla Model Y electric SUV of the future.",
-    "primaryCategory": "Cars",
-    "subcategory": "Electric Cars",
-    "price": 42000.00,
+    "id": "p19",
+    "slug": "racing-slick-tires",
+    "title": "Racing Slick Tires",
+    "description": "Smooth tires designed for maximum grip on paved tracks.",
+    "primaryCategory": "Accessories",
+    "subcategory": "Chassis & Handling",
+    "filters": ["Racing"],
+    "price": 119.00,
     "currency": "USD",
     "featured": true,
     "images": [
-      "/assets/images/tesla2/img_1007.jpg",
-      "/assets/images/tesla2/img_1008.jpg",
-      "/assets/images/tesla2/img_1009.jpg",
-      "/assets/images/tesla2/img_1010.jpg"
+      "/assets/images/placeholder/racing-slick-tires.webp"
     ],
     "details": {
-      "Brand": "Tesla",
-      "Range": "330 miles",
-      "Warranty": "4 Years"
+      "Brand": "RacePro",
+      "Type": "Slick",
+      "Size": "8-inch"
     }
   },
   {
-    "id": "p8",
-    "slug": "tesla-model-x",
-    "title": "Tesla Model X",
-    "description": "Luxury electric SUV with falcon doors.",
-    "primaryCategory": "Cars",
-    "subcategory": "Electric Cars",
-    "price": 89999.00,
+    "id": "p20",
+    "slug": "off-road-roll-cage",
+    "title": "Off-Road Roll Cage",
+    "description": "Steel roll cage for added safety in rough terrain.",
+    "primaryCategory": "Accessories",
+    "subcategory": "Body & Frame",
+    "filters": ["Off-Road"],
+    "price": 250.00,
+    "currency": "USD",
+    "featured": false,
+    "images": [
+      "/assets/images/placeholder/roll-cage.webp"
+    ],
+    "details": {
+      "Brand": "ArmorGuard",
+      "Material": "Reinforced Steel",
+      "Compatible With": "Off-Road Karts"
+    }
+  },
+  {
+    "id": "p21",
+    "slug": "racing-body-kit",
+    "title": "Racing Body Kit",
+    "description": "Lightweight fiberglass body kit for improved aerodynamics.",
+    "primaryCategory": "Accessories",
+    "subcategory": "Body & Frame",
+    "filters": ["Racing"],
+    "price": 180.00,
     "currency": "USD",
     "featured": true,
     "images": [
-      "/assets/images/tesla3/img_1015.jpg",
-      "/assets/images/tesla3/img_1074.webp",
-      "/assets/images/tesla3/img_1076.webp",
-      "/assets/images/tesla3/img_1078.webp"
+      "/assets/images/placeholder/racing-body-kit.webp"
     ],
     "details": {
-      "Brand": "Tesla",
-      "Range": "348 miles",
-      "Warranty": "4 Years"
+      "Brand": "AeroFlow",
+      "Material": "Fiberglass",
+      "Compatible With": "Racing Karts"
+    }
+  },
+  {
+    "id": "p22",
+    "slug": "led-headlight-kit",
+    "title": "LED Headlight Kit",
+    "description": "Bright LED lights for nighttime trail riding.",
+    "primaryCategory": "Accessories",
+    "subcategory": "Electrical & Electronics",
+    "filters": ["Off-Road", "Recreational"],
+    "price": 55.00,
+    "currency": "USD",
+    "featured": false,
+    "images": [
+      "/assets/images/placeholder/led-lights.webp"
+    ],
+    "details": {
+      "Brand": "LumenTech",
+      "Power": "12V",
+      "Installation": "Easy"
+    }
+  },
+  {
+    "id": "p23",
+    "slug": "digital-tachometer",
+    "title": "Digital Tachometer",
+    "description": "A digital display for monitoring engine RPM and speed.",
+    "primaryCategory": "Accessories",
+    "subcategory": "Electrical & Electronics",
+    "filters": ["Gas", "Electric", "Racing"],
+    "price": 35.00,
+    "currency": "USD",
+    "featured": false,
+    "images": [
+      "/assets/images/placeholder/tachometer.webp"
+    ],
+    "details": {
+      "Brand": "ProGauge",
+      "Display": "LCD",
+      "Compatible With": "All Karts"
+    }
+  },
+  {
+    "id": "p2",
+    "slug": "go-kart-accessories-pack",
+    "title": "Go-Kart Accessories Pack",
+    "price": 129.00,
+    "currency": "USD",
+    "description": "Essential safety accessories for your go-kart.",
+    "primaryCategory": "Accessories",
+    "subcategory": "Safety Gear",
+    "filters": ["All"],
+    "featured": false,
+    "images": [
+      "/assets/images/go-accessories/img_1072.webp",
+      "/assets/images/go-accessories/img_1073.webp",
+      "/assets/images/go-accessories/img_1075.webp",
+      "/assets/images/go-accessories/img_1078.webp"
+    ],
+    "details": {
+      "Includes": "Helmet, Gloves, Seat Belt",
+      "Warranty": "6 Months"
+    }
+  },
+  {
+    "id": "p24",
+    "slug": "racing-suit",
+    "title": "Racing Suit",
+    "description": "Fire-resistant racing suit for competitive drivers.",
+    "primaryCategory": "Accessories",
+    "subcategory": "Safety Gear",
+    "filters": ["All"],
+    "price": 199.00,
+    "currency": "USD",
+    "featured": true,
+    "images": [
+      "/assets/images/placeholder/racing-suit.webp"
+    ],
+    "details": {
+      "Brand": "SafetyPro",
+      "Material": "Nomex",
+      "Sizes": "S, M, L, XL"
+    }
+  },
+  {
+    "id": "p25",
+    "slug": "mechanics-tool-kit",
+    "title": "Mechanic's Tool Kit",
+    "description": "A complete set of tools for go-kart maintenance and repair.",
+    "primaryCategory": "Accessories",
+    "subcategory": "Maintenance & Tools",
+    "filters": ["All"],
+    "price": 85.00,
+    "currency": "USD",
+    "featured": false,
+    "images": [
+      "/assets/images/placeholder/tool-kit.webp"
+    ],
+    "details": {
+      "Brand": "ProTools",
+      "Includes": "Wrenches, pliers, screwdrivers",
+      "Case": "Durable plastic"
+    }
+  },
+  {
+    "id": "p26",
+    "slug": "chain-lubricant",
+    "title": "Chain Lubricant",
+    "description": "High-performance lubricant for keeping chains running smoothly.",
+    "primaryCategory": "Accessories",
+    "subcategory": "Maintenance & Tools",
+    "filters": ["All"],
+    "price": 15.00,
+    "currency": "USD",
+    "featured": false,
+    "images": [
+      "/assets/images/placeholder/chain-lube.webp"
+    ],
+    "details": {
+      "Brand": "MotoCare",
+      "Volume": "12 oz",
+      "Application": "Spray"
+    }
+  },
+  {
+    "id": "p27",
+    "slug": "go-kart-cover",
+    "title": "Go-Kart Cover",
+    "description": "A weather-resistant cover to protect your kart from the elements.",
+    "primaryCategory": "Accessories",
+    "subcategory": "Accessories & Extras",
+    "filters": ["All"],
+    "price": 45.00,
+    "currency": "USD",
+    "featured": false,
+    "images": [
+      "/assets/images/placeholder/kart-cover.webp"
+    ],
+    "details": {
+      "Brand": "WeatherShield",
+      "Material": "Durable Polyester",
+      "UV Protection": "Yes"
+    }
+  },
+  {
+    "id": "p28",
+    "slug": "custom-decal-kit",
+    "title": "Custom Decal Kit",
+    "description": "Personalize your ride with a custom decal set.",
+    "primaryCategory": "Accessories",
+    "subcategory": "Accessories & Extras",
+    "filters": ["All"],
+    "price": 25.00,
+    "currency": "USD",
+    "featured": true,
+    "images": [
+      "/assets/images/placeholder/decal-kit.webp"
+    ],
+    "details": {
+      "Brand": "StyleWraps",
+      "Material": "Vinyl",
+      "Customizable": "Yes"
     }
   }
 ]
