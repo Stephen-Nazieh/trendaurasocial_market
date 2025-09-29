@@ -1,6 +1,5 @@
 // netlify/functions/create-paypal-order.js
-// Creates a PayPal order (server-side). Expects POST body: { items: [...], or purchase_units optional }
-// Requires env vars: PAYPAL_CLIENT_ID, PAYPAL_CLIENT_SECRET, PAYPAL_ENV (sandbox|production), SITE_URL (optional)
+// Creates a PayPal order (server-side). Expects POST body: { purchase_units: [...] }
 
 const fetch = require('node-fetch');
 const PAYPAL_CLIENT = process.env.PAYPAL_CLIENT_ID;
@@ -36,43 +35,20 @@ exports.handler = async (event) => {
     }
 
     const body = event.body ? JSON.parse(event.body) : {};
-    const items = Array.isArray(body.items) ? body.items : [];
-    const clientReturn = body.return_url || `${SITE_URL}/success.html`;
-    const clientCancel = body.cancel_url || `${SITE_URL}/cancel.html`;
-
-    // Calculate total from items (if provided). Items expected to have price (number) and quantity (number).
-    let total = 0;
-    const payPalItems = [];
-
-    if (items.length) {
-      items.forEach(it => {
-        const qty = Number(it.quantity || 1);
-        const price = Number(it.price || 0);
-        total += price * qty;
-
-        // create PayPal item (name limited length)
-        payPalItems.push({
-          name: String(it.title || it.name || 'Item').slice(0, 127),
-          unit_amount: { currency_code: it.currency || 'USD', value: price.toFixed(2) },
-          quantity: String(qty)
-        });
-      });
+    const purchase_units = body.purchase_units;
+    
+    if (!purchase_units || !Array.isArray(purchase_units) || purchase_units.length === 0) {
+      return { statusCode: 400, body: JSON.stringify({ error: 'Missing or invalid purchase_units in request body.' }) };
+    }
+    
+    // Validate that the total value is greater than zero
+    const totalAmount = parseFloat(purchase_units[0]?.amount?.value);
+    if (isNaN(totalAmount) || totalAmount <= 0) {
+      return { statusCode: 400, body: JSON.stringify({ error: 'PayPal order total must be greater than zero.' }) };
     }
 
-    // Fallback: if no items provided, accept purchase_units passed in body (be cautious)
-    let purchase_units = body.purchase_units;
-    if (!purchase_units) {
-      purchase_units = [{
-        amount: {
-          currency_code: 'USD',
-          value: (total || 0).toFixed(2),
-          breakdown: {
-            item_total: { currency_code: 'USD', value: (total || 0).toFixed(2) }
-          }
-        },
-        items: payPalItems
-      }];
-    }
+    const clientReturn = `${SITE_URL}/success.html`;
+    const clientCancel = `${SITE_URL}/cancel.html`;
 
     const token = await getAccessToken();
 
