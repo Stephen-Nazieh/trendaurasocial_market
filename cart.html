@@ -107,8 +107,11 @@
               throw new Error("No items in cart");
             }
             
-            // Explicitly convert price and quantity to numbers to ensure accurate calculation
-            const subtotal = cart.reduce((sum, item) => sum + (Number(item.price) * Number(item.quantity)), 0);
+            // Explicitly convert price and quantity to numbers, removing non-numeric characters first
+            const subtotal = cart.reduce((sum, item) => {
+              const cleanedPrice = String(item.price).replace(/[^0-9.]/g, '');
+              return sum + (Number(cleanedPrice) * Number(item.quantity));
+            }, 0);
             
             const shipping = subtotal > 100 ? 0 : 10;
             const total = subtotal + shipping;
