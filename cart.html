@@ -106,7 +106,10 @@
               alert("Your cart is empty.");
               throw new Error("No items in cart");
             }
-            const subtotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+            
+            // Explicitly convert price and quantity to numbers to ensure accurate calculation
+            const subtotal = cart.reduce((sum, item) => sum + (Number(item.price) * Number(item.quantity)), 0);
+            
             const shipping = subtotal > 100 ? 0 : 10;
             const total = subtotal + shipping;
             const purchase_units = [{
