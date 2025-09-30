@@ -125,6 +125,12 @@
                 }
               }
             }];
+
+            if (total <= 0) {
+                alert("Cart total is $0.00. Cannot create order.");
+                throw new Error("Cart total is $0.00");
+            }
+
             const res = await fetch("/.netlify/functions/create-paypal-order", {
               method: "POST",
               headers: { "Content-Type": "application/json" },
@@ -144,10 +150,14 @@
         },
         onApprove: async function (data, actions) {
           try {
+            // Get the current cart to send to the server for invoicing
+            const cart = JSON.parse(localStorage.getItem("cart") || "[]"); 
+
             const res = await fetch("/.netlify/functions/capture-paypal-order", {
               method: "POST",
               headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ orderID: data.orderID })
+              // PASS THE CART DATA HERE ALONG WITH ORDER ID
+              body: JSON.stringify({ orderID: data.orderID, cart: cart })
             });
             const captureJson = await res.json();
             if (!res.ok) {
@@ -184,8 +194,10 @@
       localStorage.setItem('cart', JSON.stringify(cart));
     }
     function formatMoney(v, currency='USD') {
+      // Ensure v is a number before formatting
+      v = Number(String(v).replace(/[^0-9.]/g, ''));
       try { return new Intl.NumberFormat('en-US', { style: 'currency', currency }).format(v); }
-      catch (e) { return (currency || 'USD') + ' ' + Number(v).toFixed(2); }
+      catch (e) { return (currency || 'USD') + ' ' + v.toFixed(2); }
     }
 
     // This is the main function that updates the entire cart view.
@@ -208,8 +220,9 @@
       let html = '<table class="cart-table"><thead><tr><th>Item</th><th>Product</th><th>Quantity</th><th>Price</th><th>Subtotal</th><th></th></tr></thead><tbody>';
       let subtotal = 0;
       cart.forEach((item, idx) => {
+        // Clean price here to ensure subtotal calculation is correct
+        const price = Number(String(item.price).replace(/[^0-9.]/g, '') || 0);
         const qty = Number(item.quantity || 1);
-        const price = Number(item.price || 0);
         const rowSubtotal = qty * price;
         subtotal += rowSubtotal;
         html += `<tr data-index="${idx}">
