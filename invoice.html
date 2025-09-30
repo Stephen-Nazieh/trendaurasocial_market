@@ -1,0 +1,309 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>Invoice — TrendAura Social</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <!-- NOTE: Assumes /css/styles.css exists for base styling -->
+    <link rel="stylesheet" href="/css/styles.css" /> 
+    <style>
+        .invoice-container {
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 30px;
+            border: 1px solid #ccc;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            background-color: #fff;
+            border-radius: 8px;
+        }
+        .invoice-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid #333;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+        .invoice-header h1 {
+            color: #333;
+            font-size: 2.5rem;
+        }
+        .invoice-details {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 30px;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        .invoice-details div {
+            flex: 1;
+            min-width: 200px; /* Ensures elements don't get too squished on smaller screens */
+        }
+        .invoice-details strong {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 1.1rem;
+        }
+        .invoice-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 30px;
+        }
+        .invoice-table th, .invoice-table td {
+            border: 1px solid #eee;
+            padding: 12px;
+            text-align: left;
+        }
+        .invoice-table th {
+            background-color: #f5f5f5;
+        }
+        .invoice-summary {
+            display: flex;
+            justify-content: flex-end;
+        }
+        .invoice-summary table {
+            width: 300px;
+        }
+        .invoice-summary tr.total td {
+            font-weight: bold;
+            border-top: 2px solid #333;
+            background-color: #fcfcfc;
+        }
+        .print-btn-container {
+            text-align: center;
+            margin-top: 30px;
+        }
+        .btn { 
+            padding: 10px 20px; 
+            background: #0077cc; 
+            color: #fff; 
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .btn:hover { background: #005f99; }
+
+        /* Hide non-invoice elements when printing */
+        @media print {
+            .header, .footer, .print-btn-container {
+                display: none !important;
+            }
+            .invoice-container {
+                border: none;
+                box-shadow: none;
+                margin: 0;
+                padding: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header" role="banner">
+        <div class="inner">
+            <a class="brand" href="index.html"><h1>TrendAura Social</h1></a>
+            <nav class="nav" role="navigation" aria-label="Main">
+                <a href="index.html">Home</a>
+                <a href="shop.html">Shop</a>
+                <a href="cart.html">Cart</a>
+                <a href="wishlist.html">Wishlist</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container" id="main">
+        <div class="invoice-container" id="invoice-content" style="display:none;">
+            <!-- Content will be injected here -->
+        </div>
+        <div id="loading" style="text-align: center; margin-top: 50px;">Loading invoice details...</div>
+        <div id="error-message" style="text-align: center; color: #c0392b; margin-top: 50px; display:none;"></div>
+        
+        <div class="print-btn-container">
+            <button class="btn" onclick="window.print()">Print / Save as PDF</button>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="container">&copy; <span id="year"></span> TrendAura Social</div>
+    </footer>
+
+    <script type="module">
+        // === FIREBASE SETUP ===
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
+        
+        let isAuthReady = false;
+
+        // Sign in to allow reading public data
+        if (typeof __initial_auth_token !== 'undefined') {
+            signInWithCustomToken(auth, __initial_auth_token)
+                .then(() => { isAuthReady = true; console.log("Authenticated for invoice access."); renderInvoice(); })
+                .catch(error => { console.error("Custom Auth failed:", error); signInAnonymously(auth).then(() => { isAuthReady = true; renderInvoice(); }); });
+        } else {
+            signInAnonymously(auth).then(() => { isAuthReady = true; console.log("Signed in anonymously for invoice access."); renderInvoice(); });
+        }
+
+        // === UTILITIES ===
+        function getQueryParam(param) {
+            return new URLSearchParams(window.location.search).get(param);
+        }
+
+        function formatMoney(v, currency = 'USD') {
+            // Ensure v is a number before formatting
+            v = Number(String(v).replace(/[^0-9.]/g, '') || 0);
+            try { return new Intl.NumberFormat('en-US', { style: 'currency', currency }).format(v); }
+            catch (e) { return (currency || 'USD') + ' ' + v.toFixed(2); }
+        }
+
+        function formatDate(isoString) {
+            try {
+                return new Date(isoString).toLocaleDateString('en-US', {
+                    year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit'
+                });
+            } catch {
+                return isoString;
+            }
+        }
+
+        // === MAIN RENDER FUNCTION ===
+        async function renderInvoice() {
+            const orderId = getQueryParam('order_id');
+            const contentDiv = document.getElementById('invoice-content');
+            const loadingDiv = document.getElementById('loading');
+            const errorDiv = document.getElementById('error-message');
+            
+            if (!orderId) {
+                loadingDiv.style.display = 'none';
+                errorDiv.textContent = 'Error: Missing PayPal Order ID.';
+                errorDiv.style.display = 'block';
+                return;
+            }
+
+            if (!isAuthReady) {
+                // If not ready, the sign-in promise will re-call renderInvoice()
+                return; 
+            }
+
+            try {
+                // Fetch the public invoice record from: /artifacts/{appId}/public/data/invoices/{orderId}
+                const docRef = doc(db, `artifacts/${appId}/public/data/invoices`, orderId);
+                const docSnap = await getDoc(docRef);
+
+                if (!docSnap.exists()) {
+                    loadingDiv.style.display = 'none';
+                    errorDiv.textContent = `Invoice not found for Order ID: ${orderId}. The link may be incorrect.`;
+                    errorDiv.style.display = 'block';
+                    return;
+                }
+
+                const data = docSnap.data();
+                
+                // Extract financial details from the PayPal structure
+                // Assuming only one purchase unit and one capture for simplicity
+                const firstPurchaseUnit = data.purchaseUnits[0];
+                const firstCapture = firstPurchaseUnit.payments.captures[0];
+                
+                const totalAmount = firstCapture.amount.value;
+                const shippingBreakdown = firstPurchaseUnit.amount.breakdown?.shipping?.value || '0.00';
+                const subtotalBreakdown = firstPurchaseUnit.amount.breakdown?.item_total?.value || '0.00';
+                
+                const payerName = `${data.payer.name?.given_name || ''} ${data.payer.name?.surname || ''}`;
+                const shippingAddress = firstPurchaseUnit.shipping?.address || {};
+
+                // --- Build HTML Content ---
+                let itemsHtml = '';
+                data.items.forEach(item => {
+                    const price = Number(String(item.price).replace(/[^0-9.]/g, '') || 0);
+                    const qty = Number(item.quantity || 1);
+                    const rowTotal = price * qty;
+                    itemsHtml += `
+                        <tr>
+                            <td>${item.title}</td>
+                            <td>${qty}</td>
+                            <td>${formatMoney(price, item.currency)}</td>
+                            <td>${formatMoney(rowTotal, item.currency)}</td>
+                        </tr>
+                    `;
+                });
+
+                contentDiv.innerHTML = `
+                    <div class="invoice-header">
+                        <div>
+                            <h1>INVOICE</h1>
+                            <p>Transaction ID: <strong>${data.transactionID}</strong></p>
+                        </div>
+                        <div style="text-align: right;">
+                            <strong>TrendAura Social</strong>
+                            <p>Digital Services & Goods Inc.</p>
+                            <p>Contact: support@trendaura.com</p>
+                        </div>
+                    </div>
+                    
+                    <div class="invoice-details">
+                        <div>
+                            <strong>Bill To:</strong>
+                            <p>${payerName}</p>
+                            <p>${data.payer.email_address}</p>
+                        </div>
+                        <div>
+                            <strong>Ship To:</strong>
+                            <p>${shippingAddress.address_line_1 || 'N/A'}</p>
+                            <p>${shippingAddress.address_line_2 || ''}</p>
+                            <p>${shippingAddress.admin_area_2}, ${shippingAddress.admin_area_1} ${shippingAddress.postal_code}</p>
+                            <p>${shippingAddress.country_code}</p>
+                        </div>
+                        <div>
+                            <strong>Invoice Date:</strong>
+                            <p>${formatDate(data.captureTime)}</p>
+                            <strong>Payment Status:</strong>
+                            <p style="color: #27ae60; font-weight: bold;">${data.status}</p>
+                        </div>
+                    </div>
+
+                    <table class="invoice-table">
+                        <thead>
+                            <tr>
+                                <th>Item Description</th>
+                                <th style="width: 80px;">Qty</th>
+                                <th style="width: 120px;">Unit Price</th>
+                                <th style="width: 120px;">Amount</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${itemsHtml}
+                        </tbody>
+                    </table>
+
+                    <div class="invoice-summary">
+                        <table>
+                            <tr><td>Subtotal:</td><td>${formatMoney(subtotalBreakdown)}</td></tr>
+                            <tr><td>Shipping:</td><td>${formatMoney(shippingBreakdown)}</td></tr>
+                            <tr class="total"><td>TOTAL PAID:</td><td>${formatMoney(totalAmount)}</td></tr>
+                        </table>
+                    </div>
+                `;
+
+                loadingDiv.style.display = 'none';
+                contentDiv.style.display = 'block';
+
+            } catch (error) {
+                console.error("Failed to fetch invoice:", error);
+                loadingDiv.style.display = 'none';
+                errorDiv.textContent = 'Could not load invoice data. Please verify the link.';
+                errorDiv.style.display = 'block';
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            document.getElementById('year').textContent = new Date().getFullYear();
+        });
+    </script>
+</body>
+</html>

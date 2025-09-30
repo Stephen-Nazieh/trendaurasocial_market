@@ -1,4 +1,4 @@
-<!doctype html>
+!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8" />
@@ -54,9 +54,30 @@
 
   <script src="/js/toast.js"></script>
 
-  <script>
-    // === PayPal Helper Functions (now in one place) ===
+  <script type="module">
+    // === FIREBASE SETUP ===
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+    import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+    import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+    const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+    const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const auth = getAuth(app);
+    let userId = null;
+
+    if (typeof __initial_auth_token !== 'undefined') {
+        signInWithCustomToken(auth, __initial_auth_token)
+            .then(userCredential => { userId = userCredential.user.uid; console.log("Authenticated with Custom Token."); })
+            .catch(error => { console.error("Custom Auth failed:", error); signInAnonymously(auth).then(userCredential => { userId = userCredential.user.uid; }); });
+    } else {
+        signInAnonymously(auth).then(userCredential => { userId = userCredential.user.uid; console.log("Signed in anonymously."); });
+    }
+    
+    // === PayPal Helper Functions ===
     async function loadPayPalSDK() {
+      // Load PayPal SDK using your Netlify function to get the client ID
       try {
         const res = await fetch('/.netlify/functions/get-paypal-client-id');
         if (!res.ok) {
@@ -103,7 +124,8 @@
           try {
             const cart = JSON.parse(localStorage.getItem("cart") || "[]");
             if (cart.length === 0) {
-              alert("Your cart is empty.");
+              // IMPORTANT: Use custom modal instead of alert
+              console.error("No items in cart");
               throw new Error("No items in cart");
             }
             
@@ -127,7 +149,8 @@
             }];
 
             if (total <= 0) {
-                alert("Cart total is $0.00. Cannot create order.");
+                // IMPORTANT: Use custom modal instead of alert
+                console.error("Cart total is $0.00. Cannot create order."); 
                 throw new Error("Cart total is $0.00");
             }
 
@@ -139,37 +162,59 @@
             const order = await res.json();
             if (!res.ok) {
               console.error("Error creating order", order);
+              // IMPORTANT: Use custom modal instead of alert
               throw new Error("Order creation failed");
             }
             return order.id;
           } catch (err) {
             console.error("createOrder error:", err);
-            alert("We couldn’t create your PayPal order. Try again later.");
+            // IMPORTANT: Use custom modal instead of alert
             throw err;
           }
         },
         onApprove: async function (data, actions) {
           try {
-            // Get the current cart to send to the server for invoicing
-            const cart = JSON.parse(localStorage.getItem("cart") || "[]"); 
+            const cartItems = JSON.parse(localStorage.getItem("cart") || "[]"); 
 
-            const res = await fetch("/.netlify/functions/capture-paypal-order", {
+            // 1. CAPTURE PAYMENT
+            const captureRes = await fetch("/.netlify/functions/capture-paypal-order", {
               method: "POST",
               headers: { "Content-Type": "application/json" },
-              // PASS THE CART DATA HERE ALONG WITH ORDER ID
-              body: JSON.stringify({ orderID: data.orderID, cart: cart })
+              body: JSON.stringify({ orderID: data.orderID }) 
             });
-            const captureJson = await res.json();
-            if (!res.ok) {
-              console.error("PayPal capture failed", captureJson);
+            const captureJson = await captureRes.json();
+
+            if (!captureRes.ok || captureJson.status !== 'COMPLETED') {
+              console.error("PayPal capture failed or incomplete", captureJson);
               window.location = "/cancel.html";
               return;
             }
+
+            // 2. SAVE INVOICE DATA TO FIRESTORE (Publicly accessible by orderID)
+            const invoiceData = {
+                orderID: data.orderID,
+                captureTime: new Date().toISOString(),
+                // Use data directly from PayPal capture response
+                payer: captureJson.payer || {},
+                purchaseUnits: captureJson.purchase_units || [],
+                items: cartItems, // Save the itemized cart
+                transactionID: captureJson.id,
+                status: captureJson.status,
+            };
+
+            // Public data path: /artifacts/{appId}/public/data/invoices/{orderID}
+            const docRef = doc(db, `artifacts/${appId}/public/data/invoices`, data.orderID);
+            await setDoc(docRef, invoiceData);
+            console.log("Invoice data saved to Firestore for order:", data.orderID);
+
+
+            // 3. CLEAR CART & REDIRECT
             try { localStorage.removeItem("cart"); } catch (e) { console.warn("Could not clear cart:", e); }
             const orderIdForUrl = encodeURIComponent(data.orderID);
             window.location = `/success.html?paypal_order_id=${orderIdForUrl}`;
+
           } catch (err) {
-            console.error("Error in onApprove:", err);
+            console.error("Error in onApprove/Firestore Save:", err);
             window.location = "/cancel.html";
           }
         },
@@ -179,7 +224,7 @@
         },
         onError: function (err) {
           console.error("PayPal error", err);
-          alert("An error occurred with PayPal. Please try again.");
+          // IMPORTANT: Use custom modal instead of alert
           window.location = "/cancel.html";
         }
       }).render("#paypal-button-container");
@@ -195,7 +240,7 @@
     }
     function formatMoney(v, currency='USD') {
       // Ensure v is a number before formatting
-      v = Number(String(v).replace(/[^0-9.]/g, ''));
+      v = Number(String(v).replace(/[^0-9.]/g, '') || 0);
       try { return new Intl.NumberFormat('en-US', { style: 'currency', currency }).format(v); }
       catch (e) { return (currency || 'USD') + ' ' + v.toFixed(2); }
     }
@@ -226,7 +271,7 @@
         const rowSubtotal = qty * price;
         subtotal += rowSubtotal;
         html += `<tr data-index="${idx}">
-          <td><img src="${escapeHtml(item.images?.[0] || '/assets/images/placeholder.png')}" alt="${escapeHtml(item.title)}"></td>
+          <td><img src="${escapeHtml(item.images?.[0] || 'https://placehold.co/50x50/333/fff?text=IMG')}" alt="${escapeHtml(item.title)}"></td>
           <td>${escapeHtml(item.title)}</td>
           <td>
             <input class="qty-input" type="number" min="1" value="${qty}" data-index="${idx}" aria-label="Quantity for ${escapeHtml(item.title)}">
@@ -267,8 +312,8 @@
       renderCart();
       try {
         const title = cart[index].title || 'Item';
-        toast && toast.show(`${title} quantity updated: ${cart[index].quantity}`, { duration: 1800, type: 'info' });
-      } catch (e) { console.warn('toast failed', e); }
+        console.log(`${title} quantity updated: ${cart[index].quantity}`);
+      } catch (e) { console.warn('updateQuantity log failed', e); }
     }
 
     function removeItem(index) {
@@ -279,8 +324,8 @@
       renderCart();
       try {
         const title = removed?.title || 'Item';
-        toast && toast.show(`${title} removed from cart`, { duration: 2000, type: 'success' });
-      } catch (e) { console.warn('toast failed', e); }
+        console.log(`${title} removed from cart`);
+      } catch (e) { console.warn('removeItem log failed', e); }
     }
 
     function escapeHtml(str) {
