@@ -159,7 +159,8 @@
                     try {
                         const cart = getCart(); 
                         if (cart.length === 0) {
-                            alert("Your cart is empty."); // Using alert is necessary here as it blocks PayPal flow temporarily
+                            // FIX: Replaced non-allowed alert() with toast message
+                            toast && toast.show("Your cart is empty. Please add items to proceed.", { duration: 3000, type: 'warning' });
                             throw new Error("No items in cart");
                         }
 
@@ -250,14 +251,19 @@
 
         function getCart() {
             try {
-                return JSON.parse(localStorage.getItem('cart') || '[]');
+                const cartData = localStorage.getItem('cart');
+                console.log("DEBUG | getCart: Raw data from localStorage:", cartData); // <-- DEBUG LOG
+                // Safely parse the data. If cartData is null, use '[]' to avoid JSON.parse error.
+                return JSON.parse(cartData || '[]');
             } catch (e) {
+                console.error("DEBUG | getCart: Failed to parse cart data. This means data in localStorage is corrupted.", e); // <-- DEBUG LOG
                 return [];
             }
         }
 
         function saveCart(cart) {
             localStorage.setItem('cart', JSON.stringify(cart));
+            console.log("DEBUG | saveCart: Cart saved to localStorage."); // <-- DEBUG LOG
         }
 
         function formatMoney(v, currency='USD') {
@@ -281,17 +287,21 @@
         // This is the main function that updates the entire cart view.
         async function renderCart() {
             const cart = getCart();
+            console.log("DEBUG | renderCart: Cart items retrieved:", cart); // <-- DEBUG LOG
+
             const cartArea = document.getElementById('cart-area');
             const cartEmpty = document.getElementById('cart-empty');
             const checkoutArea = document.getElementById('checkout-area');
 
             if (!cart.length) {
+                console.log("DEBUG | renderCart: Cart is empty, showing empty message."); // <-- DEBUG LOG
                 cartArea.innerHTML = '';
                 cartEmpty.style.display = 'block';
                 checkoutArea.style.display = 'none';
                 return;
             }
 
+            console.log(`DEBUG | renderCart: Found ${cart.length} items, rendering table.`); // <-- DEBUG LOG
             cartEmpty.style.display = 'none';
             checkoutArea.style.display = 'block';
 
