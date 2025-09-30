@@ -11,6 +11,15 @@
   "author": "Your Name",
   "license": "MIT",
   "dependencies": {
-    "node-fetch": "^2.6.7"
-  }
+    "node-fetch": "^2.7.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Stephen-Nazieh/trendaurasocial_market.git"
+  },
+  "keywords": [],
+  "bugs": {
+    "url": "https://github.com/Stephen-Nazieh/trendaurasocial_market/issues"
+  },
+  "homepage": "https://github.com/Stephen-Nazieh/trendaurasocial_market#readme"
 }

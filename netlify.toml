@@ -1,6 +1,7 @@
 [build]
-publish = "." # or whatever your publish directory is
-command = "echo 'Static site — no build step'" # or your build command
+  publish = "." # keep if your site root is the publish dir; change if needed
+  command = "echo 'Static site — no build step'"
+  functions = "netlify/functions"
 
 [context.production.environment]
-SECRETS_SCAN_ENABLED = "false"
+  SECRETS_SCAN_ENABLED = "false"
