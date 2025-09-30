@@ -25,12 +25,20 @@ window.renderPayPalButton = function() {
             try {
               const cart = JSON.parse(localStorage.getItem("cart") || "[]");
               if (cart.length === 0) {
+                // NOTE: Best practice is to use a custom message box instead of alert()
                 alert("Your cart is empty.");
                 throw new Error("No items in cart");
               }
       
               // Build purchase units from cart
-              const subtotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+              // CRITICAL FIX: Ensure item.price is a clean, numerical value by stripping any currency symbol
+              const subtotal = cart.reduce((sum, item) => {
+                  // Clean the price string by removing non-numeric characters (except the decimal point)
+                  const cleanedPrice = String(item.price).replace(/[^0-9.]/g, '');
+                  // Convert both cleaned price and quantity to Number before multiplication
+                  return sum + (Number(cleanedPrice) * Number(item.quantity));
+              }, 0);
+              
               const shipping = subtotal > 100 ? 0 : 10;
               const total = subtotal + shipping;
               
@@ -53,6 +61,11 @@ window.renderPayPalButton = function() {
                 }
               ];
       
+              // Check for a valid total before sending to the server
+              if (total <= 0) {
+                  throw new Error("Cart total is $0.00. Cannot create order.");
+              }
+
               const res = await fetch("/.netlify/functions/create-paypal-order", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
@@ -125,6 +138,7 @@ window.renderPayPalButton = function() {
 };
 
 // Check if the button needs to be rendered immediately (e.g., on page load)
-if (document.getElementById('checkout-area').style.display !== 'none' && typeof window.renderPayPalButton === 'function') {
+// NOTE: I also added a check for document.getElementById('checkout-area') to be safer.
+if (document.getElementById('checkout-area') && document.getElementById('checkout-area').style.display !== 'none' && typeof window.renderPayPalButton === 'function') {
     window.renderPayPalButton();
 }

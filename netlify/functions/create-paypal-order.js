@@ -81,18 +81,8 @@ exports.handler = async (event) => {
 
     return { statusCode: 200, body: JSON.stringify(orderJson) };
 
-  
-    // after creating orderRes and getting orderJson:
-    const orderJson = await orderRes.json();
-    console.log('DEBUG: PayPal create order status:', orderRes.status, 'response:', JSON.stringify(orderJson)); // added debug
-
   } catch (err) {
     console.error('create-paypal-order error', err);
     return { statusCode: 500, body: JSON.stringify({ error: err.message || String(err) }) };
   }
 };
-
-
-// after fetching token in getAccessToken() (or right after you get token in exports.handler)
-const token = await getAccessToken();
-console.log('DEBUG: Got PayPal token? ', !!token); // added debug
