@@ -58,15 +58,77 @@
 
     <script src="/js/toast.js"></script>
     <script type="module">
-        // === FIREBASE SETUP ===
+        // === FIREBASE IMPORTS (Will be conditionally initialized) ===
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
-        // Initialize Firebase. This needs to be done once.
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
+        let db;
+        const appId = typeof __app_id !== 'undefined' ? __app_id : null;
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : null;
+
+        // === FIREBASE INITIALIZATION AND INVOICE LOGIC ===
+
+        /**
+         * Initializes Firebase and returns the Firestore instance.
+         * Returns null if configuration is missing.
+         */
+        function initializeFirebase() {
+            if (!firebaseConfig || !appId) {
+                console.warn("Firebase/Firestore disabled: Missing __firebase_config or __app_id.");
+                return null;
+            }
+            try {
+                const app = initializeApp(firebaseConfig);
+                return getFirestore(app);
+            } catch (e) {
+                console.error("Firebase initialization failed:", e);
+                return null;
+            }
+        }
+
+        /**
+         * Saves the invoice data to Firestore if DB is available.
+         */
+        async function saveInvoiceToFirestore(orderId, captureData) {
+            if (!db) {
+                console.warn("Cannot save invoice: Firestore database connection is not available.");
+                return;
+            }
+
+            console.log("Attempting to save invoice to Firestore for order:", orderId);
+            
+            const cartItems = getCart();
+            const captureTime = captureData.update_time || new Date().toISOString(); 
+            const payer = captureData.payer;
+            const status = captureData.status;
+            const purchaseUnits = captureData.purchase_units;
+            const transactionID = purchaseUnits[0].payments?.captures?.[0]?.id || orderId; 
+
+            const invoiceData = {
+                orderId: orderId,
+                captureTime: captureTime,
+                transactionID: transactionID,
+                status: status,
+                payer: payer,
+                purchaseUnits: purchaseUnits,
+                items: cartItems.map(item => ({
+                    title: item.title,
+                    quantity: item.quantity,
+                    price: item.price,
+                    currency: item.currency
+                })),
+            };
+
+            // Public path for the invoice: /artifacts/{appId}/public/data/invoices/{orderId}
+            const docRef = doc(db, `artifacts/${appId}/public/data/invoices`, orderId);
+            
+            try {
+                await setDoc(docRef, invoiceData);
+                console.log("Invoice successfully saved to Firestore:", orderId);
+            } catch (e) {
+                console.error("Error saving invoice to Firestore:", e);
+            }
+        }
 
         // === PayPal Helper Functions === 
 
@@ -98,54 +160,16 @@
             }
         }
 
-        // Saves the invoice data (cart contents + PayPal capture details) to Firestore
-        async function saveInvoiceToFirestore(orderId, captureData) {
-            console.log("Attempting to save invoice to Firestore for order:", orderId);
-
-            // 1. Get the current cart items for the record
-            const cartItems = getCart();
-            
-            // 2. Extract necessary data from captureData
-            const captureTime = captureData.update_time || new Date().toISOString(); 
-            const payer = captureData.payer;
-            const status = captureData.status;
-            const purchaseUnits = captureData.purchase_units;
-            // Assuming capture succeeded, get the primary transaction ID from the first capture
-            const transactionID = purchaseUnits[0].payments?.captures?.[0]?.id || orderId; 
-
-            const invoiceData = {
-                orderId: orderId,
-                captureTime: captureTime,
-                transactionID: transactionID,
-                status: status,
-                payer: payer,
-                purchaseUnits: purchaseUnits,
-                items: cartItems.map(item => ({
-                    title: item.title,
-                    quantity: item.quantity,
-                    price: item.price,
-                    currency: item.currency
-                })),
-            };
-
-            // Public path for the invoice: /artifacts/{appId}/public/data/invoices/{orderId}
-            const docRef = doc(db, `artifacts/${appId}/public/data/invoices`, orderId);
-            
-            try {
-                await setDoc(docRef, invoiceData);
-                console.log("Invoice successfully saved to Firestore:", orderId);
-            } catch (e) {
-                // IMPORTANT: Do not block the user redirect if saving the invoice fails.
-                console.error("Error saving invoice to Firestore:", e);
-            }
-        }
-
 
         function renderPayPalButton() {
+            // Initialize DB here so it runs only after the cart has rendered successfully
+            if (!db) {
+                db = initializeFirebase();
+            }
+
             if (typeof paypal === 'undefined' || !paypal.Buttons) return;
 
             const container = document.getElementById("paypal-button-container");
-            // Check if button is already rendered to prevent duplicates
             if (!container || container.innerHTML.trim() !== '') return;
 
             paypal.Buttons({
@@ -159,14 +183,12 @@
                     try {
                         const cart = getCart(); 
                         if (cart.length === 0) {
-                            // FIX: Replaced non-allowed alert() with toast message
+                            // FIX: Using toast instead of alert()
                             toast && toast.show("Your cart is empty. Please add items to proceed.", { duration: 3000, type: 'warning' });
                             throw new Error("No items in cart");
                         }
 
-                        // Calculate totals (replicate logic from renderCart)
                         const subtotal = cart.reduce((sum, item) => { 
-                            // Safely parse price, removing non-numeric characters first
                             const cleanedPrice = String(item.price).replace(/[^0-9.]/g, '');
                             return sum + (Number(cleanedPrice) * Number(item.quantity || 1));
                         }, 0);
@@ -185,7 +207,6 @@
                             }
                         }];
 
-                        // Call Netlify function to create the PayPal order
                         const res = await fetch("/.netlify/functions/create-paypal-order", {
                             method: "POST",
                             headers: { "Content-Type": "application/json" },
@@ -201,14 +222,12 @@
 
                     } catch (err) {
                         console.error("createOrder error:", err);
-                        // Using a simple message box to inform the user
                         toast && toast.show("We couldn’t create your PayPal order. Try again later.", { duration: 3000, type: 'error' }); 
                         throw err;
                     }
                 },
                 onApprove: async function (data, actions) {
                     try {
-                        // STEP 1: Capture the payment on the server
                         const res = await fetch("/.netlify/functions/capture-paypal-order", {
                             method: "POST",
                             headers: { "Content-Type": "application/json" },
@@ -247,23 +266,21 @@
             }).render("#paypal-button-container");
         }
 
-        // === Cart Utilities and Rendering ===
+        // === Core Cart Utilities and Rendering (Must run even if Firebase fails) ===
 
         function getCart() {
             try {
+                // Removed console logs to keep console clean once fixed
                 const cartData = localStorage.getItem('cart');
-                console.log("DEBUG | getCart: Raw data from localStorage:", cartData); // <-- DEBUG LOG
-                // Safely parse the data. If cartData is null, use '[]' to avoid JSON.parse error.
                 return JSON.parse(cartData || '[]');
             } catch (e) {
-                console.error("DEBUG | getCart: Failed to parse cart data. This means data in localStorage is corrupted.", e); // <-- DEBUG LOG
+                console.error("Failed to parse cart data. LocalStorage might be corrupted.", e);
                 return [];
             }
         }
 
         function saveCart(cart) {
             localStorage.setItem('cart', JSON.stringify(cart));
-            console.log("DEBUG | saveCart: Cart saved to localStorage."); // <-- DEBUG LOG
         }
 
         function formatMoney(v, currency='USD') {
@@ -287,21 +304,17 @@
         // This is the main function that updates the entire cart view.
         async function renderCart() {
             const cart = getCart();
-            console.log("DEBUG | renderCart: Cart items retrieved:", cart); // <-- DEBUG LOG
-
             const cartArea = document.getElementById('cart-area');
             const cartEmpty = document.getElementById('cart-empty');
             const checkoutArea = document.getElementById('checkout-area');
 
             if (!cart.length) {
-                console.log("DEBUG | renderCart: Cart is empty, showing empty message."); // <-- DEBUG LOG
                 cartArea.innerHTML = '';
                 cartEmpty.style.display = 'block';
                 checkoutArea.style.display = 'none';
                 return;
             }
 
-            console.log(`DEBUG | renderCart: Found ${cart.length} items, rendering table.`); // <-- DEBUG LOG
             cartEmpty.style.display = 'none';
             checkoutArea.style.display = 'block';
 
@@ -310,12 +323,10 @@
 
             cart.forEach((item, idx) => {
                 const qty = Number(item.quantity || 1);
-                // Ensure price is treated as a safe number
                 const price = Number(String(item.price).replace(/[^0-9.]/g, '') || 0);
                 const rowSubtotal = qty * price;
                 subtotal += rowSubtotal;
 
-                // Added table row for each cart item
                 html += `<tr data-index="${idx}">
                     <td><img src="${escapeHtml(item.images?.[0] || 'https://placehold.co/60x60/f0f0f0/666?text=Item')}" alt="${escapeHtml(item.title)}"></td>
                     <td>${escapeHtml(item.title)}</td>
@@ -359,7 +370,7 @@
 
             cart[index].quantity = newQty;
             saveCart(cart);
-            renderCart(); // Re-render the cart to update totals
+            renderCart(); 
 
             try {
                 const title = cart[index].title || 'Item';
@@ -373,7 +384,7 @@
 
             const removed = cart.splice(index, 1)[0];
             saveCart(cart);
-            renderCart(); // Re-render the cart to update the display
+            renderCart(); 
 
             try {
                 const title = removed?.title || 'Item';
