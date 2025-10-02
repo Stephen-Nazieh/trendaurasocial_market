@@ -87,22 +87,37 @@
 
     /* WISHLIST ICON STYLE (Heart color control) */
     .add-to-wishlist-btn {
-      /* Default state: Light gray heart to represent "empty/unclicked" */
-      color: #e5e7eb; /* Very light gray/colorless outline look */
+      /* Default state for SVG: Faint Outline */
+      border-color: #d1d5db; /* Light border */
+      /* Set the SVG fill to none and stroke to a faint color */
+    }
+    
+    .add-to-wishlist-btn svg {
+      fill: none; /* No fill */
+      stroke: #d1d5db; /* Faint outline color */
+      stroke-width: 2;
+      transition: stroke 0.2s, fill 0.2s;
     }
     
     .add-to-wishlist-btn:not(.wished):hover { 
         background-color: #f9fafb; /* Slight hover background */
-        color: #fca5a5; /* Light red on hover before click */
         border-color: #fca5a5;
+    }
+    /* On hover of unwished, make the outline slightly more visible/pink */
+    .add-to-wishlist-btn:not(.wished):hover svg {
+        stroke: #fca5a5;
     }
     
     /* WISHED STATE: Heart turns solid red */
     .add-to-wishlist-btn.wished {
       background-color: white !important; 
-      color: #ef4444 !important; /* Turn heart icon solid red */
       border-color: #ef4444 !important; 
       cursor: default;
+    }
+
+    .add-to-wishlist-btn.wished svg {
+      fill: #ef4444; /* Solid red fill */
+      stroke: #ef4444; /* Solid red stroke */
     }
     
     .add-to-wishlist-btn.wished:hover {
@@ -186,6 +201,13 @@
         }
     }
 
+    // SVG icon for the heart (outline/filled state controlled by CSS)
+    const heartIconSvg = `
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-heart">
+            <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>
+        </svg>
+    `;
+
     // Render products: Cart button uses only icon, Wishlist button uses colorable heart
     function renderProducts(products, targetId) {
       const container = document.getElementById(targetId);
@@ -221,9 +243,9 @@
                       <button class="add-to-cart-btn" onclick="addToCart(this, '${p.id}')" aria-label="Add to Cart">
                         🛒
                       </button>
-                      <!-- Wishlist heart uses CSS color for states -->
+                      <!-- Wishlist heart now uses the SVG defined above -->
                       <button class="add-to-wishlist-btn ${isWished}" onclick="addToWishlist(this, '${p.id}')" aria-label="Add to Wishlist">
-                        ❤️
+                        ${heartIconSvg}
                       </button>
                   </div>
               </div>
@@ -245,8 +267,8 @@
       updateCartCountDisplay(); 
     }
     function addToCart(buttonElement, id) {
-      // Original text is the icon (🛒)
-      const originalText = buttonElement.innerHTML;
+      // Original content is the icon (🛒)
+      const originalContent = buttonElement.innerHTML;
       const originalClasses = buttonElement.className;
 
       fetch('/products.json')
@@ -275,7 +297,7 @@
           setTimeout(() => {
             buttonElement.disabled = false;
             // Reverts back to the original icon (🛒)
-            buttonElement.innerHTML = originalText; 
+            buttonElement.innerHTML = originalContent; 
             buttonElement.className = originalClasses;
             buttonElement.classList.remove('added');
           }, 1500);
@@ -283,7 +305,7 @@
         .catch(error => {
             console.error("Error adding to cart:", error);
             buttonElement.disabled = false;
-            buttonElement.innerHTML = originalText;
+            buttonElement.innerHTML = originalContent;
             buttonElement.className = originalClasses;
         });
     }
@@ -298,7 +320,16 @@
     }
     
     function addToWishlist(buttonElement, id) {
-      const originalText = buttonElement.innerHTML;
+      const originalContent = buttonElement.innerHTML;
+      
+      // Check if it's already wished before fetching product data
+      if (buttonElement.classList.contains('wished')) {
+        // Already wished: flash a slight shadow to confirm it's already wished
+        buttonElement.classList.remove('shadow-sm');
+        buttonElement.classList.add('shadow-sm'); 
+        setTimeout(() => buttonElement.classList.remove('shadow-sm'), 500);
+        return; 
+      }
       
       fetch('/products.json')
         .then(res => {
@@ -320,24 +351,23 @@
             // Visual Feedback: Turns red via 'wished' class
             buttonElement.classList.add('wished');
             
-            // Temporary text change
+            // Temporary text change (reverts to SVG via originalContent which holds the SVG string)
             buttonElement.innerHTML = 'Added!'; 
 
-            // Revert text to the icon (❤️) after delay, keeping the 'wished' class for permanent red color
+            // Revert text to the SVG icon after delay, keeping the 'wished' class for permanent red color
             setTimeout(() => {
-                buttonElement.innerHTML = originalText; 
+                buttonElement.innerHTML = originalContent; 
             }, 1000);
 
-          } else {
-             // Already present: flash a slight shadow to confirm it's already wished
-             buttonElement.classList.remove('shadow-sm');
-             buttonElement.classList.add('shadow-sm'); 
-             
-             setTimeout(() => buttonElement.classList.remove('shadow-sm'), 500);
-          }
+          } 
+          // Note: If alreadyWished is true, we should have already returned above, but if somehow 
+          // the class wasn't applied yet, this block handles the save. Since we want permanent red, 
+          // we don't allow un-wishing here.
         })
         .catch(error => {
             console.error("Error fetching products for wishlist:", error);
+            // On failure, ensure we don't accidentally apply the 'wished' class
+            buttonElement.classList.remove('wished');
         });
     }
 
