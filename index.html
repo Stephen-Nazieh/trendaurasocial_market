@@ -34,39 +34,19 @@
     
     /* Autocomplete List Styling */
     .autocomplete-list { 
-        position: absolute; 
-        z-index: 100; 
-        width: 100%; 
-        background-color: #fff; 
-        border: 1px solid #d1d5db; 
-        border-top: none; 
-        list-style-type: none; 
-        padding: 0; 
-        margin: 0; 
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); 
-        max-height: 200px; 
-        overflow-y: auto; 
-        display: none; 
-        border-radius: 0 0 8px 8px;
-        text-align: left;
+        position: absolute; z-index: 100; width: 100%; background-color: #fff; border: 1px solid #d1d5db; 
+        border-top: none; list-style-type: none; padding: 0; margin: 0; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); 
+        max-height: 200px; overflow-y: auto; display: none; border-radius: 0 0 8px 8px; text-align: left;
     }
     .autocomplete-list li { 
-        padding: 10px; 
-        cursor: pointer; 
-        font-size: 0.9rem; 
-        color: #4b5563;
-        border-bottom: 1px solid #f3f4f6;
+        padding: 10px; cursor: pointer; font-size: 0.9rem; color: #4b5563; border-bottom: 1px solid #f3f4f6;
     }
-    .autocomplete-list li:hover, .autocomplete-list li.active { 
-        background-color: #e5e7eb; 
-    }
+    .autocomplete-list li:hover, .autocomplete-list li.active { background-color: #e5e7eb; }
 
 
-    /* Product Grid and Card (Detailed, Information-Forward Style) */
+    /* Product Grid and Card */
     #featured-products {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-        gap: 2rem;
+        display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 2rem;
     }
 
     .product-card {
@@ -93,26 +73,38 @@
     .btn:hover { background-color: #059669; box-shadow: 0 2px #047857; transform: translateY(2px); }
     .btn.small { padding: 8px 16px; }
 
-    /* Action Buttons (Cart/Wishlist) */
+    /* --- Action Buttons (Cart/Wishlist) --- */
     .add-to-cart-btn, .add-to-wishlist-btn {
-      background-color: #f3f4f6; border: 1px solid #e5e7eb; color: #4b5563; padding: 10px; font-size: 1rem;
+      background-color: white; /* Clean background */
+      border: 1px solid #d1d5db; 
+      color: #4b5563; /* Default: Dark grey icon/text */
+      padding: 10px; font-size: 1rem;
       cursor: pointer; border-radius: 8px; transition: background-color 0.2s, color 0.2s, border-color 0.2s;
       line-height: 1; display: flex; align-items: center; justify-content: center;
     }
     
-    .add-to-cart-btn:hover { background-color: #3b82f6; color: white; border-color: #3b82f6; }
+    .add-to-cart-btn:hover { background-color: #f1f5ff; color: #3b82f6; border-color: #3b82f6; }
     .add-to-cart-btn.added {
       background-color: #10b981 !important; color: white !important; border-color: #10b981 !important;
       cursor: default; font-weight: 600;
     }
 
-    /* Wishlist Persistence (FIX 1) */
-    .add-to-wishlist-btn:hover { background-color: #fecaca; color: #ef4444; border-color: #ef4444; }
-    .add-to-wishlist-btn.wished, .add-to-wishlist-btn.wished:hover {
-      background-color: #ef4444 !important; /* Red solid */
-      color: white !important;
-      border-color: #ef4444 !important;
+    /* Wishlist State: Background stays white/light, but icon turns RED (FIX 1) */
+    .add-to-wishlist-btn:not(.wished):hover { 
+        background-color: #f9fafb; /* Slight hover lift */
+        color: #ef4444; /* Hover color */
+        border-color: #ef4444;
+    }
+    
+    .add-to-wishlist-btn.wished {
+      background-color: white !important; /* Keep background light */
+      color: #ef4444 !important; /* Turn heart icon/text red */
+      border-color: #ef4444 !important; /* Red border for emphasis */
       cursor: default;
+    }
+    
+    .add-to-wishlist-btn.wished:hover {
+        background-color: #f9fafb !important; /* Slight background change on hover for wished item */
     }
   </style>
 </head>
@@ -137,7 +129,6 @@
       <div>
         <h2>Welcome to the Go-Kart Market</h2>
         <p>Premium Go-Karts and Accessories.</p>
-        <!-- Added 'relative' class to contain the absolute autocomplete list -->
         <div class="search-bar-hero relative">
           <input type="text" id="hero-search-input" placeholder="Search for products, e.g., 'tires'">
           <ul id="hero-autocomplete-list" class="autocomplete-list"></ul>
@@ -164,9 +155,8 @@
   </footer>
 
   <script>
-    let allProducts = []; // Stores all products for comprehensive searching
+    let allProducts = []; 
 
-    // Escape HTML helper
     function escapeHtml(str) {
       if (!str) return '';
       return String(str)
@@ -177,7 +167,6 @@
         .replace(/>/g, '&gt;');
     }
     
-    // Utility function for mock rating display
     function getStarRating(rating = 5) {
         const fullStar = '★';
         const emptyStar = '☆';
@@ -185,7 +174,6 @@
         return `<span class="rating">${fullStar.repeat(r)}${emptyStar.repeat(5 - r)}</span>`;
     }
 
-    // Updates the cart count element in the header
     function updateCartCountDisplay() {
         const cart = getCart();
         const totalItems = cart.reduce((sum, item) => sum + (item.quantity || 1), 0);
@@ -196,7 +184,7 @@
         }
     }
 
-    // Render products into a target container
+    // Render products: Checks wishlist state to apply 'wished' class on load
     function renderProducts(products, targetId) {
       const container = document.getElementById(targetId);
       if (!products.length) {
@@ -207,7 +195,7 @@
       const wishlist = getWishlist();
 
       const html = products.map(p => {
-        const isWished = wishlist.some(item => item.id === p.id) ? 'wished' : ''; // Check if already wished (FIX 1)
+        const isWished = wishlist.some(item => item.id === p.id) ? 'wished' : '';
         
         return `
           <div class="product-card">
@@ -230,7 +218,6 @@
                       <button class="add-to-cart-btn" onclick="addToCart(this, '${p.id}')" aria-label="Add to Cart">
                         🛒
                       </button>
-                      <!-- Apply wished class on render if in list (FIX 1) -->
                       <button class="add-to-wishlist-btn ${isWished}" onclick="addToWishlist(this, '${p.id}')" aria-label="Add to Wishlist">
                         ❤️
                       </button>
@@ -244,7 +231,7 @@
       container.innerHTML = html;
     }
 
-    // Cart helpers
+    // --- Cart Helpers ---
     function getCart() {
       try { return JSON.parse(localStorage.getItem('cart') || '[]'); }
       catch (e) { return []; }
@@ -294,7 +281,7 @@
         });
     }
 
-    // Wishlist helpers
+    // --- Wishlist Helpers ---
     function getWishlist() {
       try { return JSON.parse(localStorage.getItem('wishlist') || '[]'); }
       catch (e) { return []; }
@@ -303,14 +290,10 @@
       localStorage.setItem('wishlist', JSON.stringify(wishlist));
     }
     
-    /**
-     * Adds an item to the wishlist and provides permanent visual feedback.
-     * @param {HTMLElement} buttonElement - The button that was clicked.
-     * @param {string} id - The product ID.
-     */
+    // Updates wishlist status and provides feedback
     function addToWishlist(buttonElement, id) {
       const originalText = buttonElement.innerHTML;
-
+      
       fetch('/products.json')
         .then(res => {
             if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
@@ -320,27 +303,30 @@
           const product = products.find(p => p.id === id);
           if (!product) return;
           
-          const wishlist = getWishlist();
+          let wishlist = getWishlist();
           const alreadyWished = wishlist.find(item => item.id === id);
           
           if (!alreadyWished) {
+            // Add item
             wishlist.push(product);
             saveWishlist(wishlist);
             
-            // Visual Feedback: Added (Permanent state change for button class)
+            // Visual Feedback: Turn red permanently
             buttonElement.classList.add('wished');
             buttonElement.innerHTML = 'Added!';
 
-            // Revert text after delay, but keep the 'wished' class (FIX 1)
+            // Revert text to heart after delay, keeping the 'wished' class
             setTimeout(() => {
-                buttonElement.innerHTML = originalText;
+                buttonElement.innerHTML = originalText; // Reverts to ❤️
             }, 1000);
 
           } else {
-             // Already present: flash to confirm
+             // Already present: flash (remove and re-add class) to confirm
+             // No need to change local storage if already present
              buttonElement.classList.remove('wished');
-             buttonElement.classList.add('wished', 'shadow-lg');
-             setTimeout(() => buttonElement.classList.remove('shadow-lg'), 500);
+             buttonElement.classList.add('wished', 'shadow-sm'); // Temporary shadow for emphasis
+             
+             setTimeout(() => buttonElement.classList.remove('shadow-sm'), 500);
           }
         })
         .catch(error => {
@@ -348,16 +334,13 @@
         });
     }
 
-    /**
-     * Handles search bar functionality by redirecting to the shop page.
-     */
+    // --- Search Logic ---
     function redirectToShopSearch(searchTerm) {
       if (searchTerm) {
         window.location.href = `shop.html?search=${encodeURIComponent(searchTerm)}`;
       }
     }
     
-    // Autocomplete functionality (FIX 2)
     function searchAndAutocomplete(query) {
         const searchTerm = query.toLowerCase().trim();
         const autocompleteList = document.getElementById('hero-autocomplete-list');
@@ -370,19 +353,17 @@
         const searchTerms = searchTerm.split(/\s+/).filter(term => term.length > 0);
 
         const uniqueSuggestions = new Set();
-        // Use allProducts for comprehensive searching
         allProducts.forEach(p => {
             const productText = `${p.title} ${p.description} ${p.primaryCategory} ${p.subcategory} ${p.filters.join(' ')}`.toLowerCase();
             
             searchTerms.forEach(term => {
                 if (productText.includes(term)) {
-                    // Suggest the product title or the search term itself
                     uniqueSuggestions.add(p.title);
                 }
             });
         });
 
-        const suggestions = [...uniqueSuggestions].slice(0, 5); // Limit suggestions
+        const suggestions = [...uniqueSuggestions].slice(0, 5); 
 
         if (suggestions.length) {
           autocompleteList.innerHTML = suggestions.map(s => `<li>${escapeHtml(s)}</li>`).join('');
@@ -392,7 +373,7 @@
         }
     }
 
-    // Load featured products and categories
+    // --- Initialization ---
     document.addEventListener("DOMContentLoaded", () => {
       document.getElementById('year').textContent = new Date().getFullYear();
       updateCartCountDisplay(); 
@@ -406,14 +387,14 @@
             return res.json();
         })
         .then(products => {
-          allProducts = products; // Store all products for search (FIX 2)
+          allProducts = products; 
           
-          // Featured products (limit to 4)
+          // Featured products
           const featured = products.filter(p => p.featured).slice(0, 4); 
           featured.sort((a, b) => (b.rating || 0) - (a.rating || 0)); 
           renderProducts(featured, "featured-products");
 
-          // Group categories (Category Rendering logic remains the same)
+          // Category rendering
           const categoriesMap = {};
           products.forEach(p => {
             if (!categoriesMap[p.primaryCategory]) {
@@ -447,7 +428,7 @@
             document.getElementById("featured-products").innerHTML = "<p class='text-center text-red-500'>Could not load featured products. Please check the data source.</p>";
         });
 
-      // Search Bar Event Listeners (FIX 2)
+      // Search Bar Event Listeners
       heroSearchInput.addEventListener("input", (e) => {
         searchAndAutocomplete(e.target.value);
       });
@@ -458,18 +439,16 @@
         }
       });
 
-      // Handle selection from the autocomplete list
       autocompleteList.addEventListener('click', (e) => {
         if (e.target.tagName === 'LI') {
           const selectedText = e.target.textContent;
           heroSearchInput.value = selectedText;
           autocompleteList.style.display = 'none';
-          redirectToShopSearch(selectedText); // Redirect to shop page with selected search term
+          redirectToShopSearch(selectedText); 
         }
       });
 
       document.addEventListener('click', (e) => {
-        // Hide list if clicking outside the search area
         if (!e.target.closest('.search-bar-hero')) {
           autocompleteList.style.display = 'none';
         }
