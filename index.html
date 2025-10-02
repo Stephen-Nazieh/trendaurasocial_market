@@ -65,46 +65,48 @@
     .price { font-size: 1.5rem; font-weight: 700; color: #34d399; }
     .rating { color: #facc15; font-size: 1rem; }
 
-    /* Button Styling */
-    .btn {
-        display: inline-block; padding: 10px 20px; background-color: #10b981; color: white; text-decoration: none;
-        border-radius: 8px; font-weight: 600; transition: background-color 0.2s, box-shadow 0.2s; box-shadow: 0 4px #059669; 
-    }
-    .btn:hover { background-color: #059669; box-shadow: 0 2px #047857; transform: translateY(2px); }
-    .btn.small { padding: 8px 16px; }
-
     /* --- Action Buttons (Cart/Wishlist) --- */
     .add-to-cart-btn, .add-to-wishlist-btn {
-      background-color: white; /* Clean background */
+      /* Base styles: light background, standard border */
+      background-color: white; 
       border: 1px solid #d1d5db; 
-      color: #4b5563; /* Default: Dark grey icon/text */
       padding: 10px; font-size: 1rem;
       cursor: pointer; border-radius: 8px; transition: background-color 0.2s, color 0.2s, border-color 0.2s;
       line-height: 1; display: flex; align-items: center; justify-content: center;
     }
-    
+
+    /* CART ICON STYLE */
+    .add-to-cart-btn {
+      color: #4b5563; /* Cart icon default color */
+    }
     .add-to-cart-btn:hover { background-color: #f1f5ff; color: #3b82f6; border-color: #3b82f6; }
     .add-to-cart-btn.added {
       background-color: #10b981 !important; color: white !important; border-color: #10b981 !important;
       cursor: default; font-weight: 600;
     }
 
-    /* Wishlist State: Background stays white/light, but icon turns RED (FIX 1) */
-    .add-to-wishlist-btn:not(.wished):hover { 
-        background-color: #f9fafb; /* Slight hover lift */
-        color: #ef4444; /* Hover color */
-        border-color: #ef4444;
+    /* WISHLIST ICON STYLE (Heart color control) */
+    .add-to-wishlist-btn {
+      /* Default state: Light gray heart to represent "empty/unclicked" */
+      color: #e5e7eb; /* Very light gray/colorless outline look */
     }
     
+    .add-to-wishlist-btn:not(.wished):hover { 
+        background-color: #f9fafb; /* Slight hover background */
+        color: #fca5a5; /* Light red on hover before click */
+        border-color: #fca5a5;
+    }
+    
+    /* WISHED STATE: Heart turns solid red */
     .add-to-wishlist-btn.wished {
-      background-color: white !important; /* Keep background light */
-      color: #ef4444 !important; /* Turn heart icon/text red */
-      border-color: #ef4444 !important; /* Red border for emphasis */
+      background-color: white !important; 
+      color: #ef4444 !important; /* Turn heart icon solid red */
+      border-color: #ef4444 !important; 
       cursor: default;
     }
     
     .add-to-wishlist-btn.wished:hover {
-        background-color: #f9fafb !important; /* Slight background change on hover for wished item */
+        background-color: #f9fafb !important;
     }
   </style>
 </head>
@@ -184,7 +186,7 @@
         }
     }
 
-    // Render products: Checks wishlist state to apply 'wished' class on load
+    // Render products: Cart button uses only icon, Wishlist button uses colorable heart
     function renderProducts(products, targetId) {
       const container = document.getElementById(targetId);
       if (!products.length) {
@@ -215,9 +217,11 @@
               <div class="product-actions flex items-center justify-between pt-2 border-t border-gray-100">
                   <span class="price">$${p.price.toFixed(2)}</span>
                   <div class="flex items-center gap-2">
+                      <!-- Cart icon used instead of text "Add to Cart" -->
                       <button class="add-to-cart-btn" onclick="addToCart(this, '${p.id}')" aria-label="Add to Cart">
                         🛒
                       </button>
+                      <!-- Wishlist heart uses CSS color for states -->
                       <button class="add-to-wishlist-btn ${isWished}" onclick="addToWishlist(this, '${p.id}')" aria-label="Add to Wishlist">
                         ❤️
                       </button>
@@ -241,6 +245,7 @@
       updateCartCountDisplay(); 
     }
     function addToCart(buttonElement, id) {
+      // Original text is the icon (🛒)
       const originalText = buttonElement.innerHTML;
       const originalClasses = buttonElement.className;
 
@@ -263,12 +268,14 @@
           saveCart(cart);
 
           buttonElement.disabled = true;
-          buttonElement.innerHTML = 'Added! ✓';
+          // When added, the text changes, confirming the action
+          buttonElement.innerHTML = 'Added! ✓'; 
           buttonElement.classList.add('added');
 
           setTimeout(() => {
             buttonElement.disabled = false;
-            buttonElement.innerHTML = originalText;
+            // Reverts back to the original icon (🛒)
+            buttonElement.innerHTML = originalText; 
             buttonElement.className = originalClasses;
             buttonElement.classList.remove('added');
           }, 1500);
@@ -290,7 +297,6 @@
       localStorage.setItem('wishlist', JSON.stringify(wishlist));
     }
     
-    // Updates wishlist status and provides feedback
     function addToWishlist(buttonElement, id) {
       const originalText = buttonElement.innerHTML;
       
@@ -311,20 +317,21 @@
             wishlist.push(product);
             saveWishlist(wishlist);
             
-            // Visual Feedback: Turn red permanently
+            // Visual Feedback: Turns red via 'wished' class
             buttonElement.classList.add('wished');
-            buttonElement.innerHTML = 'Added!';
+            
+            // Temporary text change
+            buttonElement.innerHTML = 'Added!'; 
 
-            // Revert text to heart after delay, keeping the 'wished' class
+            // Revert text to the icon (❤️) after delay, keeping the 'wished' class for permanent red color
             setTimeout(() => {
-                buttonElement.innerHTML = originalText; // Reverts to ❤️
+                buttonElement.innerHTML = originalText; 
             }, 1000);
 
           } else {
-             // Already present: flash (remove and re-add class) to confirm
-             // No need to change local storage if already present
-             buttonElement.classList.remove('wished');
-             buttonElement.classList.add('wished', 'shadow-sm'); // Temporary shadow for emphasis
+             // Already present: flash a slight shadow to confirm it's already wished
+             buttonElement.classList.remove('shadow-sm');
+             buttonElement.classList.add('shadow-sm'); 
              
              setTimeout(() => buttonElement.classList.remove('shadow-sm'), 500);
           }
