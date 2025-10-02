@@ -31,6 +31,36 @@
       width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 1rem;
       box-shadow: 0 4px 6px rgba(0,0,0,0.1);
     }
+    
+    /* Autocomplete List Styling */
+    .autocomplete-list { 
+        position: absolute; 
+        z-index: 100; 
+        width: 100%; 
+        background-color: #fff; 
+        border: 1px solid #d1d5db; 
+        border-top: none; 
+        list-style-type: none; 
+        padding: 0; 
+        margin: 0; 
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); 
+        max-height: 200px; 
+        overflow-y: auto; 
+        display: none; 
+        border-radius: 0 0 8px 8px;
+        text-align: left;
+    }
+    .autocomplete-list li { 
+        padding: 10px; 
+        cursor: pointer; 
+        font-size: 0.9rem; 
+        color: #4b5563;
+        border-bottom: 1px solid #f3f4f6;
+    }
+    .autocomplete-list li:hover, .autocomplete-list li.active { 
+        background-color: #e5e7eb; 
+    }
+
 
     /* Product Grid and Card (Detailed, Information-Forward Style) */
     #featured-products {
@@ -40,62 +70,20 @@
     }
 
     .product-card {
-        background: white;
-        border-radius: 12px;
-        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-        overflow: hidden;
-        transition: transform 0.3s, box-shadow 0.3s;
-        display: flex;
-        flex-direction: column;
+        background: white; border-radius: 12px; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        overflow: hidden; transition: transform 0.3s, box-shadow 0.3s; display: flex; flex-direction: column;
     }
-    .product-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    .product-card:hover { transform: translateY(-5px); box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04); }
+    .product-media img { width: 100%; height: 200px; object-fit: cover; transition: opacity 0.3s; }
+    .product-info { padding: 1rem; flex-grow: 1; display: flex; flex-direction: column; }
+    .product-title { font-size: 1.25rem; font-weight: 700; color: #1f2937; margin-bottom: 0.25rem; text-decoration: none; }
+    .product-desc { 
+        font-size: 0.875rem; color: #6b7280; margin-bottom: 0.75rem; flex-grow: 1; 
+        display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;  
+        overflow: hidden; text-overflow: ellipsis;
     }
-    .product-media img {
-        width: 100%;
-        height: 200px; /* Consistent image height */
-        object-fit: cover;
-        transition: opacity 0.3s;
-    }
-    .product-info {
-        padding: 1rem;
-        flex-grow: 1;
-        display: flex;
-        flex-direction: column;
-    }
-    .product-title {
-        font-size: 1.25rem;
-        font-weight: 700;
-        color: #1f2937;
-        margin-bottom: 0.25rem;
-        text-decoration: none;
-    }
-    .product-desc {
-        font-size: 0.875rem;
-        color: #6b7280;
-        margin-bottom: 0.75rem;
-        flex-grow: 1;
-        /* Using line-clamp class from Tailwind JIT */
-        display: -webkit-box;
-        -webkit-line-clamp: 3;
-        -webkit-box-orient: vertical;  
-        overflow: hidden;
-        text-overflow: ellipsis;
-    }
-    .price-row {
-        /* This row is now split into two for clearer separation */
-        display: none; /* Hide old row */
-    }
-    .price {
-        font-size: 1.5rem;
-        font-weight: 700;
-        color: #34d399;
-    }
-    .rating {
-        color: #facc15; /* Yellow for stars */
-        font-size: 1rem;
-    }
+    .price { font-size: 1.5rem; font-weight: 700; color: #34d399; }
+    .rating { color: #facc15; font-size: 1rem; }
 
     /* Button Styling */
     .btn {
@@ -118,9 +106,12 @@
       cursor: default; font-weight: 600;
     }
 
-    .add-to-wishlist-btn:hover { background-color: #ef4444; color: white; border-color: #ef4444; }
-    .add-to-wishlist-btn.wished {
-      background-color: #ef4444 !important; color: white !important; border-color: #ef4444 !important;
+    /* Wishlist Persistence (FIX 1) */
+    .add-to-wishlist-btn:hover { background-color: #fecaca; color: #ef4444; border-color: #ef4444; }
+    .add-to-wishlist-btn.wished, .add-to-wishlist-btn.wished:hover {
+      background-color: #ef4444 !important; /* Red solid */
+      color: white !important;
+      border-color: #ef4444 !important;
       cursor: default;
     }
   </style>
@@ -146,8 +137,10 @@
       <div>
         <h2>Welcome to the Go-Kart Market</h2>
         <p>Premium Go-Karts and Accessories.</p>
-        <div class="search-bar-hero">
+        <!-- Added 'relative' class to contain the absolute autocomplete list -->
+        <div class="search-bar-hero relative">
           <input type="text" id="hero-search-input" placeholder="Search for products, e.g., 'tires'">
+          <ul id="hero-autocomplete-list" class="autocomplete-list"></ul>
         </div>
       </div>
     </div>
@@ -171,6 +164,8 @@
   </footer>
 
   <script>
+    let allProducts = []; // Stores all products for comprehensive searching
+
     // Escape HTML helper
     function escapeHtml(str) {
       if (!str) return '';
@@ -186,7 +181,7 @@
     function getStarRating(rating = 5) {
         const fullStar = '★';
         const emptyStar = '☆';
-        const r = Math.round(rating); // Ensure rating is an integer
+        const r = Math.round(rating);
         return `<span class="rating">${fullStar.repeat(r)}${emptyStar.repeat(5 - r)}</span>`;
     }
 
@@ -208,39 +203,43 @@
         container.innerHTML = "<p class='text-center text-gray-500'>No products available.</p>";
         return;
       }
+      
+      const wishlist = getWishlist();
 
-      const html = products.map(p => `
-        <div class="product-card">
-          <a href="product.html?slug=${encodeURIComponent(p.slug)}" class="product-media">
-            <!-- Added placeholder image fallback -->
-            <img src="${escapeHtml(p.images[0] || 'https://placehold.co/600x400/34d399/ffffff?text=GoCart')}" 
-                 alt="${escapeHtml(p.title)}"
-                 onerror="this.onerror=null;this.src='https://placehold.co/600x400/34d399/ffffff?text=GoCart';"
-            >
-          </a>
-          <div class="product-info">
-            <a href="product.html?slug=${encodeURIComponent(p.slug)}" class="product-title">${escapeHtml(p.title)}</a>
-            <div class="text-sm mb-2">
-                ${getStarRating(p.rating || 5)} <span class="text-gray-500 ml-1">(Mock Reviews)</span>
-            </div>
-            <p class="product-desc line-clamp-2">${escapeHtml(p.description)}</p>
-            
-            <div class="product-actions flex items-center justify-between pt-2 border-t border-gray-100">
-                <span class="price">$${p.price.toFixed(2)}</span>
-                <div class="flex items-center gap-2">
-                    <!-- Cart Button with visual feedback -->
-                    <button class="add-to-cart-btn" onclick="addToCart(this, '${p.id}')" aria-label="Add to Cart">
-                      🛒
-                    </button>
-                    <!-- Wishlist Button with visual feedback -->
-                    <button class="add-to-wishlist-btn" onclick="addToWishlist(this, '${p.id}')" aria-label="Add to Wishlist">
-                      ❤️
-                    </button>
-                </div>
+      const html = products.map(p => {
+        const isWished = wishlist.some(item => item.id === p.id) ? 'wished' : ''; // Check if already wished (FIX 1)
+        
+        return `
+          <div class="product-card">
+            <a href="product.html?slug=${encodeURIComponent(p.slug)}" class="product-media">
+              <img src="${escapeHtml(p.images[0] || 'https://placehold.co/600x400/34d399/ffffff?text=GoCart')}" 
+                   alt="${escapeHtml(p.title)}"
+                   onerror="this.onerror=null;this.src='https://placehold.co/600x400/34d399/ffffff?text=GoCart';"
+              >
+            </a>
+            <div class="product-info">
+              <a href="product.html?slug=${encodeURIComponent(p.slug)}" class="product-title">${escapeHtml(p.title)}</a>
+              <div class="text-sm mb-2">
+                  ${getStarRating(p.rating || 5)} <span class="text-gray-500 ml-1">(Mock Reviews)</span>
+              </div>
+              <p class="product-desc line-clamp-2">${escapeHtml(p.description)}</p>
+              
+              <div class="product-actions flex items-center justify-between pt-2 border-t border-gray-100">
+                  <span class="price">$${p.price.toFixed(2)}</span>
+                  <div class="flex items-center gap-2">
+                      <button class="add-to-cart-btn" onclick="addToCart(this, '${p.id}')" aria-label="Add to Cart">
+                        🛒
+                      </button>
+                      <!-- Apply wished class on render if in list (FIX 1) -->
+                      <button class="add-to-wishlist-btn ${isWished}" onclick="addToWishlist(this, '${p.id}')" aria-label="Add to Wishlist">
+                        ❤️
+                      </button>
+                  </div>
+              </div>
             </div>
           </div>
-        </div>
-      `).join("");
+        `;
+      }).join("");
 
       container.innerHTML = html;
     }
@@ -254,12 +253,6 @@
       localStorage.setItem('cart', JSON.stringify(cart));
       updateCartCountDisplay(); 
     }
-
-    /**
-     * Adds an item to the cart and provides visual feedback.
-     * @param {HTMLElement} buttonElement - The button that was clicked.
-     * @param {string} id - The product ID.
-     */
     function addToCart(buttonElement, id) {
       const originalText = buttonElement.innerHTML;
       const originalClasses = buttonElement.className;
@@ -272,7 +265,6 @@
         .then(products => {
           const product = products.find(p => p.id === id);
           if (!product) return;
-          
           const cart = getCart();
           const existing = cart.find(item => item.id === id);
           
@@ -281,10 +273,8 @@
           } else {
             cart.push({ ...product, quantity: 1 });
           }
-          
           saveCart(cart);
 
-          // Visual Feedback Implementation
           buttonElement.disabled = true;
           buttonElement.innerHTML = 'Added! ✓';
           buttonElement.classList.add('added');
@@ -292,14 +282,12 @@
           setTimeout(() => {
             buttonElement.disabled = false;
             buttonElement.innerHTML = originalText;
-            // Restore the original class list fully
-            buttonElement.className = originalClasses; 
+            buttonElement.className = originalClasses;
             buttonElement.classList.remove('added');
           }, 1500);
         })
         .catch(error => {
             console.error("Error adding to cart:", error);
-            // Ensure button is restored if fetch fails before state change
             buttonElement.disabled = false;
             buttonElement.innerHTML = originalText;
             buttonElement.className = originalClasses;
@@ -316,13 +304,12 @@
     }
     
     /**
-     * Adds an item to the wishlist and provides visual feedback.
+     * Adds an item to the wishlist and provides permanent visual feedback.
      * @param {HTMLElement} buttonElement - The button that was clicked.
      * @param {string} id - The product ID.
      */
     function addToWishlist(buttonElement, id) {
       const originalText = buttonElement.innerHTML;
-      const originalClasses = buttonElement.className;
 
       fetch('/products.json')
         .then(res => {
@@ -340,34 +327,69 @@
             wishlist.push(product);
             saveWishlist(wishlist);
             
-            // Visual Feedback: Added
-            buttonElement.innerHTML = 'Added!';
+            // Visual Feedback: Added (Permanent state change for button class)
             buttonElement.classList.add('wished');
+            buttonElement.innerHTML = 'Added!';
 
+            // Revert text after delay, but keep the 'wished' class (FIX 1)
             setTimeout(() => {
                 buttonElement.innerHTML = originalText;
-                buttonElement.className = originalClasses;
             }, 1000);
 
           } else {
-             // Visual Feedback: Already present (flash)
-             buttonElement.classList.add('wished');
-             setTimeout(() => buttonElement.classList.remove('wished'), 500);
+             // Already present: flash to confirm
+             buttonElement.classList.remove('wished');
+             buttonElement.classList.add('wished', 'shadow-lg');
+             setTimeout(() => buttonElement.classList.remove('shadow-lg'), 500);
           }
         })
         .catch(error => {
             console.error("Error fetching products for wishlist:", error);
-            // No need to revert if error occurred before state change
         });
     }
 
-    // Handles search bar functionality on the homepage
-    function handleHeroSearch() {
-      const searchInput = document.getElementById('hero-search-input');
-      const searchTerm = searchInput.value.trim();
+    /**
+     * Handles search bar functionality by redirecting to the shop page.
+     */
+    function redirectToShopSearch(searchTerm) {
       if (searchTerm) {
         window.location.href = `shop.html?search=${encodeURIComponent(searchTerm)}`;
       }
+    }
+    
+    // Autocomplete functionality (FIX 2)
+    function searchAndAutocomplete(query) {
+        const searchTerm = query.toLowerCase().trim();
+        const autocompleteList = document.getElementById('hero-autocomplete-list');
+        
+        if (searchTerm.length < 2) {
+            autocompleteList.style.display = 'none';
+            return;
+        }
+        
+        const searchTerms = searchTerm.split(/\s+/).filter(term => term.length > 0);
+
+        const uniqueSuggestions = new Set();
+        // Use allProducts for comprehensive searching
+        allProducts.forEach(p => {
+            const productText = `${p.title} ${p.description} ${p.primaryCategory} ${p.subcategory} ${p.filters.join(' ')}`.toLowerCase();
+            
+            searchTerms.forEach(term => {
+                if (productText.includes(term)) {
+                    // Suggest the product title or the search term itself
+                    uniqueSuggestions.add(p.title);
+                }
+            });
+        });
+
+        const suggestions = [...uniqueSuggestions].slice(0, 5); // Limit suggestions
+
+        if (suggestions.length) {
+          autocompleteList.innerHTML = suggestions.map(s => `<li>${escapeHtml(s)}</li>`).join('');
+          autocompleteList.style.display = 'block';
+        } else {
+          autocompleteList.style.display = 'none';
+        }
     }
 
     // Load featured products and categories
@@ -375,13 +397,8 @@
       document.getElementById('year').textContent = new Date().getFullYear();
       updateCartCountDisplay(); 
 
-      // Add event listener for search bar on homepage
       const heroSearchInput = document.getElementById('hero-search-input');
-      heroSearchInput.addEventListener('keypress', (event) => {
-        if (event.key === 'Enter') {
-          handleHeroSearch();
-        }
-      });
+      const autocompleteList = document.getElementById('hero-autocomplete-list');
 
       fetch('/products.json')
         .then(res => {
@@ -389,13 +406,14 @@
             return res.json();
         })
         .then(products => {
+          allProducts = products; // Store all products for search (FIX 2)
+          
           // Featured products (limit to 4)
           const featured = products.filter(p => p.featured).slice(0, 4); 
-          // Check if products have a rating before trying to sort by it
           featured.sort((a, b) => (b.rating || 0) - (a.rating || 0)); 
           renderProducts(featured, "featured-products");
 
-          // Group categories
+          // Group categories (Category Rendering logic remains the same)
           const categoriesMap = {};
           products.forEach(p => {
             if (!categoriesMap[p.primaryCategory]) {
@@ -404,7 +422,6 @@
             categoriesMap[p.primaryCategory].add(p.subcategory || p.primaryCategory); 
           });
 
-          // Render primary + subcategories
           const catContainer = document.getElementById("category-buttons");
           catContainer.innerHTML = Object.keys(categoriesMap).map(primary => {
             const subs = [...categoriesMap[primary]]
@@ -429,6 +446,34 @@
             console.error("Error loading products:", err);
             document.getElementById("featured-products").innerHTML = "<p class='text-center text-red-500'>Could not load featured products. Please check the data source.</p>";
         });
+
+      // Search Bar Event Listeners (FIX 2)
+      heroSearchInput.addEventListener("input", (e) => {
+        searchAndAutocomplete(e.target.value);
+      });
+      
+      heroSearchInput.addEventListener('keypress', (event) => {
+        if (event.key === 'Enter') {
+          redirectToShopSearch(heroSearchInput.value.trim()); 
+        }
+      });
+
+      // Handle selection from the autocomplete list
+      autocompleteList.addEventListener('click', (e) => {
+        if (e.target.tagName === 'LI') {
+          const selectedText = e.target.textContent;
+          heroSearchInput.value = selectedText;
+          autocompleteList.style.display = 'none';
+          redirectToShopSearch(selectedText); // Redirect to shop page with selected search term
+        }
+      });
+
+      document.addEventListener('click', (e) => {
+        // Hide list if clicking outside the search area
+        if (!e.target.closest('.search-bar-hero')) {
+          autocompleteList.style.display = 'none';
+        }
+      });
     });
   </script>
 </body>
