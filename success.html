@@ -1,177 +1,255 @@
 <!doctype html>
-<html>
+<html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <title>Payment Successful — TrendAura Social</title>
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <link rel="stylesheet" href="css/styles.css" />
-  <style>
-    /* Custom Styles for Confirmation Page */
-    body { font-family: Arial, sans-serif; padding:20px; color:#222; background:#fafafa; }
-    .container { max-width:900px; margin:0 auto; }
-    .summary { border:1px solid #eee; padding:16px; border-radius:6px; background:#fff; box-shadow: 0 4px 8px rgba(0,0,0,0.05); }
-    .item { display:flex; gap:12px; align-items:center; margin-bottom:12px; }
-    .item img { width:80px; height:80px; object-fit:cover; border-radius:4px; border:1px solid #ddd; }
-    .meta { flex:1; }
-    .total { font-weight:700; margin-top:8px; }
-    .note { color:#666; margin-top:12px; font-size:0.95rem; }
-    .btn { display:inline-block; margin-top:12px; padding:8px 12px; background:#0077cc; color:#fff; text-decoration:none; border-radius:4px; transition: background 0.2s; }
-    .btn:hover { background: #005f99; }
-    code, pre { background:#f2f2f2; padding:8px; border-radius:6px; overflow:auto; font-size:0.9rem; }
-    
-    /* Invoice Link Box Styles (New Feature) */
-    .invoice-box {
-        margin-top: 30px;
-        padding: 20px;
-        background: #eaf7f1; /* Light green background */
-        border: 1px solid #27ae60;
-        border-radius: 8px;
-        text-align: center;
-    }
-    .invoice-box a {
-        color: #fff; /* White text on blue button */
-        font-weight: 700;
-        font-size: 1.1rem;
-        text-decoration: none;
-    }
-    .invoice-box p {
-        margin: 0 0 10px 0;
-    }
-  </style>
+    <meta charset="utf-8" />
+    <title>Order Success — TrendAura Social</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; background-color: #f7fafc; }
+        .invoice-card { max-width: 700px; margin: 40px auto; padding: 30px; background-color: white; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); border-radius: 12px; }
+        .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #e2e8f0; padding-bottom: 1rem; margin-bottom: 1.5rem; }
+        .line-item { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px dashed #edf2f7; font-size: 0.95rem; }
+        .summary-line { display: flex; justify-content: space-between; font-weight: 600; margin-top: 0.5rem; }
+        .item-details { flex-grow: 1; margin-left: 1rem; }
+        
+        /* Hide action buttons when printing */
+        @media print {
+            .no-print {
+                display: none !important;
+            }
+        }
+    </style>
 </head>
 <body>
-  <div class="container">
-    <header>
-      <h1>Thank you — Payment Successful</h1>
-      <p><a href="index.html">Continue shopping</a> | <a href="shop.html">Shop</a></p>
-    </header>
+    <div class="invoice-card">
+        <div class="header">
+            <h1 class="text-3xl font-bold text-green-600">Order Confirmed!</h1>
+            <h2 id="order-id" class="text-xl text-gray-500">#LOADING...</h2>
+        </div>
 
-    <section id="confirmation" class="summary">
-      <!-- Order details loaded here -->
-      <p>Loading order details…</p>
-    </section>
+        <div id="invoice-details">
+            <p class="text-center py-8 text-gray-500">Loading your receipt details...</p>
+        </div>
+        
+        <div id="error-message" class="hidden bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative my-4" role="alert">
+            <strong class="font-bold">Error:</strong>
+            <span class="block sm:inline" id="error-text">Could not load invoice details. Please check your order ID.</span>
+        </div>
 
-    <!-- Permanent Invoice Link Section -->
-    <section id="invoice-box" class="invoice-box" style="display:none;">
-        <p>Your payment details and items have been permanently saved.</p>
-        <p>Click below to **View or Print your official Invoice / Receipt**:</p>
-        <a href="#" id="invoice-link" target="_blank" class="btn">View Permanent Invoice</a>
-    </section>
+        <!-- Button actions section -->
+        <p class="text-sm text-gray-500 mb-2 no-print">Keep a copy of your invoice:</p>
+        <div class="text-center mb-6 flex justify-center space-x-3 no-print">
+            <button id="copy-link-btn" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-2 px-4 rounded-lg transition duration-150 text-sm">
+                Copy Invoice Link
+            </button>
+            <button id="download-btn" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-lg transition duration-150 text-sm">
+                Download/Print Invoice
+            </button>
+        </div>
 
-    <section class="note">
-      <p>If you need help, email <strong>support@trendaurasocial.com</strong> and include the order reference shown below.</p>
-    </section>
-  </div>
+        <div class="text-center no-print">
+            <a href="shop.html" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded-lg transition duration-150">Continue Shopping</a>
+        </div>
+    </div>
 
-  <script>
-  (async function () {
-    const params = new URLSearchParams(window.location.search);
-    const orderId = params.get('paypal_order_id'); // set by your client after capture
-    const container = document.getElementById('confirmation');
-    const invoiceBox = document.getElementById('invoice-box');
-    const invoiceLink = document.getElementById('invoice-link');
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-    function fmt(amount, currency='USD') {
-      try {
-        return new Intl.NumberFormat('en-US', { style: 'currency', currency }).format(amount);
-      } catch (e) {
-        return (currency || 'USD') + ' ' + (amount || '0.00');
-      }
-    }
+        // === FIREBASE SETUP ===
+        const appId = typeof __app_id !== 'undefined' ? __app_id : null;
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : null;
+        let db = null;
 
-    if (!orderId) {
-      // No order id — show fallback message and client-side cart summary if present
-      const cart = JSON.parse(localStorage.getItem('cart') || '[]');
-      if (!cart.length) {
-        container.innerHTML = '<h2>Payment Complete</h2><p>Your payment was processed. No order id was provided in the URL.</p>';
-      } else {
-        let html = '<h2>Order Received (Client-side summary)</h2>';
-        cart.forEach(ci => {
-          // Ensure price is treated as a number
-          const price = Number(String(ci.price).replace(/[^0-9.]/g, '') || 0);
-          html += `<div class="item">
-            <img src="${ci.images?.[0] || '/assets/images/placeholder.png'}" alt="">
-            <div class="meta">
-              <div><strong>${ci.title}</strong></div>
-              <div>Quantity: ${ci.quantity}</div>
-              <div>Subtotal: ${fmt(price * ci.quantity, ci.currency)}</div>
-            </div>
-          </div>`;
-        });
-        const total = cart.reduce((s,i)=> s + Number(String(i.price).replace(/[^0-9.]/g, '') || 0) * i.quantity, 0);
-        html += `<p class="total">Total: ${fmt(total, cart[0]?.currency || 'USD')}</p>`;
-        html += '<p class="note">This is a client-side summary. The official receipt comes from PayPal and is verified server-side.</p>';
-        container.innerHTML = html;
-      }
-      // clear local cart
-      try { localStorage.removeItem('cart'); } catch(e) {}
-      
-      // Hide invoice box if no order ID is found
-      invoiceBox.style.display = 'none';
-      return;
-    }
+        function initializeFirebase() {
+            if (!firebaseConfig || !appId) {
+                document.getElementById('error-text').textContent = "Firebase is not configured in this environment.";
+                document.getElementById('error-message').classList.remove('hidden');
+                return null;
+            }
+            try {
+                const app = initializeApp(firebaseConfig);
+                return getFirestore(app);
+            } catch (e) {
+                document.getElementById('error-text').textContent = `Firebase init failed: ${e.message}`;
+                document.getElementById('error-message').classList.remove('hidden');
+                return null;
+            }
+        }
+        
+        db = initializeFirebase();
 
-    // --- Order ID Found: Display Invoice Link & Start Verification ---
-    const invoiceUrl = `/invoice.html?order_id=${encodeURIComponent(orderId)}`;
-    invoiceLink.href = invoiceUrl;
-    invoiceBox.style.display = 'block';
+        // === UTILITIES ===
+        function formatMoney(v, currency = 'USD') {
+            try {
+                return new Intl.NumberFormat('en-US', { style: 'currency', currency }).format(v);
+            } catch (e) {
+                return (currency || 'USD') + ' ' + Number(v).toFixed(2);
+            }
+        }
 
-    // We have an order id — verify server-side via Netlify function
-    try {
-      const res = await fetch('/.netlify/functions/get-paypal-order?order_id=' + encodeURIComponent(orderId));
-      if (!res.ok) {
-        const errText = await res.text();
-        container.innerHTML = '<h2>Order Status Check Failed</h2><p>Unable to fetch order details. Please contact support and include the order id below. Your payment was already processed.</p>'
-          + `<p>Order id: <code>${orderId}</code></p>`
-          + `<pre>${errText}</pre>`;
-        console.error('get-paypal-order error', errText);
-        return;
-      }
-      const order = await res.json();
+        function getQueryParam(param) {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get(param);
+        }
 
-      // Build confirmation UI from PayPal order info
-      let html = `<h2>Order Confirmed</h2>`;
-      html += `<p style="font-size: 1.1rem;">Your order is marked as **${order.status}**.</p>`;
-      html += `<p><strong>PayPal Order ID:</strong> <code>${order.id}</code></p>`;
+        /**
+         * Copies text to the clipboard using document.execCommand('copy').
+         */
+        function copyToClipboard(text) {
+            const textarea = document.createElement('textarea');
+            textarea.value = text;
+            textarea.style.position = 'fixed'; // Avoid scrolling to bottom
+            document.body.appendChild(textarea);
+            textarea.select();
+            try {
+                document.execCommand('copy');
+                return true;
+            } catch (err) {
+                console.error('Could not copy text: ', err);
+                return false;
+            } finally {
+                document.body.removeChild(textarea);
+            }
+        }
 
-      // Purchase units and captures
-      if (order.purchase_units && order.purchase_units.length) {
-        order.purchase_units.forEach((pu, idx) => {
-          html += `<h3>Payment Details</h3>`;
-          if (pu.amount) {
-            html += `<p style="font-weight: bold;">Total Amount Paid: ${pu.amount.currency_code} ${pu.amount.value}</p>`;
-          }
-          // If capture details are present:
-          if (pu.payments && pu.payments.captures && pu.payments.captures.length) {
-            pu.payments.captures.forEach(cap => {
-              html += `<div class="item">
-                <div class="meta">
-                  <div><strong>Transaction ID:</strong> ${cap.id}</div>
-                  <div>Captured amount: ${cap.amount.currency_code} ${cap.amount.value}</div>
-                  <div class="note">This information confirms the payment was processed on the server.</div>
-                </div>
-              </div>`;
+        function renderInvoice(invoice) {
+            const detailsContainer = document.getElementById('invoice-details');
+            document.getElementById('order-id').textContent = `#${invoice.orderId}`;
+            
+            let itemsHtml = '<h3 class="text-xl font-semibold mb-3">Items Purchased</h3>';
+            let subtotal = 0;
+
+            invoice.items.forEach(item => {
+                // Ensure price and quantity are treated as numbers
+                const price = Number(String(item.price).replace(/[^0-9.]/g, '') || 0);
+                const qty = Number(item.quantity || 1);
+                const lineTotal = price * qty;
+                subtotal += lineTotal;
+
+                itemsHtml += `
+                    <div class="line-item">
+                        <span class="font-medium w-1/2">${item.title}</span>
+                        <span class="w-1/4 text-center">Qty: ${qty}</span>
+                        <span class="w-1/4 text-right">${formatMoney(lineTotal, item.currency)}</span>
+                    </div>
+                `;
             });
-          }
+
+            // Calculate shipping and total based on the data saved in the invoice object (which matches cart.html logic)
+            const shipping = subtotal > 100 ? 0 : 10;
+            const total = subtotal + shipping;
+            const currency = invoice.items[0]?.currency || 'USD';
+
+
+            // Summary
+            itemsHtml += `
+                <div class="mt-6 border-t pt-4">
+                    <div class="summary-line text-gray-600">
+                        <span>Subtotal:</span>
+                        <span>${formatMoney(subtotal, currency)}</span>
+                    </div>
+                    <div class="summary-line text-gray-600">
+                        <span>Shipping:</span>
+                        <span>${formatMoney(shipping, currency)}</span>
+                    </div>
+                    <div class="summary-line text-2xl mt-3 text-gray-900">
+                        <span>Total Paid:</span>
+                        <span>${formatMoney(total, currency)}</span>
+                    </div>
+                </div>
+            `;
+            
+            // Payer Details
+            itemsHtml += `
+                <h3 class="text-xl font-semibold mt-8 mb-3">Payer Information</h3>
+                <p class="text-sm text-gray-600">
+                    <span class="font-semibold">Payer Email:</span> ${invoice.payer?.email_address || 'N/A'}<br>
+                    <span class="font-semibold">Payer Name:</span> ${invoice.payer?.name?.given_name || ''} ${invoice.payer?.name?.surname || ''}<br>
+                    <span class="font-semibold">Transaction ID:</span> ${invoice.transactionID}<br>
+                    <span class="font-semibold">Status:</span> <span class="text-green-600 font-bold">${invoice.status}</span>
+                </p>
+            `;
+
+
+            detailsContainer.innerHTML = itemsHtml;
+        }
+
+        // === ACTION SETUP ===
+        function setupInvoiceActions(orderId) {
+            const copyLinkBtn = document.getElementById('copy-link-btn');
+            const downloadBtn = document.getElementById('download-btn');
+
+            if (copyLinkBtn) {
+                if (orderId) {
+                    copyLinkBtn.addEventListener('click', () => {
+                        const invoiceLink = window.location.href;
+                        if (copyToClipboard(invoiceLink)) {
+                            // Provide visual feedback instead of alert
+                            copyLinkBtn.textContent = 'Copied!';
+                            setTimeout(() => copyLinkBtn.textContent = 'Copy Invoice Link', 1500);
+                        }
+                    });
+                } else {
+                    // Disable if no Order ID is available to link
+                    copyLinkBtn.disabled = true;
+                    copyLinkBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                }
+            }
+
+            if (downloadBtn) {
+                downloadBtn.addEventListener('click', () => {
+                    window.print();
+                });
+            }
+        }
+
+        // === MAIN LOGIC ===
+        async function fetchAndRenderInvoice() {
+            const orderId = getQueryParam('paypal_order_id');
+            const errorElement = document.getElementById('error-message');
+            
+            if (!orderId) {
+                document.getElementById('order-id').textContent = "#MISSING_ID";
+                document.getElementById('error-text').textContent = "Order ID is missing in the URL.";
+                errorElement.classList.remove('hidden');
+                document.getElementById('invoice-details').innerHTML = '';
+                return orderId; // Return orderId for setupActions
+            }
+
+            document.getElementById('order-id').textContent = `#${orderId}`;
+
+            if (!db) return orderId; 
+
+            // Public path to the invoice document: /artifacts/{appId}/public/data/invoices/{orderId}
+            const docRef = doc(db, `artifacts/${appId}/public/data/invoices`, orderId);
+
+            try {
+                const docSnap = await getDoc(docRef);
+
+                if (docSnap.exists()) {
+                    const invoiceData = docSnap.data();
+                    renderInvoice(invoiceData);
+                } else {
+                    document.getElementById('error-text').textContent = `Order not found for ID: ${orderId}`;
+                    errorElement.classList.remove('hidden');
+                    document.getElementById('invoice-details').innerHTML = '';
+                }
+            } catch (e) {
+                document.getElementById('error-text').textContent = `Failed to fetch invoice: ${e.message}`;
+                errorElement.classList.remove('hidden');
+                document.getElementById('invoice-details').innerHTML = '';
+                console.error("Firestore fetch error:", e);
+            }
+            return orderId;
+        }
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            const orderId = await fetchAndRenderInvoice();
+            setupInvoiceActions(orderId);
         });
-      }
-
-      // Show payer info if available
-      if (order.payer) {
-        html += `<h3>Payer Information</h3>`;
-        html += `<p>${order.payer.name?.given_name || ''} ${order.payer.name?.surname || ''} | ${order.payer.email_address || 'Email not available'}</p>`;
-      }
-
-      container.innerHTML = html;
-
-      // clear local cart (client-side)
-      try { localStorage.removeItem('cart'); } catch (e) {}
-
-    } catch (err) {
-      container.innerHTML = `<h2>Order Verification Error</h2><p>There was an error verifying your order details with PayPal. Your payment likely succeeded, but please contact support and include this order id: <code>${orderId}</code></p>`;
-      console.error(err);
-    }
-  })();
-  </script>
+    </script>
 </body>
 </html>
