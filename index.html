@@ -8,13 +8,13 @@
   <!-- Load Tailwind CSS for modern styling -->
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap');
     body { font-family: 'Inter', sans-serif; background-color: #f7fafc; }
     
-    /* Replicating/Improving styles based on context */
+    /* Global Styles */
     .header { background-color: #1f2937; color: white; padding: 1rem 0; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
     .header .inner { max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; padding: 0 1.5rem; }
-    .header .brand h1 { font-size: 1.5rem; font-weight: 700; color: #34d399; }
+    .header .brand h1 { font-size: 1.5rem; font-weight: 900; color: #34d399; }
     .header .nav a { margin-left: 1.5rem; color: #d1d5db; text-decoration: none; transition: color 0.2s; }
     .header .nav a:hover { color: white; }
 
@@ -25,125 +25,102 @@
     .container { max-width: 1200px; margin: 0 auto; padding: 2rem 1.5rem; }
     .container h2 { font-size: 2rem; font-weight: 700; color: #1f2937; margin-bottom: 1.5rem; border-bottom: 2px solid #e5e7eb; padding-bottom: 0.5rem; }
 
-    /* Product Grid */
-    .product-grid {
+    /* Search Bar Styling */
+    .search-bar-hero { margin-top: 2rem; width: 100%; max-width: 600px; margin-left: auto; margin-right: auto; }
+    .search-bar-hero input {
+      width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 1rem;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+
+    /* Product Grid and Card (Detailed, Information-Forward Style) */
+    #featured-products {
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
         gap: 2rem;
     }
+
     .product-card {
         background: white;
         border-radius: 12px;
-        box-shadow: 0 5px 10px rgba(0, 0, 0, 0.05);
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
         overflow: hidden;
-        transition: transform 0.3s;
+        transition: transform 0.3s, box-shadow 0.3s;
+        display: flex;
+        flex-direction: column;
     }
     .product-card:hover {
-        transform: translateY(-3px);
+        transform: translateY(-5px);
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
     }
     .product-media img {
         width: 100%;
-        height: 180px;
+        height: 200px; /* Consistent image height */
         object-fit: cover;
+        transition: opacity 0.3s;
     }
     .product-info {
         padding: 1rem;
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
     }
     .product-title {
-        font-size: 1.125rem;
-        font-weight: 600;
+        font-size: 1.25rem;
+        font-weight: 700;
         color: #1f2937;
+        margin-bottom: 0.25rem;
         text-decoration: none;
     }
     .product-desc {
         font-size: 0.875rem;
         color: #6b7280;
-        margin-top: 0.5rem;
-        margin-bottom: 1rem;
-    }
-
-    /* Custom styles from original code */
-    .search-bar-hero {
-      margin-top: 2rem;
-      width: 100%;
-      max-width: 600px;
-      margin-left: auto;
-      margin-right: auto;
-    }
-    .search-bar-hero input {
-      width: 100%;
-      padding: 12px;
-      border: 1px solid #ddd;
-      border-radius: 8px; /* Slightly more rounded */
-      font-size: 1rem;
-      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        margin-bottom: 0.75rem;
+        flex-grow: 1;
+        /* Using line-clamp class from Tailwind JIT */
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;  
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
     .price-row {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      margin-top: 1rem;
+        /* This row is now split into two for clearer separation */
+        display: none; /* Hide old row */
     }
-    .price-row .price {
-        font-size: 1.25rem;
+    .price {
+        font-size: 1.5rem;
         font-weight: 700;
         color: #34d399;
-        flex-grow: 1;
     }
-    .btn {
-        display: inline-block;
-        padding: 10px 20px;
-        background-color: #10b981; /* Tailwind green-500 */
-        color: white;
-        text-decoration: none;
-        border-radius: 8px;
-        font-weight: 600;
-        transition: background-color 0.2s, box-shadow 0.2s;
-        box-shadow: 0 4px #059669; /* Darker green for a slight 3D effect */
-    }
-    .btn:hover {
-        background-color: #059669; /* Tailwind green-600 */
-        box-shadow: 0 2px #047857;
-        transform: translateY(2px);
-    }
-    .btn.small {
-        padding: 8px 16px;
-    }
-    
-    /* Action Buttons (Cart/Wishlist) */
-    .add-to-cart-btn, .add-to-wishlist-btn {
-      background-color: #f3f4f6;
-      border: 1px solid #e5e7eb;
-      color: #4b5563;
-      padding: 10px;
-      font-size: 1rem;
-      cursor: pointer;
-      border-radius: 8px;
-      transition: background-color 0.2s, color 0.2s, border-color 0.2s;
-      line-height: 1; /* Fixes alignment for emoji/icon */
-    }
-    
-    .add-to-cart-btn:hover {
-      background-color: #3b82f6; /* Blue hover */
-      color: white;
-      border-color: #3b82f6;
-    }
-    .add-to-cart-btn.added {
-      background-color: #10b981; /* Green success */
-      color: white;
-      border-color: #10b981;
-      cursor: default;
+    .rating {
+        color: #facc15; /* Yellow for stars */
+        font-size: 1rem;
     }
 
-    .add-to-wishlist-btn:hover {
-      background-color: #ef4444; /* Red hover */
-      color: white;
-      border-color: #ef4444;
+    /* Button Styling */
+    .btn {
+        display: inline-block; padding: 10px 20px; background-color: #10b981; color: white; text-decoration: none;
+        border-radius: 8px; font-weight: 600; transition: background-color 0.2s, box-shadow 0.2s; box-shadow: 0 4px #059669; 
     }
+    .btn:hover { background-color: #059669; box-shadow: 0 2px #047857; transform: translateY(2px); }
+    .btn.small { padding: 8px 16px; }
+
+    /* Action Buttons (Cart/Wishlist) */
+    .add-to-cart-btn, .add-to-wishlist-btn {
+      background-color: #f3f4f6; border: 1px solid #e5e7eb; color: #4b5563; padding: 10px; font-size: 1rem;
+      cursor: pointer; border-radius: 8px; transition: background-color 0.2s, color 0.2s, border-color 0.2s;
+      line-height: 1; display: flex; align-items: center; justify-content: center;
+    }
+    
+    .add-to-cart-btn:hover { background-color: #3b82f6; color: white; border-color: #3b82f6; }
+    .add-to-cart-btn.added {
+      background-color: #10b981 !important; color: white !important; border-color: #10b981 !important;
+      cursor: default; font-weight: 600;
+    }
+
+    .add-to-wishlist-btn:hover { background-color: #ef4444; color: white; border-color: #ef4444; }
     .add-to-wishlist-btn.wished {
-      background-color: #ef4444; /* Red solid */
-      color: white;
-      border-color: #ef4444;
+      background-color: #ef4444 !important; color: white !important; border-color: #ef4444 !important;
       cursor: default;
     }
   </style>
@@ -155,7 +132,6 @@
       <nav class="nav" role="navigation" aria-label="Main">
         <a href="index.html">Home</a>
         <a href="shop.html">Shop</a>
-        <!-- Added cart count display for consistency -->
         <a href="cart.html" class="flex items-center space-x-1">
             <span>Cart</span>
             <span id="cart-count" class="bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">0</span>
@@ -206,6 +182,14 @@
         .replace(/>/g, '&gt;');
     }
     
+    // Utility function for mock rating display
+    function getStarRating(rating = 5) {
+        const fullStar = '★';
+        const emptyStar = '☆';
+        const r = Math.round(rating); // Ensure rating is an integer
+        return `<span class="rating">${fullStar.repeat(r)}${emptyStar.repeat(5 - r)}</span>`;
+    }
+
     // Updates the cart count element in the header
     function updateCartCountDisplay() {
         const cart = getCart();
@@ -236,12 +220,23 @@
           </a>
           <div class="product-info">
             <a href="product.html?slug=${encodeURIComponent(p.slug)}" class="product-title">${escapeHtml(p.title)}</a>
-            <p class="product-desc">${escapeHtml(p.description)}</p>
-            <div class="price-row">
-              <span class="price">$${p.price.toFixed(2)}</span>
-              <!-- Updated to pass 'this' for visual feedback -->
-              <button class="add-to-cart-btn" onclick="addToCart(this, '${p.id}')" aria-label="Add to Cart">🛒</button>
-              <button class="add-to-wishlist-btn" onclick="addToWishlist(this, '${p.id}')" aria-label="Add to Wishlist">❤️</button>
+            <div class="text-sm mb-2">
+                ${getStarRating(p.rating || 5)} <span class="text-gray-500 ml-1">(Mock Reviews)</span>
+            </div>
+            <p class="product-desc line-clamp-2">${escapeHtml(p.description)}</p>
+            
+            <div class="product-actions flex items-center justify-between pt-2 border-t border-gray-100">
+                <span class="price">$${p.price.toFixed(2)}</span>
+                <div class="flex items-center gap-2">
+                    <!-- Cart Button with visual feedback -->
+                    <button class="add-to-cart-btn" onclick="addToCart(this, '${p.id}')" aria-label="Add to Cart">
+                      🛒
+                    </button>
+                    <!-- Wishlist Button with visual feedback -->
+                    <button class="add-to-wishlist-btn" onclick="addToWishlist(this, '${p.id}')" aria-label="Add to Wishlist">
+                      ❤️
+                    </button>
+                </div>
             </div>
           </div>
         </div>
@@ -257,7 +252,7 @@
     }
     function saveCart(cart) {
       localStorage.setItem('cart', JSON.stringify(cart));
-      updateCartCountDisplay(); // Keep cart display updated
+      updateCartCountDisplay(); 
     }
 
     /**
@@ -266,11 +261,9 @@
      * @param {string} id - The product ID.
      */
     function addToCart(buttonElement, id) {
-      // 1. Store original state for reset
       const originalText = buttonElement.innerHTML;
       const originalClasses = buttonElement.className;
 
-      // 2. Begin API call with error handling (FIX 1)
       fetch('/products.json')
         .then(res => {
             if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
@@ -291,7 +284,7 @@
           
           saveCart(cart);
 
-          // 3. Provide non-disruptive feedback (FIX 2)
+          // Visual Feedback Implementation
           buttonElement.disabled = true;
           buttonElement.innerHTML = 'Added! ✓';
           buttonElement.classList.add('added');
@@ -299,12 +292,14 @@
           setTimeout(() => {
             buttonElement.disabled = false;
             buttonElement.innerHTML = originalText;
-            buttonElement.className = originalClasses; // Reset classes to restore original style
+            // Restore the original class list fully
+            buttonElement.className = originalClasses; 
+            buttonElement.classList.remove('added');
           }, 1500);
         })
         .catch(error => {
             console.error("Error adding to cart:", error);
-            // Ensure button is re-enabled if fetch fails
+            // Ensure button is restored if fetch fails before state change
             buttonElement.disabled = false;
             buttonElement.innerHTML = originalText;
             buttonElement.className = originalClasses;
@@ -329,7 +324,6 @@
       const originalText = buttonElement.innerHTML;
       const originalClasses = buttonElement.className;
 
-      // Begin API call with error handling (FIX 1)
       fetch('/products.json')
         .then(res => {
             if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
@@ -346,24 +340,24 @@
             wishlist.push(product);
             saveWishlist(wishlist);
             
-            // Provide non-disruptive feedback (FIX 2)
+            // Visual Feedback: Added
             buttonElement.innerHTML = 'Added!';
             buttonElement.classList.add('wished');
 
             setTimeout(() => {
                 buttonElement.innerHTML = originalText;
-                buttonElement.classList.remove('wished');
+                buttonElement.className = originalClasses;
             }, 1000);
 
           } else {
-             // Flash to indicate already added
+             // Visual Feedback: Already present (flash)
              buttonElement.classList.add('wished');
              setTimeout(() => buttonElement.classList.remove('wished'), 500);
           }
         })
         .catch(error => {
             console.error("Error fetching products for wishlist:", error);
-            // Just log error, no need to revert button state as it wasn't modified yet
+            // No need to revert if error occurred before state change
         });
     }
 
@@ -372,7 +366,6 @@
       const searchInput = document.getElementById('hero-search-input');
       const searchTerm = searchInput.value.trim();
       if (searchTerm) {
-        // Redirect to shop page with search term pre-filled
         window.location.href = `shop.html?search=${encodeURIComponent(searchTerm)}`;
       }
     }
@@ -380,7 +373,7 @@
     // Load featured products and categories
     document.addEventListener("DOMContentLoaded", () => {
       document.getElementById('year').textContent = new Date().getFullYear();
-      updateCartCountDisplay(); // Initialize cart count (FIX 3)
+      updateCartCountDisplay(); 
 
       // Add event listener for search bar on homepage
       const heroSearchInput = document.getElementById('hero-search-input');
@@ -389,7 +382,6 @@
           handleHeroSearch();
         }
       });
-      // Optionally handle search on focus lost or on a separate button click
 
       fetch('/products.json')
         .then(res => {
@@ -397,8 +389,10 @@
             return res.json();
         })
         .then(products => {
-          // Featured products
-          const featured = products.filter(p => p.featured).slice(0, 4); // Limit to 4 featured items
+          // Featured products (limit to 4)
+          const featured = products.filter(p => p.featured).slice(0, 4); 
+          // Check if products have a rating before trying to sort by it
+          featured.sort((a, b) => (b.rating || 0) - (a.rating || 0)); 
           renderProducts(featured, "featured-products");
 
           // Group categories
@@ -407,7 +401,6 @@
             if (!categoriesMap[p.primaryCategory]) {
               categoriesMap[p.primaryCategory] = new Set();
             }
-            // Use subcategory if present, otherwise use primary category as fallback link
             categoriesMap[p.primaryCategory].add(p.subcategory || p.primaryCategory); 
           });
 
@@ -415,7 +408,7 @@
           const catContainer = document.getElementById("category-buttons");
           catContainer.innerHTML = Object.keys(categoriesMap).map(primary => {
             const subs = [...categoriesMap[primary]]
-                .filter(Boolean) // Remove null/undefined subcategories if any
+                .filter(Boolean) 
                 .map(sub => `
               <a class="btn small text-sm" 
                  href="shop.html?primaryCategory=${encodeURIComponent(primary)}${sub !== primary ? `&subcategory=${encodeURIComponent(sub)}` : ''}">
@@ -433,9 +426,8 @@
           }).join("");
         })
         .catch(err => {
-            // This is the existing catch block, which is good practice.
             console.error("Error loading products:", err);
-            document.getElementById("featured-products").innerHTML = "<p class='text-center text-red-500'>Could not load products. Please check the data source.</p>";
+            document.getElementById("featured-products").innerHTML = "<p class='text-center text-red-500'>Could not load featured products. Please check the data source.</p>";
         });
     });
   </script>
