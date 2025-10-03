@@ -1,147 +1,631 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Modern Responsive Homepage</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-    <style>
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #f7f9fb;
-            color: #1f2937;
-        }
-    </style>
+<meta charset="utf-8" />
+<title>Everything Go-Karts — Home</title>
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<!-- Load Tailwind CSS for modern styling -->
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap');
+body { font-family: 'Inter', sans-serif; background-color: #f7fafc; }
+/* Global Styles */
+.header { background-color: #1f2937; color: white; padding: 1rem 0; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+.header .inner { max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; padding: 0 1.5rem; }
+.header .brand h1 { font-size: 1.5rem; font-weight: 900; color: #34d399; }
+.header .nav a { margin-left: 1.5rem; color: #d1d5db; text-decoration: none; transition: color 0.2s; }
+.header .nav a:hover { color: white; }
+
+.hero { background-color: #34d399; color: white; padding: 4rem 0; text-align: center; }
+.hero h2 { font-size: 3rem; font-weight: 700; margin-bottom: 0.5rem; }
+.hero p { font-size: 1.25rem; margin-bottom: 1.5rem; }
+.container { max-width: 1200px; margin: 0 auto; padding: 2rem 1.5rem; }
+.container h2 { font-size: 2rem; font-weight: 700; color: #1f2937; margin-bottom: 1.5rem; border-bottom: 2px solid #e5e7eb; padding-bottom: 0.5rem; }
+
+/* Search Bar Styling */
+.search-bar-hero { margin-top: 2rem; width: 100%; max-width: 600px; margin-left: auto; margin-right: auto; }
+.search-bar-hero input { 
+width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 1rem; 
+box-shadow: 0 4px 6px rgba(0,0,0,0.1); 
+}
+/* Autocomplete List Styling */
+.autocomplete-list { 
+position: absolute; z-index: 100; width: 100%; background-color: #fff; border: 1px solid #d1d5db; 
+border-top: none; list-style-type: none; padding: 0; margin: 0; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); 
+max-height: 200px; overflow-y: auto; display: none; border-radius: 0 0 8px 8px; text-align: left; 
+}
+.autocomplete-list li { 
+padding: 10px; cursor: pointer; font-size: 0.9rem; color: #4b5563; border-bottom: 1px solid #f3f4f6; 
+}
+.autocomplete-list li:hover, .autocomplete-list li.active { background-color: #e5e7eb; } 
+
+/* --- TAB STYLING (Reused from shop.html) --- */
+.tab-button {
+    flex-shrink-0;
+    padding: 1rem 1.5rem;
+    font-weight: 600;
+    color: #4b5563; /* text-gray-600 */
+    transition: color 0.2s, border-color 0.2s;
+    border-bottom-width: 2px;
+    border-color: transparent;
+    cursor: pointer;
+}
+.tab-button:hover {
+    color: #34d399; /* hover:text-green-500 */
+}
+/* Active Tab State */
+.tab-button[aria-selected="true"] {
+    color: #34d399; /* text-green-500 */
+    border-color: #34d399; /* border-green-500 */
+}
+
+/* Product Grid and Card */
+#featured-products { 
+display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 2rem; 
+} 
+
+.product-card { 
+background: white; border-radius: 12px; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); 
+overflow: hidden; transition: transform 0.3s, box-shadow 0.3s; display: flex; flex-direction: column; 
+} 
+.product-card:hover { transform: translateY(-5px); box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04); } 
+.product-media img { width: 100%; height: 200px; object-fit: cover; transition: opacity 0.3s; } 
+.product-info { padding: 1rem; flex-grow: 1; display: flex; flex-direction: column; } 
+.product-title { font-size: 1.25rem; font-weight: 700; color: #1f2937; margin-bottom: 0.25rem; text-decoration: none; } 
+.product-desc { 
+font-size: 0.875rem; color: #6b7280; margin-bottom: 0.75rem; flex-grow: 1; 
+display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; 
+overflow: hidden; text-overflow: ellipsis; 
+} 
+/* Discount Price Styling */
+.price-container { 
+display: flex; 
+align-items: center; 
+gap: 0.5rem; 
+} 
+.price { font-size: 1.5rem; font-weight: 700; color: #34d399; } 
+.original-price { 
+font-size: 1rem; 
+text-decoration: line-through; 
+color: #9ca3af; /* Gray text for crossed-out price */ 
+} 
+/* End Discount Price Styling */
+.rating { color: #facc15; font-size: 1rem; } 
+
+/* --- Action Buttons (Cart/Wishlist) --- */ 
+.add-to-cart-btn, .add-to-wishlist-btn { 
+/* Base styles: light background, standard border */ 
+background-color: white; 
+border: 1px solid #d1d5db; 
+padding: 10px; font-size: 1rem; 
+cursor: pointer; border-radius: 8px; transition: background-color 0.2s, color 0.2s, border-color 0.2s; 
+line-height: 1; display: flex; align-items: center; justify-content: center; 
+} 
+
+/* CART ICON STYLE */ 
+.add-to-cart-btn { 
+color: #4b5563; /* Cart icon default color */ 
+} 
+.add-to-cart-btn:hover { background-color: #f1f5ff; color: #3b82f6; border-color: #3b82f6; } 
+.add-to-cart-btn.added { 
+background-color: #10b981 !important; color: white !important; border-color: #10b981 !important; 
+cursor: default; font-weight: 600; 
+} 
+
+/* WISHLIST ICON STYLE (Heart color control) */ 
+.add-to-wishlist-btn { 
+/* Default state for SVG: Faint Outline */ 
+border-color: #d1d5db; /* Light border */ 
+/* Set the SVG fill to none and stroke to a faint color */ 
+} 
+.add-to-wishlist-btn svg { 
+fill: none; /* No fill */ 
+stroke: #d1d5db; /* Faint outline color */ 
+stroke-width: 2; 
+transition: stroke 0.2s, fill 0.2s; 
+} 
+.add-to-wishlist-btn:not(.wished):hover { 
+background-color: #f9fafb; /* Slight hover background */ 
+border-color: #fca5a5; 
+} 
+/* On hover of unwished, make the outline slightly more visible/pink */ 
+.add-to-wishlist-btn:not(.wished):hover svg { 
+stroke: #fca5a5; 
+} 
+/* WISHED STATE: Heart turns solid red */ 
+.add-to-wishlist-btn.wished { 
+background-color: white !important; 
+border-color: #ef4444 !important; 
+cursor: default; 
+} 
+
+.add-to-wishlist-btn.wished svg { 
+fill: #ef4444; /* Solid red fill */ 
+stroke: #ef4444; /* Solid red stroke */ 
+} 
+.add-to-wishlist-btn.wished:hover { 
+background-color: #f9fafb !important; 
+} 
+</style>
 </head>
 <body>
-    <div id="app" class="min-h-screen p-4 sm:p-8">
-        <!-- Header/Branding -->
-        <header class="mb-8 p-4 bg-white shadow-md rounded-xl">
-            <h1 class="text-3xl font-bold text-indigo-700">The Modern Homepage</h1>
-            <p class="text-gray-500">Applying consistent, modular design across your site.</p>
-        </header>
+<header class="header" role="banner">
+<div class="inner">
+<a class="brand" href="index.html"><h1>Everything Go-Karts</h1></a>
+<nav class="nav" role="navigation" aria-label="Main">
+<a href="index.html">Home</a>
+<a href="shop.html">Shop</a>
+<a href="cart.html" class="flex items-center space-x-1">
+<span>Cart</span>
+<span id="cart-count" class="bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full hidden">0</span>
+</a>
+<a href="wishlist.html">Wishlist</a>
+</nav>
+</div>
+</header>
 
-        <!-- Reused Tab Component Section (The core design change) -->
-        <div class="bg-white p-2 sm:p-4 rounded-xl shadow-lg mb-8">
-            <!-- Tab Navigation Container -->
-            <nav class="flex overflow-x-auto border-b border-gray-200" role="tablist">
-                <!-- Tab Item -->
-                <button
-                    id="tab-featured"
-                    data-tab-name="featured"
-                    class="tab-button flex-shrink-0 px-4 py-3 text-sm sm:text-base font-semibold text-gray-500 hover:text-indigo-600 focus:outline-none transition duration-150 ease-in-out border-b-2 border-transparent aria-selected:border-indigo-600 aria-selected:text-indigo-600"
-                    role="tab"
-                    aria-controls="content-featured"
-                    aria-selected="true"
-                    onclick="switchTab('featured')">
-                    Featured
-                </button>
+<section class="hero">
+<div class="inner container">
+<div>
+<h2>Welcome to the Go-Kart Market</h2>
+<p>Premium Go-Karts and Accessories.</p>
+<div class="search-bar-hero relative">
+<input type="text" id="hero-search-input" placeholder="Search for products, e.g., 'tires'">
+<ul id="hero-autocomplete-list" class="autocomplete-list"></ul>
+</div>
+</div>
+</div>
+</section>
 
-                <!-- Tab Item -->
-                <button
-                    id="tab-news"
-                    data-tab-name="news"
-                    class="tab-button flex-shrink-0 px-4 py-3 text-sm sm:text-base font-semibold text-gray-500 hover:text-indigo-600 focus:outline-none transition duration-150 ease-in-out border-b-2 border-transparent aria-selected:border-indigo-600 aria-selected:text-indigo-600"
-                    role="tab"
-                    aria-controls="content-news"
-                    aria-selected="false"
-                    onclick="switchTab('news')">
-                    News & Updates
-                </button>
+<!-- MAIN CONTENT WRAPPER: Now contains Tabs for organization -->
+<main class="container" id="main">
+    
+    <!-- Tab Navigation Bar -->
+    <nav class="flex overflow-x-auto border-b-2 border-gray-200 mb-8" role="tablist">
+        <!-- Tab 1: Featured Products (Default) -->
+        <button
+            id="tab-featured"
+            data-tab-name="featured"
+            class="tab-button"
+            role="tab"
+            aria-controls="content-featured"
+            aria-selected="true"
+            onclick="switchTab('featured')">
+            🔥 Featured Products
+        </button>
 
-                <!-- Tab Item -->
-                <button
-                    id="tab-community"
-                    data-tab-name="community"
-                    class="tab-button flex-shrink-0 px-4 py-3 text-sm sm:text-base font-semibold text-gray-500 hover:text-indigo-600 focus:outline-none transition duration-150 ease-in-out border-b-2 border-transparent aria-selected:border-indigo-600 aria-selected:text-indigo-600"
-                    role="tab"
-                    aria-controls="content-community"
-                    aria-selected="false"
-                    onclick="switchTab('community')">
-                    Community
-                </button>
-            </nav>
-
-            <!-- Tab Content -->
-            <div class="mt-4">
-                <!-- Featured Content -->
-                <div id="content-featured" data-tab-content="featured" class="tab-content p-4 bg-gray-50 rounded-lg shadow-inner" role="tabpanel" aria-labelledby="tab-featured">
-                    <h3 class="text-xl font-bold text-indigo-700 mb-2">Editor's Picks</h3>
-                    <p class="text-gray-700">Welcome to the new homepage! This section highlights our best-selling products and most popular articles. Check out the latest must-haves!</p>
-                    <a href="#" class="inline-block mt-3 text-sm font-medium text-indigo-600 hover:text-indigo-800">Explore Featured Items &rarr;</a>
-                </div>
-
-                <!-- News & Updates Content (Initially Hidden) -->
-                <div id="content-news" data-tab-content="news" class="tab-content hidden p-4 bg-gray-50 rounded-lg shadow-inner" role="tabpanel" aria-labelledby="tab-news">
-                    <h3 class="text-xl font-bold text-indigo-700 mb-2">Latest Company Updates</h3>
-                    <ul class="list-disc list-inside text-gray-700 space-y-1">
-                        <li>New product line launching next week.</li>
-                        <li>Q3 financial results announced.</li>
-                        <li>Maintenance window scheduled for Friday.</li>
-                    </ul>
-                </div>
-
-                <!-- Community Content (Initially Hidden) -->
-                <div id="content-community" data-tab-content="community" class="tab-content hidden p-4 bg-gray-50 rounded-lg shadow-inner" role="tabpanel" aria-labelledby="tab-community">
-                    <h3 class="text-xl font-bold text-indigo-700 mb-2">Join the Discussion</h3>
-                    <p class="text-gray-700">Connect with other users, ask questions, and share your feedback. Your voice helps shape our platform!</p>
-                    <button class="mt-3 bg-indigo-500 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-lg transition duration-150">
-                        Visit Forum
-                    </button>
-                </div>
+        <!-- Tab 2: Shop by Category -->
+        <button
+            id="tab-categories"
+            data-tab-name="categories"
+            class="tab-button"
+            role="tab"
+            aria-controls="content-categories"
+            aria-selected="false"
+            onclick="switchTab('categories')">
+            🛒 Shop by Category
+        </button>
+    </nav>
+    
+    <!-- Tab Content Panels -->
+    <div id="tab-content-wrapper">
+        <!-- Featured Products Content Panel -->
+        <div id="content-featured" data-tab-content="featured" class="tab-content" role="tabpanel" aria-labelledby="tab-featured">
+            <h2 class="text-2xl font-bold text-gray-800 mb-4">Top Rated Go-Karts</h2>
+            <!-- Products will be rendered here -->
+            <div id="featured-products" class="product-grid">
+                <p class='text-center text-gray-500'>Loading featured products...</p>
+            </div> 
+            <div class="mt-8 text-center">
+                <a class="btn bg-gray-200 text-gray-700 py-2 px-4 rounded-lg font-semibold hover:bg-gray-300 transition" href="shop.html?primaryCategory=all">Browse all products</a>
             </div>
         </div>
 
-        <!-- Placeholder Content Below Tabs -->
-        <div class="p-6 bg-white rounded-xl shadow-lg">
-            <h2 class="text-2xl font-semibold text-gray-800 mb-4">Quick Links</h2>
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <div class="bg-green-100 p-4 rounded-lg hover:bg-green-200 transition duration-150">Dashboard</div>
-                <div class="bg-yellow-100 p-4 rounded-lg hover:bg-yellow-200 transition duration-150">Help Center</div>
-                <div class="bg-red-100 p-4 rounded-lg hover:bg-red-200 transition duration-150">My Account</div>
-                <div class="bg-blue-100 p-4 rounded-lg hover:bg-blue-200 transition duration-150">Contact Us</div>
+        <!-- Shop by Category Content Panel -->
+        <div id="content-categories" data-tab-content="categories" class="tab-content hidden" role="tabpanel" aria-labelledby="tab-categories">
+            <h2 class="text-2xl font-bold text-gray-800 mb-4">Explore Our Catalog</h2>
+            <!-- Categories will be rendered here -->
+            <div id="category-buttons" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                <p class='text-center text-gray-500'>Loading categories...</p>
             </div>
         </div>
-
     </div>
 
-    <script>
-        /**
-         * Switches the active tab content and updates the button styling.
-         * @param {string} activeTabName - The name of the tab to activate (e.g., 'featured').
-         */
-        function switchTab(activeTabName) {
-            // 1. Hide all content panels and set them to aria-selected=false
-            document.querySelectorAll('.tab-content').forEach(content => {
-                content.classList.add('hidden');
-                content.setAttribute('aria-hidden', 'true');
-            });
+</main>
 
-            // 2. Deactivate all tab buttons
-            document.querySelectorAll('.tab-button').forEach(button => {
-                button.setAttribute('aria-selected', 'false');
-            });
+<footer class="footer bg-gray-800 text-white mt-10 py-4">
+<div class="container text-center">&copy; <span id="year"></span> Everything Go-Karts</div>
+</footer>
 
-            // 3. Show the requested content panel and set it to aria-selected=true
-            const activeContent = document.querySelector(`[data-tab-content="${activeTabName}"]`);
-            if (activeContent) {
-                activeContent.classList.remove('hidden');
-                activeContent.setAttribute('aria-hidden', 'false');
-            }
+<script>
+let allProducts = [];
 
-            // 4. Activate the requested tab button
-            const activeTabButton = document.querySelector(`[data-tab-name="${activeTabName}"]`);
-            if (activeTabButton) {
-                activeTabButton.setAttribute('aria-selected', 'true');
-            }
-        }
+// --- TAB SWITCHING LOGIC (Reused from shop.html) ---
+/**
+ * Switches the active tab content and updates the button styling.
+ * @param {string} activeTabName - The name of the tab to activate ('featured' or 'categories').
+ */
+function switchTab(activeTabName) {
+    // 1. Hide all content panels
+    document.querySelectorAll('.tab-content').forEach(content => {
+        content.classList.add('hidden');
+        content.setAttribute('aria-hidden', 'true');
+    });
 
-        // Initialize the app by setting the default active tab (Featured) on load
-        window.onload = () => {
-             // Ensure the initial state matches the JavaScript-controlled state
-             switchTab('featured');
-        };
-    </script>
+    // 2. Deactivate all tab buttons
+    document.querySelectorAll('.tab-button').forEach(button => {
+        button.setAttribute('aria-selected', 'false');
+    });
+
+    // 3. Show the requested content panel
+    const activeContent = document.querySelector(`[data-tab-content="${activeTabName}"]`);
+    if (activeContent) {
+        activeContent.classList.remove('hidden');
+        activeContent.setAttribute('aria-hidden', 'false');
+    }
+
+    // 4. Activate the requested tab button
+    const activeTabButton = document.querySelector(`[data-tab-name="${activeTabName}"]`);
+    if (activeTabButton) {
+        activeTabButton.setAttribute('aria-selected', 'true');
+    }
+}
+
+
+function escapeHtml(str) { 
+if (!str) return ''; 
+return String(str) 
+.replace(/&/g, '&amp;') 
+.replace(/"/g, '&quot;') 
+.replace(/'/g, '&#39;') 
+.replace(/</g, '&lt;') 
+.replace(/>/g, '&gt;'); 
+} 
+function getStarRating(rating = 5) { 
+const fullStar = '★'; 
+const emptyStar = '☆'; 
+const r = Math.round(rating); 
+return `<span class="rating">${fullStar.repeat(r)}${emptyStar.repeat(5 - r)}</span>`; 
+} 
+
+function updateCartCountDisplay() { 
+const cart = getCart(); 
+const totalItems = cart.reduce((sum, item) => sum + (item.quantity || 1), 0); 
+const cartCountElement = document.getElementById('cart-count'); 
+if (cartCountElement) { 
+cartCountElement.textContent = totalItems; 
+cartCountElement.classList.toggle('hidden', totalItems === 0); 
+} 
+} 
+
+// SVG icon for the heart (outline/filled state controlled by CSS) 
+const heartIconSvg = ` 
+<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-heart"> 
+<path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/> 
+</svg> 
+`; 
+
+/** * Calculates the final price based on the product's defined discount rate (0.0 to 1.0). 
+* @param {Object} product - The product object with 'price' and optional 'discount' (e.g., 0.2). 
+* @returns {{finalPrice: number, isDiscounted: boolean}} 
+*/ 
+function calculateDiscountedPrice(product) { 
+let finalPrice = product.price; 
+let isDiscounted = false; 
+// Use the discount rate from the JSON data, defaulting to 0 if not present. 
+const discountRate = product.discount || 0; 
+
+if (discountRate > 0 && discountRate < 1) { 
+finalPrice = product.price * (1 - discountRate); 
+isDiscounted = true; 
+} 
+// Ensure price doesn't go below zero and round to two decimal places 
+finalPrice = Math.max(0, finalPrice); 
+finalPrice = parseFloat(finalPrice.toFixed(2)); 
+
+return { finalPrice: finalPrice, isDiscounted: isDiscounted }; 
+} 
+
+
+// Render products: Cart button uses only icon, Wishlist button uses colorable heart 
+function renderProducts(products, targetId) { 
+const container = document.getElementById(targetId); 
+if (!products.length) { 
+container.innerHTML = "<p class='text-center text-gray-500'>No products available.</p>"; 
+return; 
+} 
+const wishlist = getWishlist(); 
+
+const html = products.map(p => { 
+const isWished = wishlist.some(item => item.id === p.id) ? 'wished' : ''; 
+const { finalPrice, isDiscounted } = calculateDiscountedPrice(p); // Use new logic 
+
+return ` 
+<div class="product-card"> 
+<a href="product.html?slug=${encodeURIComponent(p.slug)}" class="product-media"> 
+<img src="${escapeHtml(p.images[0] || 'https://placehold.co/600x400/34d399/ffffff?text=GoCart')}" 
+alt="${escapeHtml(p.title)}" 
+onerror="this.onerror=null;this.src='https://placehold.co/600x400/34d399/ffffff?text=GoCart';" 
+> 
+</a> 
+<div class="product-info"> 
+<a href="product.html?slug=${encodeURIComponent(p.slug)}" class="product-title">${escapeHtml(p.title)}</a> 
+<div class="text-sm mb-2"> 
+${getStarRating(p.rating || 5)} <span class="text-gray-500 ml-1">(Mock Reviews)</span> 
+</div> 
+<p class="product-desc line-clamp-2">${escapeHtml(p.description)}</p> 
+<div class="product-actions flex items-center justify-between pt-2 border-t border-gray-100"> 
+<!-- PRICE DISPLAY WITH DYNAMIC DISCOUNT LOGIC --> 
+<div class="price-container"> 
+${isDiscounted 
+? `<span class="original-price">$${p.price.toFixed(2)}</span><span class="price">$${finalPrice.toFixed(2)}</span>` 
+: `<span class="price">$${p.price.toFixed(2)}</span>` 
+} 
+</div> 
+<!-- END PRICE DISPLAY --> 
+
+<div class="flex items-center gap-2"> 
+<!-- Cart icon used instead of text "Add to Cart" --> 
+<button class="add-to-cart-btn" onclick="addToCart(this, '${p.id}')" aria-label="Add to Cart"> 
+🛒 
+</button> 
+<!-- Wishlist heart now uses the SVG defined above --> 
+<button class="add-to-wishlist-btn ${isWished}" onclick="addToWishlist(this, '${p.id}')" aria-label="Add to Wishlist"> 
+${heartIconSvg} 
+</button> 
+</div> 
+</div> 
+</div> 
+</div> 
+`; 
+}).join(""); 
+
+container.innerHTML = html; 
+} 
+
+// --- Cart Helpers (Using localStorage, as in your original file) --- 
+function getCart() { 
+try { return JSON.parse(localStorage.getItem('cart') || '[]'); } 
+catch (e) { return []; } 
+} 
+function saveCart(cart) { 
+localStorage.setItem('cart', JSON.stringify(cart)); 
+updateCartCountDisplay(); 
+} 
+
+/** * Adds an item to the cart, calculates the final price, and saves it. 
+*/ 
+function addToCart(buttonElement, id) { 
+// Original content is the icon (🛒) 
+const originalContent = buttonElement.innerHTML; 
+const originalClasses = buttonElement.className; 
+
+fetch('/products.json') 
+.then(res => { 
+if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`); 
+return res.json(); 
+}) 
+.then(products => { 
+const product = products.find(p => p.id === id); 
+if (!product) return; 
+
+// CALCULATE DISCOUNTED PRICE BEFORE SAVING 
+const { finalPrice } = calculateDiscountedPrice(product); 
+const cart = getCart(); 
+const existing = cart.find(item => item.id === id); 
+if (existing) { 
+existing.quantity = (existing.quantity || 1) + 1; 
+// IMPORTANT: Update price on re-add to capture current discount 
+existing.calculatedPrice = finalPrice; 
+} else { 
+// Add the calculatedPrice field to the cart item 
+cart.push({ ...product, quantity: 1, calculatedPrice: finalPrice }); 
+} 
+saveCart(cart); 
+
+buttonElement.disabled = true; 
+// When added, the text changes, confirming the action 
+buttonElement.innerHTML = 'Added! ✓'; 
+buttonElement.classList.add('added'); 
+
+setTimeout(() => { 
+buttonElement.disabled = false; 
+// Reverts back to the original icon (🛒) 
+buttonElement.innerHTML = originalContent; 
+buttonElement.className = originalClasses; 
+buttonElement.classList.remove('added'); 
+}, 1500); 
+}) 
+.catch(error => { 
+console.error("Error adding to cart:", error); 
+buttonElement.disabled = false; 
+buttonElement.innerHTML = originalContent; 
+buttonElement.className = originalClasses; 
+}); 
+} 
+
+// --- Wishlist Helpers (Using localStorage, as in your original file) --- 
+function getWishlist() { 
+try { return JSON.parse(localStorage.getItem('wishlist') || '[]'); } 
+catch (e) { return []; } 
+} 
+function saveWishlist(wishlist) { 
+localStorage.setItem('wishlist', JSON.stringify(wishlist)); 
+} 
+function addToWishlist(buttonElement, id) { 
+const originalContent = buttonElement.innerHTML; 
+// Check if it's already wished before fetching product data 
+if (buttonElement.classList.contains('wished')) { 
+    // If it's wished, remove it from wishlist
+    let wishlist = getWishlist();
+    wishlist = wishlist.filter(item => item.id !== id);
+    saveWishlist(wishlist);
+    
+    // Remove 'wished' class and show temporary text
+    buttonElement.classList.remove('wished');
+    buttonElement.innerHTML = 'Removed!';
+    
+    // Revert text to the SVG icon after delay
+    setTimeout(() => {
+        buttonElement.innerHTML = heartIconSvg; // Use the raw SVG
+    }, 1000);
+    return; 
+} 
+
+fetch('/products.json') 
+.then(res => { 
+if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`); 
+return res.json(); 
+}) 
+.then(products => { 
+const product = products.find(p => p.id === id); 
+if (!product) return; 
+let wishlist = getWishlist(); 
+const alreadyWished = wishlist.find(item => item.id === id); 
+if (!alreadyWished) { 
+// Add item 
+wishlist.push(product); 
+saveWishlist(wishlist); 
+// Visual Feedback: Turns red via 'wished' class 
+buttonElement.classList.add('wished'); 
+// Temporary text change (reverts to SVG via originalContent which holds the SVG string) 
+buttonElement.innerHTML = 'Added!'; 
+
+// Revert text to the SVG icon after delay, keeping the 'wished' class for permanent red color 
+setTimeout(() => { 
+buttonElement.innerHTML = originalContent; 
+}, 1000); 
+
+} 
+}) 
+.catch(error => { 
+console.error("Error fetching products for wishlist:", error); 
+// On failure, ensure we don't accidentally apply the 'wished' class 
+buttonElement.classList.remove('wished'); 
+}); 
+} 
+
+// --- Search Logic (No Change) --- 
+function redirectToShopSearch(searchTerm) { 
+if (searchTerm) { 
+window.location.href = `shop.html?search=${encodeURIComponent(searchTerm)}`; 
+} 
+} 
+function searchAndAutocomplete(query) { 
+const searchTerm = query.toLowerCase().trim(); 
+const autocompleteList = document.getElementById('hero-autocomplete-list'); 
+if (searchTerm.length < 2) { 
+autocompleteList.style.display = 'none'; 
+return; 
+} 
+const searchTerms = searchTerm.split(/\s+/).filter(term => term.length > 0); 
+
+const uniqueSuggestions = new Set(); 
+allProducts.forEach(p => { 
+const productText = `${p.title} ${p.description} ${p.primaryCategory} ${p.subcategory} ${p.filters ? p.filters.join(' ') : ''}`.toLowerCase(); 
+searchTerms.forEach(term => { 
+if (productText.includes(term)) { 
+uniqueSuggestions.add(p.title); 
+} 
+}); 
+}); 
+
+const suggestions = [...uniqueSuggestions].slice(0, 5); 
+
+if (suggestions.length) { 
+autocompleteList.innerHTML = suggestions.map(s => `<li>${escapeHtml(s)}</li>`).join(''); 
+autocompleteList.style.display = 'block'; 
+} else { 
+autocompleteList.style.display = 'none'; 
+} 
+} 
+
+// --- Initialization --- 
+document.addEventListener("DOMContentLoaded", () => { 
+document.getElementById('year').textContent = new Date().getFullYear(); 
+updateCartCountDisplay(); 
+
+// Set the default active tab
+switchTab('featured');
+
+const heroSearchInput = document.getElementById('hero-search-input'); 
+const autocompleteList = document.getElementById('hero-autocomplete-list'); 
+
+fetch('/products.json') 
+.then(res => { 
+if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`); 
+return res.json(); 
+}) 
+.then(products => { 
+allProducts = products; 
+// 1. Featured products 
+const featured = products.filter(p => p.featured).slice(0, 4); 
+featured.sort((a, b) => (b.rating || 0) - (a.rating || 0)); 
+renderProducts(featured, "featured-products"); 
+
+// 2. Category rendering 
+const categoriesMap = {}; 
+products.forEach(p => { 
+if (!categoriesMap[p.primaryCategory]) { 
+categoriesMap[p.primaryCategory] = new Set(); 
+} 
+categoriesMap[p.primaryCategory].add(p.subcategory || p.primaryCategory); 
+}); 
+
+const catContainer = document.getElementById("category-buttons"); 
+// Clear loading message before rendering
+catContainer.innerHTML = ''; 
+
+Object.keys(categoriesMap).map(primary => { 
+const subs = [...categoriesMap[primary]] 
+.filter(Boolean) 
+.map(sub => ` 
+<a class="btn small text-sm bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-2 px-4 rounded-lg transition" 
+href="shop.html?primaryCategory=${encodeURIComponent(primary)}${sub !== primary ? `&subcategory=${encodeURIComponent(sub)}` : ''}"> 
+${escapeHtml(sub)} 
+</a>`).join(" "); 
+
+catContainer.innerHTML += ` 
+<div class="p-6 bg-white rounded-xl shadow-lg border border-gray-100"> 
+<h3 class="text-xl font-bold text-gray-700 mb-4">${escapeHtml(primary)}</h3> 
+<div class="flex flex-wrap gap-3"> 
+${subs} 
+</div> 
+</div> 
+`; 
+});
+}) 
+.catch(err => { 
+console.error("Error loading products:", err); 
+document.getElementById("featured-products").innerHTML = "<p class='text-center text-red-500'>Could not load featured products. Please check the data source.</p>"; 
+document.getElementById("category-buttons").innerHTML = "<p class='text-center text-red-500'>Could not load categories.</p>"; 
+}); 
+
+// Search Bar Event Listeners 
+heroSearchInput.addEventListener("input", (e) => { 
+searchAndAutocomplete(e.target.value); 
+}); 
+heroSearchInput.addEventListener('keypress', (event) => { 
+if (event.key === 'Enter') { 
+redirectToShopSearch(heroSearchInput.value.trim()); 
+} 
+}); 
+
+autocompleteList.addEventListener('click', (e) => { 
+if (e.target.tagName === 'LI') { 
+const selectedText = e.target.textContent; 
+heroSearchInput.value = selectedText; 
+autocompleteList.style.display = 'none'; 
+redirectToShopSearch(selectedText); 
+} 
+}); 
+
+document.addEventListener('click', (e) => { 
+if (!e.target.closest('.search-bar-hero')) { 
+autocompleteList.style.display = 'none'; 
+} 
+}); 
+}); 
+</script>
 </body>
 </html>
