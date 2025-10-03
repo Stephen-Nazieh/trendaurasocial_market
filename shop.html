@@ -95,7 +95,7 @@
     }
     .price-row {
         display: flex;
-        justify-content: space-between;
+        justify-content: flex-start; /* Aligned to start to accommodate two prices */
         align-items: center;
         margin-bottom: 1rem;
         padding-top: 0.75rem;
@@ -104,7 +104,14 @@
     .price {
         font-size: 1.5rem;
         font-weight: 700;
-        color: #34d399;
+        color: #34d399; /* Green for current price */
+    }
+    /* Style for the original price when a discount is applied */
+    .original-price {
+        font-size: 1rem;
+        text-decoration: line-through;
+        color: #9ca3af; /* Gray text for crossed-out price */
+        margin-right: 0.75rem;
     }
     .rating {
         color: #facc15; /* Yellow for stars */
@@ -126,7 +133,7 @@
         cursor: default !important;
     }
 
-    /* === WISHLIST BUTTON STYLES === */
+    /* === WISHLIST BUTTON STYLES (from previous update) === */
     .add-to-wishlist-btn {
         background-color: white; 
         border: 1px solid #d1d5db; 
@@ -154,7 +161,6 @@
         border-color: #fca5a5;
     }
 
-    /* On hover of unwished, make the outline slightly more visible/pink */
     .add-to-wishlist-btn:not(.wished):hover svg {
         stroke: #fca5a5;
     }
@@ -265,13 +271,42 @@
       const r = Math.round(rating); // Ensure rating is an integer
       return `<span class="rating">${fullStar.repeat(r)}${emptyStar.repeat(5 - r)}</span>`;
   }
-
+  
   // SVG icon for the heart (outline/filled state controlled by CSS)
   const heartIconSvg = `
       <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-heart">
           <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>
       </svg>
   `;
+
+  // === NEW DISCOUNT LOGIC FUNCTION ===
+  /**
+   * Calculates the final price based on defined business rules.
+   * @param {Object} product - The product object with 'price' and 'id'.
+   * @returns {{finalPrice: number, isDiscounted: boolean}}
+   */
+  function calculateDiscountedPrice(product) {
+      let finalPrice = product.price;
+      let isDiscounted = false;
+
+      // Rule 1: Fixed $50 discount for a specific high-value product
+      if (product.id === 'GOKART-003' || product.title.includes('Pro')) { // Example logic
+          finalPrice -= 50;
+          isDiscounted = true;
+      }
+
+      // Rule 2: 10% discount for all items over $1200
+      if (finalPrice >= 1200) {
+          finalPrice *= 0.90;
+          isDiscounted = true;
+      }
+      
+      // Ensure price doesn't go below zero and round to two decimal places
+      finalPrice = Math.max(0, finalPrice);
+      finalPrice = parseFloat(finalPrice.toFixed(2));
+
+      return { finalPrice: finalPrice, isDiscounted: isDiscounted };
+  }
 
   // Render products into grid
   function renderProducts(products) {
@@ -286,6 +321,7 @@
     // New Detailed, Information-Forward Card Structure
     container.innerHTML = products.map(p => {
         const isWished = wishlist.some(item => item.id === p.id) ? 'wished' : '';
+        const { finalPrice, isDiscounted } = calculateDiscountedPrice(p);
         
         return `
           <div class="product-card">
@@ -304,7 +340,11 @@
               <p class="product-desc line-clamp-2">${escapeHtml(p.description)}</p>
               
               <div class="price-row">
-                <span class="price">$${p.price.toFixed(2)}</span>
+                <!-- Display Discounted Price if applicable -->
+                ${isDiscounted 
+                  ? `<span class="original-price">$${p.price.toFixed(2)}</span><span class="price">$${finalPrice.toFixed(2)}</span>`
+                  : `<span class="price">$${p.price.toFixed(2)}</span>`
+                }
               </div>
 
               <div class="product-actions flex items-center justify-between pt-2 border-t border-gray-100">
@@ -362,6 +402,7 @@
 
   /**
    * Adds an item to the cart and provides visual feedback.
+   * NOTE: The product added now includes 'calculatedPrice' based on discounts.
    * @param {HTMLElement} buttonElement - The button that was clicked (used for visual feedback).
    * @param {string} id - The product ID.
    */
@@ -385,14 +426,20 @@
       .then(products => {
         const product = products.find(p => p.id === id);
         if (!product) return;
+
+        // Calculate the final price when adding to cart
+        const { finalPrice } = calculateDiscountedPrice(product);
         
         const cart = getCart();
         const existing = cart.find(item => item.id === id);
         
         if (existing) {
           existing.quantity = (existing.quantity || 1) + quantity;
+          // IMPORTANT: Update price on re-add to capture current discount (optional, but robust)
+          existing.calculatedPrice = finalPrice; 
         } else {
-          cart.push({ ...product, quantity: quantity });
+          // Add the calculatedPrice field to the cart item
+          cart.push({ ...product, quantity: quantity, calculatedPrice: finalPrice });
         }
         
         saveCart(cart); // Saves cart and updates display
@@ -415,7 +462,7 @@
       });
   }
 
-  // === WISHLIST HELPERS & LOGIC (Updated) ===
+  // === WISHLIST HELPERS & LOGIC ===
   function getWishlist() {
     try { return JSON.parse(localStorage.getItem('wishlist') || '[]'); }
     catch (e) { return []; }
@@ -531,10 +578,12 @@
     // Sorting
     switch (sortBy) {
       case "price-asc":
-        filtered.sort((a,b) => a.price - b.price);
+        // Sort using the discounted price for visual consistency
+        filtered.sort((a,b) => calculateDiscountedPrice(a).finalPrice - calculateDiscountedPrice(b).finalPrice);
         break;
       case "price-desc":
-        filtered.sort((a,b) => b.price - a.price);
+        // Sort using the discounted price for visual consistency
+        filtered.sort((a,b) => calculateDiscountedPrice(b).finalPrice - calculateDiscountedPrice(a).finalPrice);
         break;
       case "name-asc":
         filtered.sort((a,b) => a.title.localeCompare(b.title));
