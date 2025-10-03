@@ -97,6 +97,7 @@
         display: flex;
         justify-content: flex-start; /* Aligned to start to accommodate two prices */
         align-items: center;
+        gap: 0.75rem; /* Added gap for spacing between prices */
         margin-bottom: 1rem;
         padding-top: 0.75rem;
         border-top: 1px solid #f3f4f6;
@@ -111,7 +112,6 @@
         font-size: 1rem;
         text-decoration: line-through;
         color: #9ca3af; /* Gray text for crossed-out price */
-        margin-right: 0.75rem;
     }
     .rating {
         color: #facc15; /* Yellow for stars */
@@ -279,25 +279,22 @@
       </svg>
   `;
 
-  // === NEW DISCOUNT LOGIC FUNCTION ===
+  // === DISCOUNT LOGIC FUNCTION: Using 'discount' field from products.json ===
   /**
-   * Calculates the final price based on defined business rules.
-   * @param {Object} product - The product object with 'price' and 'id'.
+   * Calculates the final price based on the product's defined discount rate (0.0 to 1.0).
+   * This is consistent with the logic used on index.html.
+   * @param {Object} product - The product object with 'price' and optional 'discount' (e.g., 0.2).
    * @returns {{finalPrice: number, isDiscounted: boolean}}
    */
   function calculateDiscountedPrice(product) {
       let finalPrice = product.price;
       let isDiscounted = false;
+      
+      // Use the discount rate from the JSON data, defaulting to 0 if not present.
+      const discountRate = product.discount || 0; 
 
-      // Rule 1: Fixed $50 discount for a specific high-value product
-      if (product.id === 'GOKART-003' || product.title.includes('Pro')) { // Example logic
-          finalPrice -= 50;
-          isDiscounted = true;
-      }
-
-      // Rule 2: 10% discount for all items over $1200
-      if (finalPrice >= 1200) {
-          finalPrice *= 0.90;
+      if (discountRate > 0 && discountRate < 1) {
+          finalPrice = product.price * (1 - discountRate);
           isDiscounted = true;
       }
       
@@ -321,7 +318,7 @@
     // New Detailed, Information-Forward Card Structure
     container.innerHTML = products.map(p => {
         const isWished = wishlist.some(item => item.id === p.id) ? 'wished' : '';
-        const { finalPrice, isDiscounted } = calculateDiscountedPrice(p);
+        const { finalPrice, isDiscounted } = calculateDiscountedPrice(p); // Uses the updated logic
         
         return `
           <div class="product-card">
@@ -427,7 +424,7 @@
         const product = products.find(p => p.id === id);
         if (!product) return;
 
-        // Calculate the final price when adding to cart
+        // Calculate the final price when adding to cart using the unified logic
         const { finalPrice } = calculateDiscountedPrice(product);
         
         const cart = getCart();
