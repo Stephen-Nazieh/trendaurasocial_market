@@ -315,7 +315,7 @@
   // Vertical Tabs for Vehicles (Mapping to product 'filters' field)
   const VEHICLE_TIERS = ['All', 'Adult', 'Professional', 'Youth']; 
   // Secondary Filter for Vehicles (Mapping to product 'filters' field)
-  const VEHICLE_SECONDARY_FILTERS = ['All', 'Gas', 'Electric']; 
+  const VEHICLE_SECONDARY_FILTERS = ['All Options', 'Gas', 'Electric']; 
   // Vertical Tabs for Accessories (Mapping to product 'subcategory' field)
   const ACCESSORY_GROUPS = [
     'All', 'Electric', 'Gas', 'Chassis and Handling', 'Body & Frame', 
@@ -461,6 +461,9 @@
             const tab = document.createElement('div');
             tab.className = 'vertical-tab';
             tab.textContent = tabValue;
+            // FIX: Add data attribute for reliable selection in click handler
+            tab.setAttribute('data-tab-value', tabValue); 
+            
             if (tabValue === currentVerticalTab) tab.classList.add('active');
             tab.onclick = () => handleVerticalTabClick(tabValue);
             tabsContainer.appendChild(tab);
@@ -554,12 +557,15 @@
     // 2. Update Visuals (Vertical Tabs)
     document.querySelectorAll('#vertical-tabs .vertical-tab').forEach(tab => {
         tab.classList.remove('active');
-        if (tab.getAttribute('data-tab-value') === tabValue) {
+        // Now using the reliable data-tab-value attribute
+        if (tab.getAttribute('data-tab-value') === tabValue) { 
             tab.classList.add('active');
         }
     });
-
-    // 3. Update Dynamic UI (Secondary filter options might change based on vertical tab)
+    
+    // 3. Update Dynamic UI
+    // Reset secondary filter selection when vertical tab changes
+    document.getElementById("secondaryFilter").value = 'All Options'; 
     renderSecondaryFilterDropdown(); 
 
     // 4. Re-filter Products
