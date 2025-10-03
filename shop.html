@@ -19,16 +19,61 @@
 
     .container { max-width: 1200px; margin: 0 auto; padding: 2rem 1.5rem; }
 
-    /* Filter Bar Styling */
-    .filter-bar {
+    /* === NEW TAB STYLING === */
+    .horizontal-tabs-container {
+      border-bottom: 2px solid #e5e7eb; /* gray-200 */
+      margin-bottom: 1rem;
+    }
+    .horizontal-tab {
+      padding: 0.75rem 1.25rem;
+      font-weight: 600;
+      cursor: pointer;
+      color: #6b7280; /* gray-500 */
+      border-bottom: 2px solid transparent;
+      transition: all 0.2s;
+    }
+    .horizontal-tab:hover {
+      color: #1f2937; /* gray-800 */
+    }
+    .horizontal-tab.active {
+      color: #34d399; /* emerald-500 */
+      border-bottom: 2px solid #34d399;
+    }
+
+    .vertical-tabs-container {
+      background-color: white;
+      border-radius: 8px;
+      padding: 0.5rem;
+      box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+    }
+    .vertical-tab {
+      display: block;
+      padding: 0.5rem 1rem;
+      margin: 0.25rem 0;
+      border-radius: 6px;
+      font-weight: 500;
+      color: #4b5563; /* gray-600 */
+      cursor: pointer;
+      transition: background-color 0.2s, color 0.2s;
+    }
+    .vertical-tab:hover {
+      background-color: #f3f4f6; /* gray-100 */
+    }
+    .vertical-tab.active {
+      background-color: #34d399; /* emerald-500 */
+      color: white;
+      font-weight: 700;
+    }
+    /* === END TAB STYLING === */
+
+    /* Filter/Sort Bar Layout */
+    .filter-sort-bar {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-        gap: 1rem;
-        padding: 1rem;
-        background: #e5e7eb;
-        border-radius: 8px;
+        grid-template-columns: 1fr 180px; /* Search and Sort columns */
+        gap: 1.5rem;
         margin-bottom: 1.5rem;
     }
+    
     .filter-bar label {
         font-weight: 600;
         margin-bottom: 0.25rem;
@@ -41,6 +86,7 @@
         border-radius: 4px;
         border: 1px solid #d1d5db;
         width: 100%;
+        background-color: white;
     }
     .align-right { text-align: right; }
 
@@ -51,7 +97,7 @@
         gap: 2rem;
     }
 
-    /* Product Card - Detailed Information-Forward Style */
+    /* Product Card styles (keeping existing) */
     .product-card {
         background: white;
         border-radius: 12px;
@@ -67,7 +113,7 @@
     }
     .product-media img {
         width: 100%;
-        height: 200px; /* Consistent image height */
+        height: 200px; 
         object-fit: cover;
         transition: opacity 0.3s;
     }
@@ -95,9 +141,9 @@
     }
     .price-row {
         display: flex;
-        justify-content: flex-start; /* Aligned to start to accommodate two prices */
+        justify-content: flex-start; 
         align-items: center;
-        gap: 0.75rem; /* Added gap for spacing between prices */
+        gap: 0.75rem;
         margin-bottom: 1rem;
         padding-top: 0.75rem;
         border-top: 1px solid #f3f4f6;
@@ -105,16 +151,15 @@
     .price {
         font-size: 1.5rem;
         font-weight: 700;
-        color: #34d399; /* Green for current price */
+        color: #34d399; 
     }
-    /* Style for the original price when a discount is applied */
     .original-price {
         font-size: 1rem;
         text-decoration: line-through;
-        color: #9ca3af; /* Gray text for crossed-out price */
+        color: #9ca3af; 
     }
     .rating {
-        color: #facc15; /* Yellow for stars */
+        color: #facc15; 
         font-size: 1rem;
     }
     .quantity-input {
@@ -125,15 +170,13 @@
         text-align: center;
         margin-left: 8px;
     }
-    
-    /* Cart Button Feedback */
     .add-to-cart-btn.added {
-        background-color: #10b981 !important; /* Tailwind green-500 */
+        background-color: #10b981 !important; 
         color: white !important;
         cursor: default !important;
     }
 
-    /* === WISHLIST BUTTON STYLES (from previous update) === */
+    /* Wishlist styles (keeping existing) */
     .add-to-wishlist-btn {
         background-color: white; 
         border: 1px solid #d1d5db; 
@@ -146,44 +189,34 @@
         align-items: center; 
         justify-content: center;
     }
-
     .add-to-wishlist-btn svg {
-      fill: none; /* No fill by default */
-      stroke: #d1d5db; /* Faint outline color */
+      fill: none; 
+      stroke: #d1d5db; 
       stroke-width: 2;
       transition: stroke 0.2s, fill 0.2s;
       width: 24px;
       height: 24px;
     }
-    
     .add-to-wishlist-btn:not(.wished):hover { 
-        background-color: #f9fafb; /* Slight hover background */
+        background-color: #f9fafb; 
         border-color: #fca5a5;
     }
-
     .add-to-wishlist-btn:not(.wished):hover svg {
         stroke: #fca5a5;
     }
-    
-    /* WISHED STATE: Heart turns solid red */
     .add-to-wishlist-btn.wished {
       background-color: white !important; 
       border-color: #ef4444 !important; 
       cursor: default;
     }
-
     .add-to-wishlist-btn.wished svg {
-      fill: #ef4444; /* Solid red fill */
-      stroke: #ef4444; /* Solid red stroke */
+      fill: #ef4444; 
+      stroke: #ef4444; 
     }
-    
     .add-to-wishlist-btn.wished:hover {
         background-color: #f9fafb !important;
     }
-    /* --- END WISHLIST STYLES --- */
-
-
-    /* Existing Search Bar styles */
+    /* Search styles (keeping existing) */
     .search-bar { margin-bottom: 20px; }
     .search-input { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box; font-size: 1rem; }
     .autocomplete-list { position: absolute; z-index: 100; width: 100%; background-color: #fff; border: 1px solid #ddd; border-top: none; list-style-type: none; padding: 0; margin: 0; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); max-height: 200px; overflow-y: auto; display: none; }
@@ -191,6 +224,14 @@
     .autocomplete-list li:hover, .autocomplete-list li.active { background-color: #f0f0f0; }
     .filter-pill { background-color: #34d399; color: white; padding: 4px 8px; border-radius: 9999px; font-size: 0.8rem; font-weight: 600; }
     .active-filters { margin-bottom: 1.5rem; }
+
+    /* Responsive adjustments */
+    @media (max-width: 1024px) {
+        .filter-sort-bar {
+            grid-template-columns: 1fr;
+            gap: 1rem;
+        }
+    }
   </style>
 </head>
 <body>
@@ -210,42 +251,59 @@
   </header>
 
   <main class="container" id="main">
-    <h2 class="text-3xl font-bold text-gray-800 mb-6">Go-Karts & Accessories</h2>
-
-    <div class="filter-bar">
-      <label for="primaryCategory">Browse by:</label>
-      <select id="primaryCategory">
-        <option value="all">All Categories</option>
-      </select>
-
-      <label for="subcategory">Subcategory:</label>
-      <select id="subcategory" disabled>
-        <option value="all">All</option>
-      </select>
-
-      <label for="filters">Filter by:</label>
-      <select id="filters" disabled>
-        <option value="all">All</option>
-      </select>
-
-      <label for="sortBy" class="align-right">Sort by:</label>
-      <select id="sortBy">
-        <option value="default">Default</option>
-        <option value="price-asc">Price: Low → High</option>
-        <option value="price-desc">Price: High → Low</option>
-        <option value="name-asc">Name: A → Z</option>
-        <option value="name-desc">Name: Z → A</option>
-      </select>
+    <h2 class="text-3xl font-bold text-gray-800 mb-6">Product Catalog</h2>
+    
+    <!-- Horizontal Tab Navigation for Main Categories (Step 1) -->
+    <div class="horizontal-tabs-container flex" id="main-category-tabs">
+        <div class="horizontal-tab active" data-category="all">All Categories</div>
+        <div class="horizontal-tab" data-category="Vehicles">Vehicles</div>
+        <div class="horizontal-tab" data-category="Accessories">Accessories</div>
     </div>
+    
+    <!-- Filtering Area using a responsive grid -->
+    <div class="grid grid-cols-1 lg:grid-cols-4 gap-6 pt-2">
+        
+        <!-- Column 1: Vertical Tabs (Conditional) -->
+        <div id="vertical-tabs-section" class="lg:col-span-1 hidden">
+            <p class="text-sm font-semibold text-gray-700 mb-2">Subcategories:</p>
+            <div id="vertical-tabs" class="vertical-tabs-container">
+                <!-- Vertical tabs populated by JS -->
+            </div>
+        </div>
+        
+        <!-- Column 2: Search, Sort, and Secondary Filters (Will span 3 or 4 columns) -->
+        <div id="product-list-controls" class="lg:col-span-4">
+            
+            <div class="filter-sort-bar">
+                <div class="search-bar relative">
+                    <input type="text" id="search-input" class="search-input" placeholder="Search for go-carts, engines, or seats...">
+                    <ul id="autocomplete-list" class="autocomplete-list"></ul>
+                </div>
+                <div class="filter-bar">
+                    <label for="sortBy">Sort by:</label>
+                    <select id="sortBy">
+                        <option value="default">Default</option>
+                        <option value="price-asc">Price: Low → High</option>
+                        <option value="price-desc">Price: High → Low</option>
+                        <option value="name-asc">Name: A → Z</option>
+                        <option value="name-desc">Name: Z → A</option>
+                    </select>
+                </div>
+            </div>
 
-    <div class="search-bar">
-      <input type="text" id="search-input" class="search-input" placeholder="Search for go-carts, engines, or seats...">
-      <ul id="autocomplete-list" class="autocomplete-list"></ul>
+            <!-- Secondary Filter Dropdown (The only dropdown remaining besides Sort/Search) -->
+            <div id="secondary-filter-container" class="filter-bar max-w-xs mb-4">
+                <label for="secondaryFilter">Filter Options (e.g., Gas/Electric/Parts):</label>
+                <select id="secondaryFilter">
+                    <option value="All">All Options</option>
+                </select>
+            </div>
+            
+            <div id="active-filters" class="active-filters"></div>
+            
+            <div id="shop-products"></div>
+        </div>
     </div>
-
-    <div id="active-filters" class="active-filters"></div>
-
-    <div id="shop-products"></div>
   </main>
 
   <footer class="footer bg-gray-800 text-white mt-10 py-4">
@@ -253,7 +311,26 @@
   </footer>
 
   <script>
-  // Escape HTML helper
+  // --- Constants for Tab/Filter Mapping ---
+  // Vertical Tabs for Vehicles (Mapping to product 'filters' field)
+  const VEHICLE_TIERS = ['All', 'Adult', 'Professional', 'Youth']; 
+  // Secondary Filter for Vehicles (Mapping to product 'filters' field)
+  const VEHICLE_SECONDARY_FILTERS = ['All', 'Gas', 'Electric']; 
+  // Vertical Tabs for Accessories (Mapping to product 'subcategory' field)
+  const ACCESSORY_GROUPS = [
+    'All', 'Electric', 'Gas', 'Chassis and Handling', 'Body & Frame', 
+    'Electrical and Electronics', 'Safety Gear', 'Maintenance and Tools', 
+    'Accessories and Extras'
+  ];
+  // --- END Constants ---
+
+  // Current state of the navigation
+  let currentMainCategory = 'all'; // 'all', 'Vehicles', 'Accessories'
+  let currentVerticalTab = 'All'; // 'All', 'Adult', 'Electric', 'Body & Frame', etc.
+  
+  let allProducts = [];
+
+  // --- Utility functions (Unchanged) ---
   function escapeHtml(str) {
     if (str === undefined || str === null) return '';
     return String(str)
@@ -264,66 +341,50 @@
       .replace(/>/g, '&gt;');
   }
   
-  // Utility function for mock rating display
   function getStarRating(rating = 5) {
       const fullStar = '★';
       const emptyStar = '☆';
-      const r = Math.round(rating); // Ensure rating is an integer
+      const r = Math.round(rating); 
       return `<span class="rating">${fullStar.repeat(r)}${emptyStar.repeat(5 - r)}</span>`;
   }
   
-  // SVG icon for the heart (outline/filled state controlled by CSS)
   const heartIconSvg = `
       <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-heart">
           <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>
       </svg>
   `;
 
-  // === DISCOUNT LOGIC FUNCTION: Using 'discount' field from products.json ===
-  /**
-   * Calculates the final price based on the product's defined discount rate (0.0 to 1.0).
-   * This is consistent with the logic used on index.html.
-   * @param {Object} product - The product object with 'price' and optional 'discount' (e.g., 0.2).
-   * @returns {{finalPrice: number, isDiscounted: boolean}}
-   */
   function calculateDiscountedPrice(product) {
       let finalPrice = product.price;
       let isDiscounted = false;
-      
-      // Use the discount rate from the JSON data, defaulting to 0 if not present.
       const discountRate = product.discount || 0; 
-
       if (discountRate > 0 && discountRate < 1) {
           finalPrice = product.price * (1 - discountRate);
           isDiscounted = true;
       }
-      
-      // Ensure price doesn't go below zero and round to two decimal places
       finalPrice = Math.max(0, finalPrice);
       finalPrice = parseFloat(finalPrice.toFixed(2));
-
       return { finalPrice: finalPrice, isDiscounted: isDiscounted };
   }
+  // --- End Utility functions ---
 
-  // Render products into grid
+  // --- Product Rendering (Modified to use new filtering logic) ---
   function renderProducts(products) {
     const container = document.getElementById("shop-products");
     if (!products.length) {
-      container.innerHTML = "<p class='text-center text-gray-500'>No products found matching your criteria.</p>";
+      container.innerHTML = "<p class='text-center text-gray-500 col-span-full'>No products found matching your criteria.</p>";
       return;
     }
     
     const wishlist = getWishlist();
 
-    // New Detailed, Information-Forward Card Structure
     container.innerHTML = products.map(p => {
         const isWished = wishlist.some(item => item.id === p.id) ? 'wished' : '';
-        const { finalPrice, isDiscounted } = calculateDiscountedPrice(p); // Uses the updated logic
+        const { finalPrice, isDiscounted } = calculateDiscountedPrice(p); 
         
         return `
           <div class="product-card">
             <a href="product.html?slug=${encodeURIComponent(p.slug)}" class="product-media">
-              <!-- Placeholder image URL is used here -->
               <img src="${escapeHtml(p.images[0] || 'https://placehold.co/600x400/34d399/ffffff?text=GoCart')}" 
                    alt="${escapeHtml(p.title)}"
                    onerror="this.onerror=null;this.src='https://placehold.co/600x400/34d399/ffffff?text=GoCart';"
@@ -337,7 +398,6 @@
               <p class="product-desc line-clamp-2">${escapeHtml(p.description)}</p>
               
               <div class="price-row">
-                <!-- Display Discounted Price if applicable -->
                 ${isDiscounted 
                   ? `<span class="original-price">$${p.price.toFixed(2)}</span><span class="price">$${finalPrice.toFixed(2)}</span>`
                   : `<span class="price">$${p.price.toFixed(2)}</span>`
@@ -345,21 +405,18 @@
               </div>
 
               <div class="product-actions flex items-center justify-between pt-2 border-t border-gray-100">
-                <!-- Quantity Input -->
                 <div class="flex items-center">
                     <label for="qty-${p.id}" class="text-sm font-medium mr-2 text-gray-600">Qty:</label>
                     <input type="number" id="qty-${p.id}" class="quantity-input" value="1" min="1" max="99" aria-label="Quantity for ${escapeHtml(p.title)}">
                 </div>
                 
                 <div class="flex items-center gap-2">
-                    <!-- Add to Cart Button with Visual Feedback -->
                     <button 
                       class="add-to-cart-btn bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 px-4 rounded-lg transition duration-150" 
                       onclick="addToCart(this, '${p.id}')" 
                       aria-label="Add ${escapeHtml(p.title)} to Cart">
                       Add to Cart
                     </button>
-                    <!-- Wishlist Button uses custom SVG and state class -->
                     <button 
                       class="add-to-wishlist-btn ${isWished}" 
                       onclick="addToWishlist(this, '${p.id}')" 
@@ -374,181 +431,172 @@
     }).join("");
   }
 
-  // === CART HELPERS & IMPROVED ADD TO CART ===
-  
-  function getCart() {
-    try { return JSON.parse(localStorage.getItem("cart") || "[]"); }
-    catch (e) { return []; }
-  }
-  function saveCart(cart) {
-    localStorage.setItem("cart", JSON.stringify(cart));
-    updateCartCountDisplay(); // Update display every time cart is saved
-  }
 
-  // Updates the cart count element in the header
-  function updateCartCountDisplay() {
-    const cart = getCart();
-    const totalItems = cart.reduce((sum, item) => sum + (item.quantity || 1), 0);
-    const cartCountElement = document.getElementById('cart-count');
-    if (cartCountElement) {
-        cartCountElement.textContent = totalItems;
-        // Optional: Hide if 0
-        cartCountElement.classList.toggle('hidden', totalItems === 0);
+  // --- TAB AND FILTER RENDERING LOGIC ---
+
+  /**
+   * Renders the Vertical Tabs based on the selected Main Category
+   * @param {string} mainCategory - 'Vehicles' or 'Accessories'
+   */
+  function renderVerticalTabs(mainCategory) {
+    const section = document.getElementById('vertical-tabs-section');
+    const tabsContainer = document.getElementById('vertical-tabs');
+    const controlsContainer = document.getElementById('product-list-controls');
+
+    tabsContainer.innerHTML = '';
+    
+    let tabsToRender = [];
+    if (mainCategory === 'Vehicles') {
+        tabsToRender = VEHICLE_TIERS;
+    } else if (mainCategory === 'Accessories') {
+        tabsToRender = ACCESSORY_GROUPS;
+    }
+
+    if (tabsToRender.length > 0) {
+        section.classList.remove('hidden');
+        controlsContainer.classList.remove('lg:col-span-4');
+        controlsContainer.classList.add('lg:col-span-3');
+
+        tabsToRender.forEach(tabValue => {
+            const tab = document.createElement('div');
+            tab.className = 'vertical-tab';
+            tab.textContent = tabValue;
+            if (tabValue === currentVerticalTab) tab.classList.add('active');
+            tab.onclick = () => handleVerticalTabClick(tabValue);
+            tabsContainer.appendChild(tab);
+        });
+        
+    } else { // 'all'
+        section.classList.add('hidden');
+        controlsContainer.classList.remove('lg:col-span-3');
+        controlsContainer.classList.add('lg:col-span-4'); // Wider space for controls/products
+        currentVerticalTab = 'All'; // Reset vertical context when on 'All Categories'
     }
   }
 
   /**
-   * Adds an item to the cart and provides visual feedback.
-   * NOTE: The product added now includes 'calculatedPrice' based on discounts.
-   * @param {HTMLElement} buttonElement - The button that was clicked (used for visual feedback).
-   * @param {string} id - The product ID.
+   * Renders the Secondary Filter Dropdown options dynamically
    */
-  function addToCart(buttonElement, id) {
-    // 1. Get quantity from the nearby input field
-    const quantityInput = buttonElement.closest('.product-actions').querySelector('.quantity-input');
-    const quantity = parseInt(quantityInput.value, 10) || 1;
+  function renderSecondaryFilterDropdown() {
+    const select = document.getElementById("secondaryFilter");
+    select.innerHTML = '';
     
-    // 2. Button State Change (Visual Feedback)
-    const originalText = buttonElement.innerHTML;
-    const originalClasses = buttonElement.className;
-    
-    buttonElement.disabled = true;
-    buttonElement.innerHTML = 'Added! &check;';
-    buttonElement.classList.add('added');
-    buttonElement.classList.remove('bg-indigo-600', 'hover:bg-indigo-700');
-    
-    // 3. Update Cart Logic
-    fetch("/products.json")
-      .then(res => res.json())
-      .then(products => {
-        const product = products.find(p => p.id === id);
-        if (!product) return;
+    let options = [];
 
-        // Calculate the final price when adding to cart using the unified logic
-        const { finalPrice } = calculateDiscountedPrice(product);
-        
-        const cart = getCart();
-        const existing = cart.find(item => item.id === id);
-        
-        if (existing) {
-          existing.quantity = (existing.quantity || 1) + quantity;
-          // IMPORTANT: Update price on re-add to capture current discount (optional, but robust)
-          existing.calculatedPrice = finalPrice; 
-        } else {
-          // Add the calculatedPrice field to the cart item
-          cart.push({ ...product, quantity: quantity, calculatedPrice: finalPrice });
-        }
-        
-        saveCart(cart); // Saves cart and updates display
-        
-        // 4. Reset button state after 1.5 seconds
-        setTimeout(() => {
-          buttonElement.disabled = false;
-          buttonElement.innerHTML = originalText;
-          buttonElement.className = originalClasses;
-          buttonElement.classList.remove('added');
-        }, 1500);
-      })
-      .catch(error => {
-          console.error("Error adding to cart:", error);
-          // Ensure button is re-enabled if fetch fails
-          buttonElement.disabled = false;
-          buttonElement.innerHTML = originalText;
-          buttonElement.className = originalClasses;
-          buttonElement.classList.remove('added');
-      });
-  }
+    if (currentMainCategory === 'Vehicles') {
+        // Vehicle secondary filters (Gas, Electric) are fixed
+        options = VEHICLE_SECONDARY_FILTERS;
+    } else if (currentMainCategory === 'Accessories' && currentVerticalTab !== 'All') {
+        // Accessories: get unique low-level filters (sub-sub-categories) for the selected Accessory Group (vertical tab)
+        const productsInGroup = allProducts.filter(p => 
+            p.primaryCategory === 'Accessories' && 
+            p.subcategory === currentVerticalTab
+        );
+        // Collect all 'filters' fields (e.g., "Muffler", "Wiring")
+        const uniqueFilters = [...new Set(productsInGroup.flatMap(p => p.filters).filter(Boolean))];
+        options = ['All Options', ...uniqueFilters];
 
-  // === WISHLIST HELPERS & LOGIC ===
-  function getWishlist() {
-    try { return JSON.parse(localStorage.getItem('wishlist') || '[]'); }
-    catch (e) { return []; }
-  }
-  function saveWishlist(wishlist) {
-    localStorage.setItem('wishlist', JSON.stringify(wishlist));
-  }
-  
-  /**
-   * Adds an item to the wishlist and applies the persistent 'wished' class.
-   * @param {HTMLElement} buttonElement - The button that was clicked (used for visual feedback).
-   * @param {string} id - The product ID.
-   */
-  function addToWishlist(buttonElement, id) {
-    // 1. Check if already wished (visual state check)
-    if (buttonElement.classList.contains('wished')) {
-        // Already wished: flash a slight shadow to confirm it's already wished
-        buttonElement.classList.remove('shadow-sm');
-        buttonElement.classList.add('shadow-sm', 'shadow-red-300'); 
-        setTimeout(() => buttonElement.classList.remove('shadow-sm', 'shadow-red-300'), 500);
-        return; 
+    } else {
+        // 'All Categories' or 'All Accessories' vertical tab: show all known filters
+        const allFilters = allProducts.flatMap(p => p.filters || []).filter(Boolean);
+        const uniqueFilters = [...new Set(allFilters)];
+        options = ['All Options', ...uniqueFilters];
     }
 
-    const originalContent = buttonElement.innerHTML; // Stores the SVG
-
-    fetch("/products.json")
-      .then(res => res.json())
-      .then(products => {
-        const product = products.find(p => p.id === id);
-        if (!product) return;
-        
-        let wishlist = getWishlist();
-        
-        if (!wishlist.find(item => item.id === id)) {
-          // Add item
-          wishlist.push(product);
-          saveWishlist(wishlist);
-          
-          // Visual Feedback: Turns red via 'wished' class
-          buttonElement.classList.add('wished');
-          
-          // Temporary text change
-          buttonElement.innerHTML = 'Added!'; 
-
-          // Revert content to the SVG icon after delay, keeping the 'wished' class for permanent red color
-          setTimeout(() => {
-              buttonElement.innerHTML = originalContent; 
-          }, 1000);
-        }
-      })
-      .catch(error => {
-          console.error("Error fetching products for wishlist:", error);
-          // On failure, ensure we don't accidentally apply the 'wished' class
-          buttonElement.classList.remove('wished');
-      });
+    // Populate the select element
+    options.forEach(option => {
+        const opt = document.createElement('option');
+        opt.value = option;
+        opt.textContent = option;
+        select.appendChild(opt);
+    });
+    // Ensure the dropdown is always reset to the 'All' equivalent on re-render
+    select.value = options[0]; 
   }
 
-  // Filtering, Sorting, and Searching logic (Remains largely the same)
-  let allProducts = [];
+  /**
+   * Handles click on the main horizontal category tabs.
+   * @param {string} category - 'all', 'Vehicles', or 'Accessories'.
+   */
+  function handleMainTabClick(category) {
+    if (category === currentMainCategory) return;
 
-  function updateActiveFilters(primary, subcat, filter) {
+    // 1. Update State
+    currentMainCategory = category;
+    currentVerticalTab = 'All'; 
+    
+    // 2. Update Visuals (Horizontal Tabs)
+    document.querySelectorAll('.horizontal-tab').forEach(tab => {
+        tab.classList.remove('active');
+        if (tab.getAttribute('data-category') === category) {
+            tab.classList.add('active');
+        }
+    });
+
+    // 3. Update Dynamic UI
+    renderVerticalTabs(currentMainCategory);
+    renderSecondaryFilterDropdown();
+    
+    // 4. Re-filter Products
+    applySearchAndFilters();
+  }
+
+  /**
+   * Handles click on the vertical subcategory tabs.
+   * @param {string} tabValue - The value of the selected vertical tab.
+   */
+  function handleVerticalTabClick(tabValue) {
+    if (tabValue === currentVerticalTab) return;
+    
+    // 1. Update State
+    currentVerticalTab = tabValue;
+
+    // 2. Update Visuals (Vertical Tabs)
+    document.querySelectorAll('#vertical-tabs .vertical-tab').forEach(tab => {
+        tab.classList.remove('active');
+        if (tab.getAttribute('data-tab-value') === tabValue) {
+            tab.classList.add('active');
+        }
+    });
+
+    // 3. Update Dynamic UI (Secondary filter options might change based on vertical tab)
+    renderSecondaryFilterDropdown(); 
+
+    // 4. Re-filter Products
+    applySearchAndFilters();
+  }
+  
+  // --- Core Filtering Logic (Refactored) ---
+  function updateActiveFilters(mainCat, verticalTab, secondaryFilter) {
     const container = document.getElementById("active-filters");
     let text = "Browsing: ";
 
-    if (primary === "all") {
+    if (mainCat === "all") {
       text += "All Products";
     } else {
-      text += escapeHtml(primary);
-      if (subcat && subcat !== "all") {
-        text += " → " + escapeHtml(subcat);
+      text += escapeHtml(mainCat);
+      if (verticalTab && verticalTab !== "All") {
+        // For accessories, this is the subcategory; for vehicles, it's the tier.
+        text += " → " + escapeHtml(verticalTab);
       }
-      if (filter && filter !== "all") {
-        text += " (" + escapeHtml(filter) + ")";
+      if (secondaryFilter && secondaryFilter !== "All Options") {
+        // This is the remaining filter (Gas/Electric for vehicles, or sub-sub-parts for accessories)
+        text += " (" + escapeHtml(secondaryFilter) + ")";
       }
     }
 
     container.innerHTML = `<span class="filter-pill">${text}</span>`;
   }
 
+
   function applySearchAndFilters() {
-    const primary = document.getElementById("primaryCategory").value;
-    const subcat = document.getElementById("subcategory").value;
-    const filter = document.getElementById("filters").value;
     const sortBy = document.getElementById("sortBy").value;
     const searchTerm = document.getElementById("search-input").value.trim().toLowerCase();
-
+    const secondaryFilterValue = document.getElementById("secondaryFilter").value;
+    
     let filtered = [...allProducts];
 
-    // Search filter
+    // 1. Search Filter
     if (searchTerm) {
       const searchTerms = searchTerm.split(' ').filter(term => term.length > 0);
       filtered = filtered.filter(p => {
@@ -557,29 +605,34 @@
       });
     }
 
-    // Filter by primary category
-    if (primary !== "all") {
-      filtered = filtered.filter(p => p.primaryCategory === primary);
+    // 2. Filter by Main Category (Horizontal Tabs)
+    if (currentMainCategory !== 'all') {
+        filtered = filtered.filter(p => p.primaryCategory === currentMainCategory);
+    }
+    
+    // 3. Filter by Vertical Tab
+    if (currentMainCategory === 'Vehicles' && currentVerticalTab !== 'All') {
+        // Vertical tab for vehicles maps to the product tier filter
+        filtered = filtered.filter(p => p.filters && p.filters.includes(currentVerticalTab)); 
+    } else if (currentMainCategory === 'Accessories' && currentVerticalTab !== 'All') {
+        // Vertical tab for accessories maps to the primary subcategory
+        filtered = filtered.filter(p => p.subcategory === currentVerticalTab);
     }
 
-    // Filter by subcategory
-    if (subcat !== "all" && subcat !== "" && subcat !== null) {
-      filtered = filtered.filter(p => p.subcategory === subcat);
+    // 4. Filter by Secondary Filter (Dropdown)
+    if (secondaryFilterValue !== 'All Options') {
+        // For both contexts, the secondary filter value is expected to be in the product's 'filters' array.
+        // For Vehicles: it's 'Gas' or 'Electric'.
+        // For Accessories: it's the sub-sub-category (e.g., 'Muffler').
+        filtered = filtered.filter(p => p.filters && p.filters.includes(secondaryFilterValue));
     }
 
-    // Filter by filter (e.g., Youth, Racing)
-    if (filter !== "all" && filter !== "" && filter !== null) {
-      filtered = filtered.filter(p => p.filters && p.filters.includes(filter));
-    }
-
-    // Sorting
+    // 5. Sorting
     switch (sortBy) {
       case "price-asc":
-        // Sort using the discounted price for visual consistency
         filtered.sort((a,b) => calculateDiscountedPrice(a).finalPrice - calculateDiscountedPrice(b).finalPrice);
         break;
       case "price-desc":
-        // Sort using the discounted price for visual consistency
         filtered.sort((a,b) => calculateDiscountedPrice(b).finalPrice - calculateDiscountedPrice(a).finalPrice);
         break;
       case "name-asc":
@@ -591,172 +644,88 @@
     }
 
     // Update active filters badge
-    updateActiveFilters(primary, subcat, filter);
+    updateActiveFilters(currentMainCategory, currentVerticalTab, secondaryFilterValue);
 
     renderProducts(filtered);
   }
   
-  // Autocomplete functionality (remains the same)
-  function searchAndAutocomplete(query) {
-    const searchTerm = query.toLowerCase().trim();
-    const autocompleteList = document.getElementById('autocomplete-list');
-    
-    if (searchTerm.length < 2) {
-      autocompleteList.style.display = 'none';
-      return;
-    }
-    
-    const searchTerms = searchTerm.split(/\s+/).filter(term => term.length > 0);
-
-    const uniqueSuggestions = new Set();
-    allProducts.forEach(p => {
-        const productText = `${p.title} ${p.description} ${p.primaryCategory} ${p.subcategory} ${p.filters.join(' ')}`.toLowerCase();
-        
-        searchTerms.forEach(term => {
-            let index = productText.indexOf(term);
-            while (index !== -1 && uniqueSuggestions.size < 5) {
-                const end = productText.indexOf(' ', index + term.length);
-                const word = end === -1 ? productText.substring(index) : productText.substring(index, end);
-                uniqueSuggestions.add(word);
-                index = productText.indexOf(term, index + 1);
-            }
-        });
-    });
-
-    const suggestions = [...uniqueSuggestions];
-
-    if (suggestions.length) {
-      autocompleteList.innerHTML = suggestions.map(s => `<li>${escapeHtml(s)}</li>`).join('');
-      autocompleteList.style.display = 'block';
-    } else {
-      autocompleteList.style.display = 'none';
-    }
-  }
-
-  // Read query string (remains the same)
-  function getQueryParam(name) {
-    const params = new URLSearchParams(window.location.search);
-    return params.get(name);
-  }
-
-  // Populate subcategories based on primary selection (remains the same)
-  function updateSubcategories(products, primaryValue) {
-    const subcatSelect = document.getElementById("subcategory");
-    const filtersSelect = document.getElementById("filters");
-    
-    // Clear subcategory and filter options
-    subcatSelect.disabled = true;
-    subcatSelect.innerHTML = `<option value="all">All</option>`;
-    filtersSelect.disabled = true;
-    filtersSelect.innerHTML = `<option value="all">All</option>`;
-
-    let subcats = [];
-    if (primaryValue !== "all") {
-      subcats = [...new Set(products
-        .filter(p => p.primaryCategory === primaryValue)
-        .map(p => p.subcategory)
-        .filter(Boolean))];
-    }
-    
-    if (subcats.length) {
-      subcatSelect.disabled = false;
-      subcatSelect.innerHTML += subcats.map(sc => `<option value="${escapeHtml(sc)}">${escapeHtml(sc)}</option>`).join("");
-    }
-  }
-
-  // Populate filters based on category and subcategory selection (remains the same)
-  function updateFilters(products, primaryValue, subcatValue) {
-    const filtersSelect = document.getElementById("filters");
-    
-    // Clear filter options
-    filtersSelect.disabled = true;
-    filtersSelect.innerHTML = `<option value="all">All</option>`;
-
-    let filters = [];
-    if (subcatValue !== "all" && subcatValue !== "" && subcatValue !== null) {
-      filters = [...new Set(products
-        .filter(p => p.primaryCategory === primaryValue && p.subcategory === subcatValue)
-        .flatMap(p => p.filters)
-        .filter(Boolean))];
-    }
-    
-    if (filters.length) {
-      filtersSelect.disabled = false;
-      filtersSelect.innerHTML += filters.map(f => `<option value="${escapeHtml(f)}">${escapeHtml(f)}</option>`).join("");
-    }
-  }
+  // --- Initialization and Event Handlers ---
 
   document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("year").textContent = new Date().getFullYear();
-    updateCartCountDisplay(); // Initialize cart count on load
+    updateCartCountDisplay(); 
 
-    const primaryFilter = document.getElementById("primaryCategory");
-    const subcatFilter = document.getElementById("subcategory");
-    const filtersFilter = document.getElementById("filters");
-    const searchInput = document.getElementById("search-input");
-    const autocompleteList = document.getElementById("autocomplete-list");
+    // Add listeners to Horizontal Tabs
+    document.querySelectorAll('.horizontal-tab').forEach(tab => {
+        tab.addEventListener('click', (e) => {
+            const category = e.target.getAttribute('data-category');
+            handleMainTabClick(category);
+        });
+    });
 
-    // Get params from URL
-    const primaryFromURL = getQueryParam("primaryCategory") || "all";
-    const subcatFromURL = getQueryParam("subcategory") || "all";
-    const filtersFromURL = getQueryParam("filters") || "all";
+    // Search bar and Sort listeners
+    document.getElementById("secondaryFilter").addEventListener("change", applySearchAndFilters);
+    document.getElementById("sortBy").addEventListener("change", applySearchAndFilters);
+    document.getElementById("search-input").addEventListener("input", (e) => {
+      searchAndAutocomplete(e.target.value);
+      applySearchAndFilters();
+    });
 
-    // Fetch products
+    // Initial Data Fetch and Render
     fetch("/products.json")
       .then(res => res.json())
       .then(products => {
         allProducts = products;
-
-        // Populate primary categories
-        const primaryCategories = [...new Set(products.map(p => p.primaryCategory))];
-        primaryFilter.innerHTML += primaryCategories.map(c => `
-          <option value="${escapeHtml(c)}">${escapeHtml(c)}</option>
-        `).join("");
-
-        // Preselect primary from URL
-        primaryFilter.value = primaryFromURL;
-
-        // Populate subcategories based on primary
-        updateSubcategories(products, primaryFromURL);
-        if (subcatFromURL && subcatFilter.querySelector(`[value="${subcatFromURL}"]`)) {
-          subcatFilter.value = subcatFromURL;
-        }
-
-        // Populate filters based on subcategory
-        updateFilters(products, primaryFromURL, subcatFromURL);
-        if (filtersFromURL && filtersFilter.querySelector(`[value="${filtersFromURL}"]`)) {
-          filtersFilter.value = filtersFromURL;
-        }
-
+        
+        // Initial setup for 'All Categories'
+        renderVerticalTabs(currentMainCategory); // Hides vertical tabs
+        renderSecondaryFilterDropdown(); // Renders generic filters
         applySearchAndFilters(); // initial render
       })
       .catch(error => {
           console.error("Error fetching products during initialization:", error);
-          // Safely continue without products if fetch fails
           applySearchAndFilters(); 
       });
 
-    // Event listeners
-    primaryFilter.addEventListener("change", () => {
-      updateSubcategories(allProducts, primaryFilter.value);
-      updateFilters(allProducts, primaryFilter.value, subcatFilter.value);
-      applySearchAndFilters();
-    });
-    
-    subcatFilter.addEventListener("change", () => {
-      updateFilters(allProducts, primaryFilter.value, subcatFilter.value);
-      applySearchAndFilters();
-    });
-    
-    filtersFilter.addEventListener("change", applySearchAndFilters);
-    document.getElementById("sortBy").addEventListener("change", applySearchAndFilters);
+    // --- Unchanged Autocomplete Logic (Moved to bottom for clarity) ---
+    const searchInput = document.getElementById("search-input");
+    const autocompleteList = document.getElementById("autocomplete-list");
 
-    // Search bar event listeners
-    searchInput.addEventListener("input", (e) => {
-      searchAndAutocomplete(e.target.value);
-      applySearchAndFilters();
-    });
-    
+    function searchAndAutocomplete(query) {
+      const searchTerm = query.toLowerCase().trim();
+      
+      if (searchTerm.length < 2) {
+        autocompleteList.style.display = 'none';
+        return;
+      }
+      
+      const searchTerms = searchTerm.split(/\s+/).filter(term => term.length > 0);
+
+      const uniqueSuggestions = new Set();
+      allProducts.forEach(p => {
+          const productText = `${p.title} ${p.description} ${p.primaryCategory} ${p.subcategory} ${p.filters.join(' ')}`.toLowerCase();
+          
+          searchTerms.forEach(term => {
+              let index = productText.indexOf(term);
+              while (index !== -1 && uniqueSuggestions.size < 5) {
+                  const end = productText.indexOf(' ', index + term.length);
+                  const word = end === -1 ? productText.substring(index) : productText.substring(index, end);
+                  uniqueSuggestions.add(word);
+                  index = productText.indexOf(term, index + 1);
+              }
+          });
+      });
+
+      const suggestions = [...uniqueSuggestions];
+
+      if (suggestions.length) {
+        autocompleteList.innerHTML = suggestions.map(s => `<li>${escapeHtml(s)}</li>`).join('');
+        autocompleteList.style.display = 'block';
+      } else {
+        autocompleteList.style.display = 'none';
+      }
+    }
+
     autocompleteList.addEventListener('click', (e) => {
       if (e.target.tagName === 'LI') {
         searchInput.value = e.target.textContent;
@@ -770,6 +739,120 @@
         autocompleteList.style.display = 'none';
       }
     });
+
+    // --- Cart & Wishlist Helpers (Unchanged) ---
+    function getCart() {
+        try { return JSON.parse(localStorage.getItem("cart") || "[]"); }
+        catch (e) { return []; }
+    }
+    function saveCart(cart) {
+        localStorage.setItem("cart", JSON.stringify(cart));
+        updateCartCountDisplay(); 
+    }
+
+    function updateCartCountDisplay() {
+        const cart = getCart();
+        const totalItems = cart.reduce((sum, item) => sum + (item.quantity || 1), 0);
+        const cartCountElement = document.getElementById('cart-count');
+        if (cartCountElement) {
+            cartCountElement.textContent = totalItems;
+            cartCountElement.classList.toggle('hidden', totalItems === 0);
+        }
+    }
+
+    function addToCart(buttonElement, id) {
+      const quantityInput = buttonElement.closest('.product-actions').querySelector('.quantity-input');
+      const quantity = parseInt(quantityInput.value, 10) || 1;
+      
+      const originalText = buttonElement.innerHTML;
+      const originalClasses = buttonElement.className;
+      
+      buttonElement.disabled = true;
+      buttonElement.innerHTML = 'Added! &check;';
+      buttonElement.classList.add('added');
+      buttonElement.classList.remove('bg-indigo-600', 'hover:bg-indigo-700');
+      
+      fetch("/products.json")
+        .then(res => res.json())
+        .then(products => {
+          const product = products.find(p => p.id === id);
+          if (!product) return;
+
+          const { finalPrice } = calculateDiscountedPrice(product);
+          
+          const cart = getCart();
+          const existing = cart.find(item => item.id === id);
+          
+          if (existing) {
+            existing.quantity = (existing.quantity || 1) + quantity;
+            existing.calculatedPrice = finalPrice; 
+          } else {
+            cart.push({ ...product, quantity: quantity, calculatedPrice: finalPrice });
+          }
+          
+          saveCart(cart); 
+          
+          setTimeout(() => {
+            buttonElement.disabled = false;
+            buttonElement.innerHTML = originalText;
+            buttonElement.className = originalClasses;
+            buttonElement.classList.remove('added');
+          }, 1500);
+        })
+        .catch(error => {
+            console.error("Error adding to cart:", error);
+            buttonElement.disabled = false;
+            buttonElement.innerHTML = originalText;
+            buttonElement.className = originalClasses;
+            buttonElement.classList.remove('added');
+        });
+    }
+
+    function getWishlist() {
+        try { return JSON.parse(localStorage.getItem('wishlist') || '[]'); }
+        catch (e) { return []; }
+    }
+    function saveWishlist(wishlist) {
+        localStorage.setItem('wishlist', JSON.stringify(wishlist));
+    }
+    
+    function addToWishlist(buttonElement, id) {
+        if (buttonElement.classList.contains('wished')) {
+            buttonElement.classList.remove('shadow-sm');
+            buttonElement.classList.add('shadow-sm', 'shadow-red-300'); 
+            setTimeout(() => buttonElement.classList.remove('shadow-sm', 'shadow-red-300'), 500);
+            return; 
+        }
+
+        const originalContent = buttonElement.innerHTML;
+
+        fetch("/products.json")
+        .then(res => res.json())
+        .then(products => {
+            const product = products.find(p => p.id === id);
+            if (!product) return;
+            
+            let wishlist = getWishlist();
+            
+            if (!wishlist.find(item => item.id === id)) {
+            wishlist.push(product);
+            saveWishlist(wishlist);
+            
+            buttonElement.classList.add('wished');
+            
+            buttonElement.innerHTML = 'Added!'; 
+
+            setTimeout(() => {
+                buttonElement.innerHTML = originalContent; 
+            }, 1000);
+            }
+        })
+        .catch(error => {
+            console.error("Error fetching products for wishlist:", error);
+            buttonElement.classList.remove('wished');
+        });
+    }
+
   });
   </script>
 </body>

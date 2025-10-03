@@ -98,6 +98,12 @@
       background-color: #10b981 !important; color: white !important; border-color: #10b981 !important;
       cursor: default; font-weight: 600;
     }
+    .add-to-cart-btn.loading {
+        background-color: #e0f2f1;
+        color: #0d9488;
+        cursor: wait;
+    }
+
 
     /* WISHLIST ICON STYLE (Heart color control) */
     .add-to-wishlist-btn {
@@ -126,7 +132,7 @@
     .add-to-wishlist-btn.wished {
       background-color: white !important; 
       border-color: #ef4444 !important; 
-      cursor: default;
+      cursor: pointer; /* Keep cursor pointer so it can be unwished */
     }
 
     .add-to-wishlist-btn.wished svg {
@@ -135,7 +141,27 @@
     }
     
     .add-to-wishlist-btn.wished:hover {
-        background-color: #f9fafb !important;
+        background-color: #fef2f2 !important; /* light red hover state */
+    }
+    .add-to-wishlist-btn.loading {
+        background-color: #f0f9ff;
+        color: #0284c7;
+        cursor: wait;
+    }
+
+    /* Loading Spinner (for initial load) */
+    .spinner {
+      border: 4px solid rgba(0, 0, 0, 0.1);
+      border-top: 4px solid #34d399;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      animation: spin 1s linear infinite;
+      margin: 2rem auto;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
     }
   </style>
 </head>
@@ -148,7 +174,8 @@
         <a href="shop.html">Shop</a>
         <a href="cart.html" class="flex items-center space-x-1">
             <span>Cart</span>
-            <span id="cart-count" class="bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">0</span>
+            <!-- Cart count is updated via Firestore listener -->
+            <span id="cart-count" class="bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full hidden">0</span>
         </a>
         <a href="wishlist.html">Wishlist</a>
       </nav>
@@ -164,30 +191,128 @@
           <input type="text" id="hero-search-input" placeholder="Search for products, e.g., 'tires'">
           <ul id="hero-autocomplete-list" class="autocomplete-list"></ul>
         </div>
+        <p id="user-info" class="text-xs mt-4 opacity-75">Loading...</p>
       </div>
     </div>
   </section>
 
   <section class="container">
     <h2>Shop by Category</h2>
-    <div id="category-buttons" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+    <div id="category-buttons" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div class="spinner"></div>
+    </div>
   </section>
 
   <main class="container" id="main">
     <h2>Featured Products</h2>
-    <div id="featured-products" class="product-grid"></div>
+    <div id="featured-products" class="product-grid">
+        <div class="spinner"></div>
+    </div>
     <div class="mt-8 text-center">
-      <a class="btn" href="shop.html?primaryCategory=all">Browse all products</a>
+      <a class="btn bg-gray-200 text-gray-700 py-2 px-4 rounded-lg font-semibold hover:bg-gray-300 transition" href="shop.html?primaryCategory=all">Browse all products</a>
     </div>
   </main>
 
   <footer class="footer bg-gray-800 text-white mt-10 py-4">
-    <div class="container text-center">&copy; <span id="year"></span> TrendAura Social</div>
+    <div class="container text-center">&copy; <span id="year"></span> Everything Go-Karts</div>
   </footer>
 
-  <script>
-    let allProducts = []; 
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+    import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+    import { getFirestore, collection, query, where, doc, setDoc, deleteDoc, onSnapshot, addDoc, updateDoc, setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
+    // Set Firestore logging level for debugging
+    setLogLevel('Debug');
+
+    // --- Firebase Global Vars and Initialization ---
+    const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
+    const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+    const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+    
+    let app, db, auth;
+    let currentUserId = null;
+    let cartItems = []; // Global state for cart items fetched via onSnapshot
+    let wishlistItems = []; // Global state for wishlist items fetched via onSnapshot
+    let allProducts = []; // Global state for mock products data
+
+    function getProductDocRef(collectionName, productId) {
+      // Products are identified by their 'id' (from products.json). This ID serves as the Firestore document ID.
+      return doc(db, `artifacts/${appId}/users/${currentUserId}/${collectionName}`, productId);
+    }
+
+    /**
+     * Initializes Firebase and sets up authentication.
+     */
+    async function initializeAndAuthenticate() {
+        try {
+            app = initializeApp(firebaseConfig);
+            db = getFirestore(app);
+            auth = getAuth(app);
+
+            if (initialAuthToken) {
+                await signInWithCustomToken(auth, initialAuthToken);
+            } else {
+                await signInAnonymously(auth);
+            }
+        } catch (error) {
+            console.error("Firebase initialization or authentication failed:", error);
+        }
+    }
+    
+    /**
+     * Updates the UI display for the cart count.
+     */
+    function updateCartCountDisplay() {
+        const totalItems = cartItems.reduce((sum, item) => sum + (item.quantity || 0), 0);
+        const cartCountElement = document.getElementById('cart-count');
+        if (cartCountElement) {
+            cartCountElement.textContent = totalItems;
+            cartCountElement.classList.toggle('hidden', totalItems === 0);
+        }
+    }
+    
+    /**
+     * Sets up real-time listeners for Cart and Wishlist once the user is authenticated.
+     */
+    function setupFirebaseListeners(userId) {
+        if (!db || !userId) {
+            console.error("Database or User ID is not available for listeners.");
+            return;
+        }
+        
+        // --- CART LISTENER ---
+        const cartColRef = collection(db, `artifacts/${appId}/users/${userId}/cartItems`);
+        onSnapshot(cartColRef, (snapshot) => {
+            cartItems = snapshot.docs.map(doc => ({
+                id: doc.id,
+                ...doc.data()
+            }));
+            updateCartCountDisplay();
+            // Since product cards are re-rendered based on static product data, 
+            // we don't need to re-render them here, but we need the wishlist listener
+            // to potentially update button states if an item is moved to/from wishlist.
+        }, (error) => {
+            console.error("Error setting up cart listener:", error);
+        });
+
+        // --- WISHLIST LISTENER ---
+        const wishlistColRef = collection(db, `artifacts/${appId}/users/${userId}/wishlistItems`);
+        onSnapshot(wishlistColRef, (snapshot) => {
+            wishlistItems = snapshot.docs.map(doc => ({
+                id: doc.id,
+                ...doc.data()
+            }));
+            // Re-render featured products to reflect the latest wishlist state
+            const featured = allProducts.filter(p => p.featured).slice(0, 4); 
+            renderProducts(featured, "featured-products");
+        }, (error) => {
+            console.error("Error setting up wishlist listener:", error);
+        });
+    }
+
+    // --- Product Rendering and Logic (Modified to use global cart/wishlist state) ---
+    
     function escapeHtml(str) {
       if (!str) return '';
       return String(str)
@@ -205,16 +330,6 @@
         return `<span class="rating">${fullStar.repeat(r)}${emptyStar.repeat(5 - r)}</span>`;
     }
 
-    function updateCartCountDisplay() {
-        const cart = getCart();
-        const totalItems = cart.reduce((sum, item) => sum + (item.quantity || 1), 0);
-        const cartCountElement = document.getElementById('cart-count');
-        if (cartCountElement) {
-            cartCountElement.textContent = totalItems;
-            cartCountElement.classList.toggle('hidden', totalItems === 0);
-        }
-    }
-
     // SVG icon for the heart (outline/filled state controlled by CSS)
     const heartIconSvg = `
         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-heart">
@@ -222,17 +337,13 @@
         </svg>
     `;
 
-    // === DISCOUNT LOGIC FUNCTION: Using 'discount' field from products.json ===
     /**
-     * Calculates the final price based on the product's defined discount rate (0.0 to 1.0).
-     * @param {Object} product - The product object with 'price' and optional 'discount' (e.g., 0.2).
-     * @returns {{finalPrice: number, isDiscounted: boolean}}
+     * Calculates the final price based on the product's defined discount rate.
      */
     function calculateDiscountedPrice(product) {
         let finalPrice = product.price;
         let isDiscounted = false;
         
-        // Use the discount rate from the JSON data, defaulting to 0 if not present.
         const discountRate = product.discount || 0; 
 
         if (discountRate > 0 && discountRate < 1) {
@@ -240,7 +351,6 @@
             isDiscounted = true;
         }
         
-        // Ensure price doesn't go below zero and round to two decimal places
         finalPrice = Math.max(0, finalPrice);
         finalPrice = parseFloat(finalPrice.toFixed(2));
 
@@ -251,16 +361,19 @@
     // Render products: Cart button uses only icon, Wishlist button uses colorable heart
     function renderProducts(products, targetId) {
       const container = document.getElementById(targetId);
+      if (container.querySelector('.spinner')) {
+         container.innerHTML = ""; // Clear spinner once data is ready
+      }
+      
       if (!products.length) {
-        container.innerHTML = "<p class='text-center text-gray-500'>No products available.</p>";
+        container.innerHTML = "<p class='text-center text-gray-500'>No featured products available.</p>";
         return;
       }
       
-      const wishlist = getWishlist();
-
       const html = products.map(p => {
-        const isWished = wishlist.some(item => item.id === p.id) ? 'wished' : '';
-        const { finalPrice, isDiscounted } = calculateDiscountedPrice(p); // Use new logic
+        // Use global wishlistItems state to check if the product is wished
+        const isWished = wishlistItems.some(item => item.id === p.id) ? 'wished' : '';
+        const { finalPrice, isDiscounted } = calculateDiscountedPrice(p);
 
         return `
           <div class="product-card">
@@ -278,22 +391,18 @@
               <p class="product-desc line-clamp-2">${escapeHtml(p.description)}</p>
               
               <div class="product-actions flex items-center justify-between pt-2 border-t border-gray-100">
-                  <!-- PRICE DISPLAY WITH DYNAMIC DISCOUNT LOGIC -->
                   <div class="price-container">
                     ${isDiscounted 
                         ? `<span class="original-price">$${p.price.toFixed(2)}</span><span class="price">$${finalPrice.toFixed(2)}</span>`
                         : `<span class="price">$${p.price.toFixed(2)}</span>`
                     }
                   </div>
-                  <!-- END PRICE DISPLAY -->
 
                   <div class="flex items-center gap-2">
-                      <!-- Cart icon used instead of text "Add to Cart" -->
-                      <button class="add-to-cart-btn" onclick="addToCart(this, '${p.id}')" aria-label="Add to Cart">
+                      <button class="add-to-cart-btn" onclick="window.addToCart(this, '${p.id}')" aria-label="Add to Cart">
                         🛒
                       </button>
-                      <!-- Wishlist heart now uses the SVG defined above -->
-                      <button class="add-to-wishlist-btn ${isWished}" onclick="addToWishlist(this, '${p.id}')" aria-label="Add to Wishlist">
+                      <button class="add-to-wishlist-btn ${isWished}" onclick="window.toggleWishlist(this, '${p.id}')" aria-label="${isWished ? 'Remove from Wishlist' : 'Add to Wishlist'}">
                         ${heartIconSvg}
                       </button>
                   </div>
@@ -306,127 +415,106 @@
       container.innerHTML = html;
     }
 
-    // --- Cart Helpers ---
-    function getCart() {
-      try { return JSON.parse(localStorage.getItem('cart') || '[]'); }
-      catch (e) { return []; }
-    }
-    function saveCart(cart) {
-      localStorage.setItem('cart', JSON.stringify(cart));
-      updateCartCountDisplay(); 
-    }
+    // --- Firestore Cart Logic ---
+    window.addToCart = async function(buttonElement, productId) {
+      if (!db || !currentUserId) return console.error("Database not ready.");
 
-    /**
-     * Adds an item to the cart, calculates the final price, and saves it.
-     */
-    function addToCart(buttonElement, id) {
-      // Original content is the icon (🛒)
+      buttonElement.disabled = true;
+      buttonElement.classList.add('loading');
       const originalContent = buttonElement.innerHTML;
-      const originalClasses = buttonElement.className;
 
-      fetch('/products.json')
-        .then(res => {
-            if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
-            return res.json();
-        })
-        .then(products => {
-          const product = products.find(p => p.id === id);
-          if (!product) return;
+      try {
+        const product = allProducts.find(p => p.id === productId);
+        if (!product) throw new Error("Product not found.");
 
-          // CALCULATE DISCOUNTED PRICE BEFORE SAVING
-          const { finalPrice } = calculateDiscountedPrice(product);
-          
-          const cart = getCart();
-          const existing = cart.find(item => item.id === id);
-          
-          if (existing) {
-            existing.quantity = (existing.quantity || 1) + 1;
-            // IMPORTANT: Update price on re-add to capture current discount
-            existing.calculatedPrice = finalPrice; 
-          } else {
-            // Add the calculatedPrice field to the cart item
-            cart.push({ ...product, quantity: 1, calculatedPrice: finalPrice });
-          }
-          saveCart(cart);
+        const { finalPrice } = calculateDiscountedPrice(product);
+        const existingCartItem = cartItems.find(item => item.id === productId);
 
-          buttonElement.disabled = true;
-          // When added, the text changes, confirming the action
-          buttonElement.innerHTML = 'Added! ✓'; 
-          buttonElement.classList.add('added');
+        const itemRef = getProductDocRef('cartItems', productId);
 
-          setTimeout(() => {
-            buttonElement.disabled = false;
-            // Reverts back to the original icon (🛒)
-            buttonElement.innerHTML = originalContent; 
-            buttonElement.className = originalClasses;
-            buttonElement.classList.remove('added');
-          }, 1500);
-        })
-        .catch(error => {
-            console.error("Error adding to cart:", error);
-            buttonElement.disabled = false;
-            buttonElement.innerHTML = originalContent;
-            buttonElement.className = originalClasses;
-        });
-    }
+        if (existingCartItem) {
+          // Item exists, increment quantity
+          await updateDoc(itemRef, {
+            quantity: existingCartItem.quantity + 1,
+            // Always update price on re-add for current discount
+            calculatedPrice: finalPrice 
+          });
+        } else {
+          // Item is new, create document with product data
+          await setDoc(itemRef, {
+            ...product,
+            quantity: 1,
+            calculatedPrice: finalPrice
+          });
+        }
+        
+        // Visual Feedback (since Firestore update might be slightly delayed)
+        buttonElement.innerHTML = 'Added! ✓'; 
+        buttonElement.classList.remove('loading');
+        buttonElement.classList.add('added');
 
-    // --- Wishlist Helpers (No Change) ---
-    function getWishlist() {
-      try { return JSON.parse(localStorage.getItem('wishlist') || '[]'); }
-      catch (e) { return []; }
-    }
-    function saveWishlist(wishlist) {
-      localStorage.setItem('wishlist', JSON.stringify(wishlist));
-    }
-    
-    function addToWishlist(buttonElement, id) {
-      const originalContent = buttonElement.innerHTML;
-      
-      // Check if it's already wished before fetching product data
-      if (buttonElement.classList.contains('wished')) {
-        // Already wished: flash a slight shadow to confirm it's already wished
-        buttonElement.classList.remove('shadow-sm');
-        buttonElement.classList.add('shadow-sm'); 
-        setTimeout(() => buttonElement.classList.remove('shadow-sm'), 500);
-        return; 
+        setTimeout(() => {
+          buttonElement.innerHTML = originalContent; 
+          buttonElement.classList.remove('added');
+          buttonElement.disabled = false;
+        }, 1500);
+
+      } catch (error) {
+        console.error("Error adding to cart:", error);
+        buttonElement.innerHTML = originalContent;
+        buttonElement.classList.remove('loading');
+        buttonElement.disabled = false;
       }
-      
-      fetch('/products.json')
-        .then(res => {
-            if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
-            return res.json();
-        })
-        .then(products => {
-          const product = products.find(p => p.id === id);
-          if (!product) return;
-          
-          let wishlist = getWishlist();
-          const alreadyWished = wishlist.find(item => item.id === id);
-          
-          if (!alreadyWished) {
-            // Add item
-            wishlist.push(product);
-            saveWishlist(wishlist);
-            
-            // Visual Feedback: Turns red via 'wished' class
-            buttonElement.classList.add('wished');
-            
-            // Temporary text change (reverts to SVG via originalContent which holds the SVG string)
-            buttonElement.innerHTML = 'Added!'; 
-
-            // Revert text to the SVG icon after delay, keeping the 'wished' class for permanent red color
-            setTimeout(() => {
-                buttonElement.innerHTML = originalContent; 
-            }, 1000);
-
-          } 
-        })
-        .catch(error => {
-            console.error("Error fetching products for wishlist:", error);
-            // On failure, ensure we don't accidentally apply the 'wished' class
-            buttonElement.classList.remove('wished');
-        });
     }
+
+    // --- Firestore Wishlist Logic ---
+    window.toggleWishlist = async function(buttonElement, productId) {
+      if (!db || !currentUserId) return console.error("Database not ready.");
+
+      buttonElement.disabled = true;
+      buttonElement.classList.add('loading');
+      const originalContent = buttonElement.innerHTML;
+
+      try {
+        const isWished = buttonElement.classList.contains('wished');
+        const itemRef = getProductDocRef('wishlistItems', productId);
+        const product = allProducts.find(p => p.id === productId);
+        
+        if (isWished) {
+          // Remove from wishlist
+          await deleteDoc(itemRef);
+          buttonElement.innerHTML = heartIconSvg; // Revert to icon immediately
+          buttonElement.classList.remove('wished');
+          
+        } else {
+          // Add to wishlist
+          if (!product) throw new Error("Product not found.");
+          // Use product id as document id for easy look up and removal
+          await setDoc(itemRef, product); 
+          buttonElement.innerHTML = 'Added!'; // Visual text feedback
+
+        }
+        
+        buttonElement.classList.remove('loading');
+        buttonElement.disabled = false;
+        
+        // Revert text to the SVG icon after delay, relying on the onSnapshot listener to update the 'wished' class
+        setTimeout(() => {
+            if (!buttonElement.classList.contains('wished')) {
+                buttonElement.innerHTML = heartIconSvg;
+            } else {
+                buttonElement.innerHTML = originalContent;
+            }
+        }, 1000);
+
+      } catch (error) {
+        console.error(`Error toggling wishlist state for ${productId}:`, error);
+        buttonElement.innerHTML = originalContent;
+        buttonElement.classList.remove('loading');
+        buttonElement.disabled = false;
+      }
+    }
+
 
     // --- Search Logic (No Change) ---
     function redirectToShopSearch(searchTerm) {
@@ -467,62 +555,79 @@
         }
     }
 
-    // --- Initialization ---
+    // --- Main Initialization ---
     document.addEventListener("DOMContentLoaded", () => {
       document.getElementById('year').textContent = new Date().getFullYear();
-      updateCartCountDisplay(); 
+      
+      // Setup Firebase and Auth Listener
+      initializeAndAuthenticate();
+      
+      onAuthStateChanged(auth, async (user) => {
+        if (user) {
+            currentUserId = user.uid;
+            document.getElementById('user-info').textContent = `User ID: ${user.uid.substring(0, 8)}... (signed in)`;
+            setupFirebaseListeners(currentUserId);
+            
+            // --- Fetch Static Product Data & Render ---
+            fetch('/products.json')
+                .then(res => {
+                    if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+                    return res.json();
+                })
+                .then(products => {
+                    allProducts = products; 
+                    
+                    // 1. Featured products
+                    const featured = products.filter(p => p.featured).slice(0, 4); 
+                    featured.sort((a, b) => (b.rating || 0) - (a.rating || 0)); 
+                    // Note: renderProducts will use the global wishlistItems state which is populated by the listener
+                    renderProducts(featured, "featured-products");
 
+                    // 2. Category rendering
+                    const categoriesMap = {};
+                    products.forEach(p => {
+                        if (!categoriesMap[p.primaryCategory]) {
+                          categoriesMap[p.primaryCategory] = new Set();
+                        }
+                        categoriesMap[p.primaryCategory].add(p.subcategory || p.primaryCategory); 
+                    });
+
+                    const catContainer = document.getElementById("category-buttons");
+                    catContainer.innerHTML = Object.keys(categoriesMap).map(primary => {
+                        const subs = [...categoriesMap[primary]]
+                            .filter(Boolean) 
+                            .map(sub => `
+                          <a class="btn small text-sm bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-2 px-4 rounded-lg transition" 
+                            href="shop.html?primaryCategory=${encodeURIComponent(primary)}${sub !== primary ? `&subcategory=${encodeURIComponent(sub)}` : ''}">
+                            ${escapeHtml(sub)}
+                          </a>`).join(" ");
+
+                        return `
+                          <div class="p-6 bg-white rounded-xl shadow-lg border border-gray-100">
+                            <h3 class="text-xl font-bold text-gray-700 mb-4">${escapeHtml(primary)}</h3>
+                            <div class="flex flex-wrap gap-3">
+                              ${subs}
+                            </div>
+                          </div>
+                        `;
+                    }).join("");
+                })
+                .catch(err => {
+                    console.error("Error loading products:", err);
+                    document.getElementById("featured-products").innerHTML = "<p class='text-center text-red-500'>Could not load featured products. Please check the data source.</p>";
+                    document.getElementById("category-buttons").innerHTML = "<p class='text-center text-red-500'>Could not load categories.</p>";
+                });
+        } else {
+            // Should not happen with anonymous sign-in, but good practice
+            currentUserId = null;
+            document.getElementById('user-info').textContent = "User authentication failed. Data saving disabled.";
+        }
+      });
+
+      // Search Bar Event Listeners
       const heroSearchInput = document.getElementById('hero-search-input');
       const autocompleteList = document.getElementById('hero-autocomplete-list');
 
-      fetch('/products.json')
-        .then(res => {
-            if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
-            return res.json();
-        })
-        .then(products => {
-          allProducts = products; 
-          
-          // Featured products
-          const featured = products.filter(p => p.featured).slice(0, 4); 
-          featured.sort((a, b) => (b.rating || 0) - (a.rating || 0)); 
-          renderProducts(featured, "featured-products");
-
-          // Category rendering
-          const categoriesMap = {};
-          products.forEach(p => {
-            if (!categoriesMap[p.primaryCategory]) {
-              categoriesMap[p.primaryCategory] = new Set();
-            }
-            categoriesMap[p.primaryCategory].add(p.subcategory || p.primaryCategory); 
-          });
-
-          const catContainer = document.getElementById("category-buttons");
-          catContainer.innerHTML = Object.keys(categoriesMap).map(primary => {
-            const subs = [...categoriesMap[primary]]
-                .filter(Boolean) 
-                .map(sub => `
-              <a class="btn small text-sm bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-2 px-4 rounded-lg transition" 
-                 href="shop.html?primaryCategory=${encodeURIComponent(primary)}${sub !== primary ? `&subcategory=${encodeURIComponent(sub)}` : ''}">
-                ${escapeHtml(sub)}
-              </a>`).join(" ");
-
-            return `
-              <div class="p-6 bg-white rounded-xl shadow-lg border border-gray-100">
-                <h3 class="text-xl font-bold text-gray-700 mb-4">${escapeHtml(primary)}</h3>
-                <div class="flex flex-wrap gap-3">
-                  ${subs}
-                </div>
-              </div>
-            `;
-          }).join("");
-        })
-        .catch(err => {
-            console.error("Error loading products:", err);
-            document.getElementById("featured-products").innerHTML = "<p class='text-center text-red-500'>Could not load featured products. Please check the data source.</p>";
-        });
-
-      // Search Bar Event Listeners
       heroSearchInput.addEventListener("input", (e) => {
         searchAndAutocomplete(e.target.value);
       });
