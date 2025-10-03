@@ -10,6 +10,7 @@
     "subcategory": "Gas",
     "filters": ["Adult", "Professional"],
     "featured": true,
+    "discount": 0.2,
     "images": [
       "/assets/images/go-kart/gocart1.webp",
       "/assets/images/go-kart/gocart2.webp",
@@ -33,6 +34,7 @@
     "subcategory": "Gas",
     "filters": ["Adult", "Professional"],
     "featured": false,
+    "discount": 0.1,
     "images": [
       "/assets/images/placeholder/professional-kart.webp",
       "/assets/images/placeholder/professional-kart-2.webp"
@@ -75,6 +77,7 @@
     "subcategory": "Electric",
     "filters": ["Youth", "Adult"],
     "featured": false,
+    "discount": 0.05,
     "images": [
       "/assets/images/placeholder/electric-dirt-kart.webp",
       "/assets/images/placeholder/electric-dirt-kart-2.webp"
@@ -293,6 +296,7 @@
     "price": 119.00,
     "currency": "USD",
     "featured": true,
+    "discount": 0.5,
     "images": [
       "/assets/images/placeholder/racing-slick-tires.webp"
     ],
@@ -333,6 +337,7 @@
     "price": 180.00,
     "currency": "USD",
     "featured": true,
+    "discount": 0.3,
     "images": [
       "/assets/images/placeholder/racing-body-kit.webp"
     ],
