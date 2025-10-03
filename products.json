@@ -56,6 +56,7 @@
     "subcategory": "Gas",
     "filters": ["Adult"],
     "featured": true,
+    "discount": 0.1,
     "images": [
       "/assets/images/placeholder/off-road-buggy.webp",
       "/assets/images/placeholder/off-road-buggy-2.webp"
@@ -99,6 +100,7 @@
     "subcategory": "Gas",
     "filters": ["Youth", "Adult"],
     "featured": true,
+    "discount": 0.1,
     "images": [
       "/assets/images/placeholder/recreational-kart.webp",
       "/assets/images/placeholder/recreational-kart-2.webp"
@@ -120,6 +122,7 @@
     "subcategory": "Electric",
     "filters": ["Youth", "Adult"],
     "featured": false,
+    "discount": 0.1,
     "images": [
       "/assets/images/placeholder/electric-recreational-kart.webp",
       "/assets/images/placeholder/electric-recreational-kart-2.webp"
@@ -141,6 +144,7 @@
     "subcategory": "Electric",
     "filters": ["Adult", "Professional"],
     "featured": true,
+    "discount": 0.1,
     "images": [
       "/assets/images/tesla1/img_1007.jpg",
       "/assets/images/tesla1/img_1008.jpg",
@@ -164,6 +168,7 @@
     "price": 42000.00,
     "currency": "USD",
     "featured": true,
+    "discount": 0.1,
     "images": [
       "/assets/images/tesla2/img_1007.jpg",
       "/assets/images/tesla2/img_1008.jpg",
@@ -187,6 +192,7 @@
     "price": 89999.00,
     "currency": "USD",
     "featured": true,
+    "discount": 0.1,
     "images": [
       "/assets/images/tesla3/img_1015.jpg",
       "/assets/images/tesla3/img_1074.webp",
@@ -210,6 +216,7 @@
     "price": 79.99,
     "currency": "USD",
     "featured": false,
+    "discount": 0.1,
     "images": [
       "/assets/images/go-battery1/img_1076.webp",
       "/assets/images/go-battery1/img_1077.webp",
@@ -233,6 +240,7 @@
     "price": 129.00,
     "currency": "USD",
     "featured": false,
+    "discount": 0.1,
     "images": [
       "/assets/images/go-battery2/img_1077.webp",
       "/assets/images/go-battery2/img_1109.webp",
@@ -256,6 +264,7 @@
     "price": 499.00,
     "currency": "USD",
     "featured": false,
+    "discount": 0.1,
     "images": [
       "/assets/images/placeholder/performance-engine.webp"
     ],
@@ -276,6 +285,7 @@
     "price": 89.00,
     "currency": "USD",
     "featured": false,
+    "discount": 0.1,
     "images": [
       "/assets/images/placeholder/all-terrain-tires.webp"
     ],
@@ -317,6 +327,7 @@
     "price": 250.00,
     "currency": "USD",
     "featured": false,
+    "discount": 0.1,
     "images": [
       "/assets/images/placeholder/roll-cage.webp"
     ],
@@ -358,6 +369,7 @@
     "price": 55.00,
     "currency": "USD",
     "featured": false,
+    "discount": 0.1,
     "images": [
       "/assets/images/placeholder/led-lights.webp"
     ],
@@ -378,6 +390,7 @@
     "price": 35.00,
     "currency": "USD",
     "featured": false,
+    "discount": 0.1,
     "images": [
       "/assets/images/placeholder/tachometer.webp"
     ],
@@ -398,6 +411,7 @@
     "subcategory": "Safety Gear",
     "filters": ["All"],
     "featured": false,
+    "discount": 0.1,
     "images": [
       "/assets/images/go-accessories/img_1072.webp",
       "/assets/images/go-accessories/img_1073.webp",
@@ -420,6 +434,7 @@
     "price": 199.00,
     "currency": "USD",
     "featured": true,
+    "discount": 0.1,
     "images": [
       "/assets/images/placeholder/racing-suit.webp"
     ],
@@ -440,6 +455,7 @@
     "price": 85.00,
     "currency": "USD",
     "featured": false,
+    "discount": 0.1,
     "images": [
       "/assets/images/placeholder/tool-kit.webp"
     ],
@@ -460,6 +476,7 @@
     "price": 15.00,
     "currency": "USD",
     "featured": false,
+    "discount": 0.1,
     "images": [
       "/assets/images/placeholder/chain-lube.webp"
     ],
@@ -480,6 +497,7 @@
     "price": 45.00,
     "currency": "USD",
     "featured": false,
+    "discount": 0.1,
     "images": [
       "/assets/images/placeholder/kart-cover.webp"
     ],
@@ -500,6 +518,7 @@
     "price": 25.00,
     "currency": "USD",
     "featured": true,
+    "discount": 0.1,
     "images": [
       "/assets/images/placeholder/decal-kit.webp"
     ],
