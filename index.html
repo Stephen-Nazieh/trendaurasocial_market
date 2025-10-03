@@ -62,7 +62,21 @@
         display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;  
         overflow: hidden; text-overflow: ellipsis;
     }
+    
+    /* Discount Price Styling */
+    .price-container {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
     .price { font-size: 1.5rem; font-weight: 700; color: #34d399; }
+    .original-price {
+        font-size: 1rem;
+        text-decoration: line-through;
+        color: #9ca3af; /* Gray text for crossed-out price */
+    }
+    /* End Discount Price Styling */
+    
     .rating { color: #facc15; font-size: 1rem; }
 
     /* --- Action Buttons (Cart/Wishlist) --- */
@@ -208,6 +222,36 @@
         </svg>
     `;
 
+    // === DISCOUNT LOGIC FUNCTION ===
+    /**
+     * Calculates the final price based on defined business rules.
+     * @param {Object} product - The product object with 'price' and 'id'.
+     * @returns {{finalPrice: number, isDiscounted: boolean}}
+     */
+    function calculateDiscountedPrice(product) {
+        let finalPrice = product.price;
+        let isDiscounted = false;
+
+        // Rule 1: Fixed $50 discount for a specific high-value product (ID or 'Pro' in title)
+        if (product.id === 'GOKART-003' || product.title.includes('Pro')) { 
+            finalPrice -= 50;
+            isDiscounted = true;
+        }
+
+        // Rule 2: 10% discount for all items over $1200
+        if (finalPrice >= 1200) {
+            finalPrice *= 0.90;
+            isDiscounted = true;
+        }
+        
+        // Ensure price doesn't go below zero and round to two decimal places
+        finalPrice = Math.max(0, finalPrice);
+        finalPrice = parseFloat(finalPrice.toFixed(2));
+
+        return { finalPrice: finalPrice, isDiscounted: isDiscounted };
+    }
+
+
     // Render products: Cart button uses only icon, Wishlist button uses colorable heart
     function renderProducts(products, targetId) {
       const container = document.getElementById(targetId);
@@ -220,7 +264,8 @@
 
       const html = products.map(p => {
         const isWished = wishlist.some(item => item.id === p.id) ? 'wished' : '';
-        
+        const { finalPrice, isDiscounted } = calculateDiscountedPrice(p);
+
         return `
           <div class="product-card">
             <a href="product.html?slug=${encodeURIComponent(p.slug)}" class="product-media">
@@ -237,7 +282,15 @@
               <p class="product-desc line-clamp-2">${escapeHtml(p.description)}</p>
               
               <div class="product-actions flex items-center justify-between pt-2 border-t border-gray-100">
-                  <span class="price">$${p.price.toFixed(2)}</span>
+                  <!-- PRICE DISPLAY WITH DISCOUNT LOGIC -->
+                  <div class="price-container">
+                    ${isDiscounted 
+                        ? `<span class="original-price">$${p.price.toFixed(2)}</span><span class="price">$${finalPrice.toFixed(2)}</span>`
+                        : `<span class="price">$${p.price.toFixed(2)}</span>`
+                    }
+                  </div>
+                  <!-- END PRICE DISPLAY -->
+
                   <div class="flex items-center gap-2">
                       <!-- Cart icon used instead of text "Add to Cart" -->
                       <button class="add-to-cart-btn" onclick="addToCart(this, '${p.id}')" aria-label="Add to Cart">
@@ -266,6 +319,10 @@
       localStorage.setItem('cart', JSON.stringify(cart));
       updateCartCountDisplay(); 
     }
+
+    /**
+     * Adds an item to the cart, calculates the final price, and saves it.
+     */
     function addToCart(buttonElement, id) {
       // Original content is the icon (🛒)
       const originalContent = buttonElement.innerHTML;
@@ -279,13 +336,20 @@
         .then(products => {
           const product = products.find(p => p.id === id);
           if (!product) return;
+
+          // CALCULATE DISCOUNTED PRICE BEFORE SAVING
+          const { finalPrice } = calculateDiscountedPrice(product);
+          
           const cart = getCart();
           const existing = cart.find(item => item.id === id);
           
           if (existing) {
             existing.quantity = (existing.quantity || 1) + 1;
+            // IMPORTANT: Update price on re-add to capture current discount
+            existing.calculatedPrice = finalPrice; 
           } else {
-            cart.push({ ...product, quantity: 1 });
+            // Add the calculatedPrice field to the cart item
+            cart.push({ ...product, quantity: 1, calculatedPrice: finalPrice });
           }
           saveCart(cart);
 
@@ -310,7 +374,7 @@
         });
     }
 
-    // --- Wishlist Helpers ---
+    // --- Wishlist Helpers (No Change) ---
     function getWishlist() {
       try { return JSON.parse(localStorage.getItem('wishlist') || '[]'); }
       catch (e) { return []; }
@@ -360,9 +424,6 @@
             }, 1000);
 
           } 
-          // Note: If alreadyWished is true, we should have already returned above, but if somehow 
-          // the class wasn't applied yet, this block handles the save. Since we want permanent red, 
-          // we don't allow un-wishing here.
         })
         .catch(error => {
             console.error("Error fetching products for wishlist:", error);
@@ -371,7 +432,7 @@
         });
     }
 
-    // --- Search Logic ---
+    // --- Search Logic (No Change) ---
     function redirectToShopSearch(searchTerm) {
       if (searchTerm) {
         window.location.href = `shop.html?search=${encodeURIComponent(searchTerm)}`;
@@ -445,13 +506,13 @@
             const subs = [...categoriesMap[primary]]
                 .filter(Boolean) 
                 .map(sub => `
-              <a class="btn small text-sm" 
+              <a class="btn small text-sm bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-2 px-4 rounded-lg transition" 
                  href="shop.html?primaryCategory=${encodeURIComponent(primary)}${sub !== primary ? `&subcategory=${encodeURIComponent(sub)}` : ''}">
                 ${escapeHtml(sub)}
               </a>`).join(" ");
 
             return `
-              <div class="p-6 bg-white rounded-xl shadow-lg">
+              <div class="p-6 bg-white rounded-xl shadow-lg border border-gray-100">
                 <h3 class="text-xl font-bold text-gray-700 mb-4">${escapeHtml(primary)}</h3>
                 <div class="flex flex-wrap gap-3">
                   ${subs}
