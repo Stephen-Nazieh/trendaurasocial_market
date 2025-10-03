@@ -20,7 +20,7 @@ body { font-family: 'Inter', sans-serif; background-color: #f7fafc; }
 .hero h2 { font-size: 3rem; font-weight: 700; margin-bottom: 0.5rem; }
 .hero p { font-size: 1.25rem; margin-bottom: 1.5rem; }
 .container { max-width: 1200px; margin: 0 auto; padding: 2rem 1.5rem; }
-.container h2 { font-size: 2rem; font-weight: 700; color: #1f2937; margin-bottom: 1.5rem; border-bottom: 2px solid #e5e7eb; padding-bottom: 0.5rem; }
+.section-title { font-size: 2rem; font-weight: 700; color: #1f2937; margin-bottom: 1.5rem; border-bottom: 2px solid #e5e7eb; padding-bottom: 0.5rem; }
 
 /* Search Bar Styling */
 .search-bar-hero { margin-top: 2rem; width: 100%; max-width: 600px; margin-left: auto; margin-right: auto; }
@@ -39,25 +39,7 @@ padding: 10px; cursor: pointer; font-size: 0.9rem; color: #4b5563; border-bottom
 }
 .autocomplete-list li:hover, .autocomplete-list li.active { background-color: #e5e7eb; } 
 
-/* --- TAB STYLING (Reused from shop.html) --- */
-.tab-button {
-    flex-shrink-0;
-    padding: 1rem 1.5rem;
-    font-weight: 600;
-    color: #4b5563; /* text-gray-600 */
-    transition: color 0.2s, border-color 0.2s;
-    border-bottom-width: 2px;
-    border-color: transparent;
-    cursor: pointer;
-}
-.tab-button:hover {
-    color: #34d399; /* hover:text-green-500 */
-}
-/* Active Tab State */
-.tab-button[aria-selected="true"] {
-    color: #34d399; /* text-green-500 */
-    border-color: #34d399; /* border-green-500 */
-}
+/* --- Removed Tab Styling (Now unused) --- */
 
 /* Product Grid and Card */
 #featured-products { 
@@ -177,59 +159,29 @@ background-color: #f9fafb !important;
 </div>
 </section>
 
-<!-- MAIN CONTENT WRAPPER: Now contains Tabs for organization -->
+<!-- MAIN CONTENT WRAPPER: Contains Featured Products followed by Categories -->
 <main class="container" id="main">
     
-    <!-- Tab Navigation Bar -->
-    <nav class="flex overflow-x-auto border-b-2 border-gray-200 mb-8" role="tablist">
-        <!-- Tab 1: Featured Products (Default) -->
-        <button
-            id="tab-featured"
-            data-tab-name="featured"
-            class="tab-button"
-            role="tab"
-            aria-controls="content-featured"
-            aria-selected="true"
-            onclick="switchTab('featured')">
-            🔥 Featured Products
-        </button>
-
-        <!-- Tab 2: Shop by Category -->
-        <button
-            id="tab-categories"
-            data-tab-name="categories"
-            class="tab-button"
-            role="tab"
-            aria-controls="content-categories"
-            aria-selected="false"
-            onclick="switchTab('categories')">
-            🛒 Shop by Category
-        </button>
-    </nav>
-    
-    <!-- Tab Content Panels -->
-    <div id="tab-content-wrapper">
-        <!-- Featured Products Content Panel -->
-        <div id="content-featured" data-tab-content="featured" class="tab-content" role="tabpanel" aria-labelledby="tab-featured">
-            <h2 class="text-2xl font-bold text-gray-800 mb-4">Top Rated Go-Karts</h2>
-            <!-- Products will be rendered here -->
-            <div id="featured-products" class="product-grid">
-                <p class='text-center text-gray-500'>Loading featured products...</p>
-            </div> 
-            <div class="mt-8 text-center">
-                <a class="btn bg-gray-200 text-gray-700 py-2 px-4 rounded-lg font-semibold hover:bg-gray-300 transition" href="shop.html?primaryCategory=all">Browse all products</a>
-            </div>
+    <!-- 1. Featured Products Section (Previously Tab Content) -->
+    <section>
+        <h2 class="section-title">Top Rated Go-Karts</h2>
+        <!-- Products will be rendered here -->
+        <div id="featured-products" class="product-grid">
+            <p class='text-center text-gray-500'>Loading featured products...</p>
+        </div> 
+        <div class="mt-8 text-center">
+            <a class="btn bg-gray-200 text-gray-700 py-2 px-4 rounded-lg font-semibold hover:bg-gray-300 transition" href="shop.html?primaryCategory=all">Browse all products</a>
         </div>
+    </section>
 
-        <!-- Shop by Category Content Panel -->
-        <div id="content-categories" data-tab-content="categories" class="tab-content hidden" role="tabpanel" aria-labelledby="tab-categories">
-            <h2 class="text-2xl font-bold text-gray-800 mb-4">Explore Our Catalog</h2>
-            <!-- Categories will be rendered here -->
-            <div id="category-buttons" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                <p class='text-center text-gray-500'>Loading categories...</p>
-            </div>
+    <!-- 2. Shop by Category Section (Moved Content) -->
+    <section class="mt-12">
+        <h2 class="section-title">Explore Our Catalog</h2>
+        <!-- Categories will be rendered here -->
+        <div id="category-buttons" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <p class='text-center text-gray-500'>Loading categories...</p>
         </div>
-    </div>
+    </section>
 
 </main>
 
@@ -240,37 +192,7 @@ background-color: #f9fafb !important;
 <script>
 let allProducts = [];
 
-// --- TAB SWITCHING LOGIC (Reused from shop.html) ---
-/**
- * Switches the active tab content and updates the button styling.
- * @param {string} activeTabName - The name of the tab to activate ('featured' or 'categories').
- */
-function switchTab(activeTabName) {
-    // 1. Hide all content panels
-    document.querySelectorAll('.tab-content').forEach(content => {
-        content.classList.add('hidden');
-        content.setAttribute('aria-hidden', 'true');
-    });
-
-    // 2. Deactivate all tab buttons
-    document.querySelectorAll('.tab-button').forEach(button => {
-        button.setAttribute('aria-selected', 'false');
-    });
-
-    // 3. Show the requested content panel
-    const activeContent = document.querySelector(`[data-tab-content="${activeTabName}"]`);
-    if (activeContent) {
-        activeContent.classList.remove('hidden');
-        activeContent.setAttribute('aria-hidden', 'false');
-    }
-
-    // 4. Activate the requested tab button
-    const activeTabButton = document.querySelector(`[data-tab-name="${activeTabName}"]`);
-    if (activeTabButton) {
-        activeTabButton.setAttribute('aria-selected', 'true');
-    }
-}
-
+// Removed the switchTab function as it is no longer needed.
 
 function escapeHtml(str) { 
 if (!str) return ''; 
@@ -545,9 +467,6 @@ document.addEventListener("DOMContentLoaded", () => {
 document.getElementById('year').textContent = new Date().getFullYear(); 
 updateCartCountDisplay(); 
 
-// Set the default active tab
-switchTab('featured');
-
 const heroSearchInput = document.getElementById('hero-search-input'); 
 const autocompleteList = document.getElementById('hero-autocomplete-list'); 
 
@@ -558,12 +477,12 @@ return res.json();
 }) 
 .then(products => { 
 allProducts = products; 
-// 1. Featured products 
+// 1. Render Featured products 
 const featured = products.filter(p => p.featured).slice(0, 4); 
 featured.sort((a, b) => (b.rating || 0) - (a.rating || 0)); 
 renderProducts(featured, "featured-products"); 
 
-// 2. Category rendering 
+// 2. Render Category buttons
 const categoriesMap = {}; 
 products.forEach(p => { 
 if (!categoriesMap[p.primaryCategory]) { 
